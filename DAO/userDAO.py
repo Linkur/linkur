@@ -27,6 +27,7 @@ class UserDAO:
 
 	def validate_login(self, uname, pw):
 
+		print 'ello'
 		user = None
 		try:
 			collection = self.user_collection
@@ -34,7 +35,6 @@ class UserDAO:
 
 		except Exception as inst:
 			print "error finding user"
-			print inst
 
 		if user is None:
 			print "User not in database"
@@ -49,11 +49,12 @@ class UserDAO:
 			return None
 
 		# User password matches. Return user
+		print "user found"
 		return user
 
 	def add_user(self, modelled_user):
 
-		password_hash = self.make_pw_hash(modelled_user.get_password())
+		password_hash = self.make_pw_hash(modelled_user.password)
 
 		user = {
 					'_id' : modelled_user.id,

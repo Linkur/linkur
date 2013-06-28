@@ -10,6 +10,7 @@ class User:
 		self.id = email
 		self.password = password
 		self.name = name
+		self.groups = []
 
 	def __str__(self):
 		return {

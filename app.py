@@ -2,6 +2,7 @@ __author__ = 'raghothams'
 
 from flask import Flask
 from flask import request
+from flask import make_response
 from flask.ext.pymongo import PyMongo
 from pymongo import Connection
 
@@ -14,6 +15,9 @@ from model.user import User
 from model.post import Post
 
 import json
+import cgi
+import re
+
 
 app = Flask(__name__)
 mongo = PyMongo(app)
@@ -45,9 +49,9 @@ def user_signup():
 			errors['username_error'] = "Username already in use. Please choose another"
 			# return bottle.template("index", signup_errors = errors, batch_list = result)
 
-		session_id = sessionDAO.start_session(username)
-		print session_id
-		bottle.response.set_cookie("session", session_id)
+		session_id = sessionDAO.start_session(email)
+		response = make_response()
+		response.set_cookie("session", session_id)
 		return "signup success"
 	else:
 		print "user did not validate"
@@ -56,29 +60,48 @@ def user_signup():
 
 
 @app.route('/signin', methods=['POST'])
-def user_signin():
-	username = request.form['username']
+def user_login():
+
+	username = request.form['email']
 	password = request.form['password']
 
 	user_record = userDAO.validate_login(username, password)
+	
 	if user_record:
 		session_id = sessionDAO.start_session(user_record['_id'])
 
 		if session_id is None:
 			return "Internal Error"
 		
-		cookie = session_id
-		response.set_cookie("session",cookie)
+		response = make_response()
+		response.set_cookie("session",session_id)
 
-		return response
+		return session_id
+	else:
+		return "fail"
 	
 
-@app.route('/posts', methods=['GET'])
+@app.route('/post', methods=['GET'])
 def get_recent_posts():
 	
-	user = userDAO.get_user_by_id('tester')
-	groups = user['groups']
-	posts = postDAO.get_recent_posts(groups[0])
+	userid = None
+	cookies = request.cookies
+	if 'session' in cookies:
+		print "cookie : ",cookie
+		userid = sessionDAO.get_userid(cookie)  # see if user is logged in
+		print "user : ",userid
+		
+	else:
+		print "no cookie set"	
+
+
+	
+	if cookie != None:
+		
+
+	user = userDAO.get_user_by_id(userid)
+	# groups = user['groups']
+	posts = postDAO.get_recent_posts("test_group")
 	wrapped_response = ResponseWrapper()
 
 	json_result = None
@@ -86,18 +109,25 @@ def get_recent_posts():
 	if posts != None :
 		wrapped_response.set_data(posts)
 		wrapped_response.set_error(False)
-		json_result = json.dumps(wrapped_response, default=ResponseWrapper.__str__)
 	
 	else:
 		wrapped_response.set_error(True)
-		json_result = json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+	print(json_result)
+	json_result = json.dumps(wrapped_response, default=ResponseWrapper.__str__)
 
 	return 	json_result
 
 @app.route('/post', methods=['POST'])
 def insert_new_post():
 
-	print 'in poster'
+	cookie = request.cookies["session"]
+	
+	print "cookie : ",cookie
+	if cookie != None:
+		userid = sessionDAO.get_userid(cookie)  # see if user is logged in
+		print "user : ",userid
+
+	user = userDAO.get_user_by_id(userid)
 	post = Post()
 
 	form_data = request.form['data']
@@ -109,6 +139,7 @@ def insert_new_post():
 	post.category = json_data['category']
 	post.tags = json_data['tags']
 	post.group = json_data['group']
+	post.added_by = user.name
 
 	print post.db_serializer()
 	result = postDAO.insert_post(post);
