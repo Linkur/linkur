@@ -72,7 +72,7 @@ class SessionDAO:
         if session is None:
             return None
         else:
-            return session['username']
+            return session['userid']
 
     def get_random_str(self, num_chars):
         random_string = ""

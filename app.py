@@ -74,9 +74,9 @@ def user_login():
 			return "Internal Error"
 		
 		response = make_response()
-		response.set_cookie("session",session_id)
+		response.set_cookie("session", value=session_id)
 
-		return session_id
+		return response
 	else:
 		return "fail"
 	
@@ -87,17 +87,12 @@ def get_recent_posts():
 	userid = None
 	cookies = request.cookies
 	if 'session' in cookies:
-		print "cookie : ",cookie
-		userid = sessionDAO.get_userid(cookie)  # see if user is logged in
+		print "cookie : ",cookies['session']
+		userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
 		print "user : ",userid
-		
+
 	else:
-		print "no cookie set"	
-
-
-	
-	if cookie != None:
-		
+		print "no cookie set"
 
 	user = userDAO.get_user_by_id(userid)
 	# groups = user['groups']
@@ -128,6 +123,7 @@ def insert_new_post():
 		print "user : ",userid
 
 	user = userDAO.get_user_by_id(userid)
+	print user.__str__()
 	post = Post()
 
 	form_data = request.form['data']

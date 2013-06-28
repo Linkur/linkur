@@ -80,7 +80,9 @@ class UserDAO:
 		user = None
 		try:
 			collection = self.user_collection
-			user = collection.find_one({"_id":uname})
+			user_record = collection.find_one({"_id":uname})
+			
+			user = User(user_record['_id'], user_record['password'], user_record['name'])
 
 		except Exception as inst:
 			print "error finding user"
