@@ -10,6 +10,7 @@ from DAO.userDAO import UserDAO
 from DAO.sessionDAO import SessionDAO
 
 from model.responseWrapper import ResponseWrapper
+from model.user import User
 from model.post import Post
 
 import json
@@ -26,7 +27,7 @@ sessionDAO = SessionDAO(db)
 # @app.route('/')
 # def home_page():
 
-@app.route('/singup', methods=['POST'])
+@app.route('/signup', methods=['POST'])
 def user_signup():
 	email = request.form['email']
 	password = request.form['password']
@@ -38,19 +39,20 @@ def user_signup():
 	if validate_signup(name, password, verify, email, errors):
 
 		#create a modelled user
-		temp_user = User(email, username, password, batch, user_type)
-		if not users.add_user(temp_user):
+		temp_user = User(email, password, name)
+		if not userDAO.add_user(temp_user):
 			# this was a duplicate
 			errors['username_error'] = "Username already in use. Please choose another"
-			return bottle.template("index", signup_errors = errors, batch_list = result)
+			# return bottle.template("index", signup_errors = errors, batch_list = result)
 
-		session_id = sessions.start_session(username)
+		session_id = sessionDAO.start_session(username)
 		print session_id
 		bottle.response.set_cookie("session", session_id)
-		bottle.redirect("/welcome.html")
+		return "signup success"
 	else:
 		print "user did not validate"
-		return bottle.template("index", signup_errors = errors, batch_list = result)
+		return "signup fail"
+		# return bottle.template("index", signup_errors = errors, batch_list = result)
 
 
 @app.route('/signin', methods=['POST'])
