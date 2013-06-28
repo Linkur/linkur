@@ -49,13 +49,11 @@ class PostDAO:
 
 		return modelled_post_list
 
-	def put_post(self, title, link, category, tags, user, group):
+	def insert_post(self, post_obj):
 
-		modelled_post = Post()
-		modelled_post.title = title
-		modelled_post.link = link
-		modelled_post.category = category
-		modelled_post.tags = tags
-		modelled_post.user = user
-		modelled_post.group = group
+		collection = self.recent_collection
 
+		to_insert = post_obj.db_serializer()
+		result = collection.insert(to_insert)
+
+		return result

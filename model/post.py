@@ -37,7 +37,7 @@ class Post:
 		}
 
 	# Use this to serialize the DB input
-	def __db__(self):
+	def db_serializer(self):
 		return {
 			'date' : datetime.datetime.utcnow(),
 			'title' : self.title,

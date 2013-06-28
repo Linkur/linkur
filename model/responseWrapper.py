@@ -16,12 +16,13 @@ class ResponseWrapper:
 
 	def get_stringified_data(self):
 		results = []
-		for item in self.data:
-			serialized = item.__str__()
-			
-			results.append(serialized)
-
-		return results
+		if len(self.data) > 0 :
+			for item in self.data:
+				serialized = item.__str__()
+				results.append(serialized)
+			return results
+		else:
+			return ""
 
 	def __str__(self):
 		
