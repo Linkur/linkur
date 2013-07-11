@@ -13,6 +13,7 @@ from DAO.sessionDAO import SessionDAO
 from model.responseWrapper import ResponseWrapper
 from model.user import User
 from model.post import Post
+from model.category import Category
 
 import json
 import cgi
@@ -51,7 +52,7 @@ def user_signup():
 
 		session_id = sessionDAO.start_session(email)
 		response = make_response()
-		response.set_cookie("session", session_id)
+		response.set_cookie("session", value=session_id)
 		return "signup success"
 	else:
 		print "user did not validate"
@@ -148,6 +149,20 @@ def insert_new_post():
 
 	return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
+@app.route('/category', methods=['GET'])
+def get_categories():
+
+	cookie = request.cookies["session"]
+	
+	print "cookie : ",cookie
+	if cookie != None:
+		userid = sessionDAO.get_userid(cookie)  # see if user is logged in
+		print "user : ",userid
+
+	user = userDAO.get_user_by_id(userid)
+	print user.__str__()
+
+
 # Helper Functions
 
 # validates that the user information is valid for new signup, return True of False
@@ -177,6 +192,21 @@ def validate_signup(username, password, verify, email, errors):
             errors['email_error'] = "invalid email address"
             return False
     return True
+
+# validates cookie and check if user is valid
+def validate_cookie(request):
+	cookie = request.cookies["session"]
+	
+	print "cookie : ",cookie
+	if cookie != None:
+		userid = sessionDAO.get_userid(cookie)  # see if user is logged in
+		print "user : ",userid
+		if userid != None:
+			user = userDAO.get_user_by_id(userid)
+			print user.__str__()
+			if user != None:
+				return user
+	return None
 
 if __name__ == '__main__':
 	app.run(debug=True)
