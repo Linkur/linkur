@@ -9,6 +9,7 @@ from pymongo import Connection
 from DAO.postDAO import PostDAO
 from DAO.userDAO import UserDAO
 from DAO.sessionDAO import SessionDAO
+from DAO.categoryDAO import CategoryDAO
 
 from model.responseWrapper import ResponseWrapper
 from model.user import User
@@ -29,6 +30,8 @@ db = connection.sharurl
 postDAO = PostDAO(db)
 userDAO = UserDAO(db)
 sessionDAO = SessionDAO(db)
+categoryDAO = CategoryDAO(db)
+
 # @app.route('/')
 # def home_page():
 
@@ -152,15 +155,21 @@ def insert_new_post():
 @app.route('/category', methods=['GET'])
 def get_categories():
 
-	cookie = request.cookies["session"]
-	
-	print "cookie : ",cookie
-	if cookie != None:
-		userid = sessionDAO.get_userid(cookie)  # see if user is logged in
-		print "user : ",userid
+	user = validate_cookie(request)
+	if user != None:
+		# process things
+		result = categoryDAO.get_categories()
+		responseWrapper = ResponseWrapper()
+		if result != None:
+			responseWrapper.set_error(False)
+			responseWrapper.set_data(result)
+		else:
+			responseWrapper.set_error(True)
 
-	user = userDAO.get_user_by_id(userid)
-	print user.__str__()
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+	else:
+		# redirect to log in screen later
+		return "Please sign in"
 
 
 # Helper Functions
