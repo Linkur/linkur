@@ -1,5 +1,6 @@
 __author__ = 'raghothams'
 from model.category import Category
+from bson import ObjectId
 
 class CategoryDAO:
 
@@ -17,7 +18,8 @@ class CategoryDAO:
 			for result in results:
 				print result['name']
 				category = Category()
-				category.id = result["_id"]
+				obj_id = result["_id"]
+				category.id = str(obj_id)
 				category.name = result["name"]
 				category_list.append(category)
 

@@ -28,7 +28,7 @@ class ResponseWrapper:
 		
 		jsoned = {
 					'error' : self.error,
-					# 'data' : json.dumps(self.data, default = classname.__str__)
+					# 'data' : json.dumps(self.data, default=json_util.default)
 					'data' : self.get_stringified_data()
 				}
 		
