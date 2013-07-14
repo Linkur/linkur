@@ -11,6 +11,6 @@ sharURL is a place where anyone in your "group" can post a link and its visible 
 
 ##Pre-prequisites
 * python 2.7
-    * pymongo
+    * Flask-pymongo
     * Flask
 * mongo
