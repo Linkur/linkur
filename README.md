@@ -14,3 +14,10 @@ sharURL is a place where anyone in your "group" can post a link and its visible 
     * Flask-pymongo
     * Flask
 * mongo
+
+##Running it
+    $virtualenv env
+    $source env/bin/activate
+    $pip install -r requirments.txt
+    $mongod &
+    $python app.py 
