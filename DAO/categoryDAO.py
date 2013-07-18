@@ -26,3 +26,12 @@ class CategoryDAO:
 			return category_list
 		else:
 			return None
+
+	def insert_category(self, category_obj):
+
+		collection = self.categories
+		to_insert = category_obj.db_serializer()
+
+		result = collection.insert(to_insert)
+
+		return result

@@ -171,6 +171,27 @@ def get_categories():
 		# redirect to log in screen later
 		return "Please sign in"
 
+@app.route('/category', methods=['POST'])
+def insert_catergory():
+	user = validate_cookie(request)
+	if user != None:
+		category = Category()
+
+		form_data = request.form['data']
+		json_data = json.loads(form_data)
+		category.name = json_data['category_name']
+		result = categoryDAO.insert_category(category)
+
+		responseWrapper = ResponseWrapper()
+		if result != None:
+			responseWrapper.set_error(False)
+		else:
+			responseWrapper.set_error(True)
+
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+	else:
+		# TODO redirect to login page
+		return "please login"
 
 # Helper Functions
 

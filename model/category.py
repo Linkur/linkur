@@ -17,3 +17,8 @@ class Category:
 			'_id' : self.id,
 			'name' : self.name
 		}
+
+	def db_serializer(self):
+		return {
+			'name' : self.name
+		}
