@@ -266,6 +266,35 @@ def create_user_groups():
 		# TODO redirect to login page
 		return "please login"
 
+@app.route('/invite/<group_id>', methods=['POST'])
+def accept_group_invite(group_id):
+	# check for cookie
+	# check group collection for group id
+	# if exists, append group object to table
+	# else throw error
+
+	user = validate_cookie(request)
+	if user != None:
+		group_obj = groupDAO.get_group_by_id(str(group_id))
+		if group_obj != None:
+			result = userDAO.append_group(user.id,group_obj)
+			print result
+
+			responseWrapper = ResponseWrapper()
+			if result != None:
+				responseWrapper.set_error(False)
+				responseWrapper.set_data(result)
+			else:
+				responseWrapper.set_error(True)
+
+			return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+		else:
+			return {"error":True,"data":"Group not found"}
+	else:
+		# TODO redirect to login page
+		return "please login"
+
+
 # Helper Functions
 
 # validates that the user information is valid for new signup, return True of False

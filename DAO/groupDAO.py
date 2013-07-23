@@ -12,13 +12,18 @@ class GroupDAO:
 		# get group document from db
 
 		collection = self.collection
+		group_id = ObjectId(group_id)
 		result = collection.find_one({"_id": group_id});
 
-		group = Group()
-		group.id = result["_id"]
-		group.name = result["name"]
+		if result != None:
+			group = Group()
+			group.id = group_id
+			print group.id
+			group.name = result["name"]
 
-		return group
+			return group
+		else:
+			return None
 
 
 	def insert_group(self, group_obj):
