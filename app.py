@@ -15,6 +15,7 @@ from model.responseWrapper import ResponseWrapper
 from model.user import User
 from model.post import Post
 from model.category import Category
+from model.group import Group
 
 import json
 import cgi
@@ -207,6 +208,30 @@ def get_user_groups(userid):
 			responseWrapper.set_error(True)
 
 		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+	else:
+		# TODO redirect to login page
+		return "please login"
+
+@app.route('user/<userid>/group', methods=['POST'])
+def append_user_groups(userid):
+	user = validate_cookie(request)
+	if user != None:
+		# TODO
+		form_data = request.form['data']
+		json_data = json.loads(form_data)
+		group = Group()
+		group.id = json_data['_id']
+		group.name = json_data['group_name']
+		result = userDAO.append_group(userid,group)
+
+		if result != None:
+			responseWrapper.set_error(False)
+			responseWrapper.set_data(result)
+		else:
+			responseWrapper.set_error(True)
+
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+
 	else:
 		# TODO redirect to login page
 		return "please login"
