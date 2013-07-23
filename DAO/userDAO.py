@@ -84,6 +84,7 @@ class UserDAO:
 			user_record = collection.find_one({"_id":uname})
 			
 			user = User(user_record['_id'], user_record['password'], user_record['name'])
+			user.groups = user_record['groups']
 
 		except Exception as inst:
 			print "error finding user"
@@ -98,25 +99,28 @@ class UserDAO:
 	def get_groups(self, uname):
 		# get all groups for this user
 		group = None
+		user_groups = None
 		try:
-			collection = self.collection
-			user_groups = collection.find({'_id':uname},{groups=True})
+			collection = self.user_collection
+			user_groups = collection.find_one({'_id':uname},{"groups":True})
 		except Exception as inst:
 			print "error reading groups"
 			print inst
 
 		if user_groups != None:
+			
 			group_cursor = user_groups["groups"]
 			groups = []
 
 			for item in group_cursor:
+				print item
 				group = Group()
-				group.id = item["_id"]
+				group.id = str(item["_id"])
 				group.name = item["name"]
 
 				groups.append(group)
 
-			return [groups]
+			return groups
 		else:
 			return None
 

@@ -195,11 +195,11 @@ def insert_catergory():
 		# TODO redirect to login page
 		return "please login"
 
-@app.route('/user/<userid>/group', methods=['GET'])
-def get_user_groups(userid):
+@app.route('/user/group', methods=['GET'])
+def get_user_groups():
 	user = validate_cookie(request)
 	if user != None:
-		groups = userDAO.get_groups(userid)
+		groups = userDAO.get_groups(user.id)
 		responseWrapper = ResponseWrapper()
 		if groups != None:
 			responseWrapper.set_error(False)
@@ -212,8 +212,8 @@ def get_user_groups(userid):
 		# TODO redirect to login page
 		return "please login"
 
-@app.route('user/<userid>/group', methods=['POST'])
-def append_user_groups(userid):
+@app.route('/user/group', methods=['POST'])
+def append_user_groups():
 	user = validate_cookie(request)
 	if user != None:
 		# TODO
@@ -222,7 +222,7 @@ def append_user_groups(userid):
 		group = Group()
 		group.id = json_data['_id']
 		group.name = json_data['group_name']
-		result = userDAO.append_group(userid,group)
+		result = userDAO.append_group(user.id,group)
 
 		if result != None:
 			responseWrapper.set_error(False)
