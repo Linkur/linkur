@@ -266,7 +266,7 @@ def create_user_groups():
 		# TODO redirect to login page
 		return "please login"
 
-@app.route('/invite/<group_id>', methods=['POST'])
+@app.route('/acceptInvite/<group_id>', methods=['GET'])
 def accept_group_invite(group_id):
 	# check for cookie
 	# check group collection for group id
@@ -277,8 +277,14 @@ def accept_group_invite(group_id):
 	if user != None:
 		group_obj = groupDAO.get_group_by_id(str(group_id))
 		if group_obj != None:
-			result = userDAO.append_group(user.id,group_obj)
-			print result
+			#  check if group is already part for the user
+			group_exists = userDAO.does_group_exist(user.id,group_obj)
+			result = None
+			if !group_exists:
+				# result = userDAO.append_group(user.id,group_obj)
+				# print result
+			else:
+				return "group already part of user"
 
 			responseWrapper = ResponseWrapper()
 			if result != None:
@@ -294,6 +300,20 @@ def accept_group_invite(group_id):
 		# TODO redirect to login page
 		return "please login"
 
+# @app.route('/invite/<group_id>', methods=['GET'])
+# def generate_group_invite(group_id):
+
+# 	user = validate_cookie(request)
+# 	if user != None:
+# 		group_obj = groupDAO.get_group_by_id(str(group_id))
+# 		if group_obj != None:
+# 			invite_url = request.url_root + str(group_id)
+# 			return invite_url
+# 		else:
+# 			return "no such group"
+# 	else:
+# 		# TODO redirect to login page
+# 		return "please login"
 
 # Helper Functions
 
