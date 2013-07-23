@@ -27,5 +27,5 @@ class GroupDAO:
 		collection = self.collection
 		to_insert = group_obj.db_serializer()
 		result = collection.insert(to_insert)
-
+		print result
 		return result

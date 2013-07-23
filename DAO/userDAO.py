@@ -127,15 +127,15 @@ class UserDAO:
 
 	def append_group(self, uname, group_obj):
 		# append this group to the groups array of the user document
-		collection = self.collection
-		group = group.__str__()
+		collection = self.user_collection
+		group = group_obj.__str__()
 		try:
 			result = collection.update({"_id":uname},{"$push":{"groups":group}})
 		except Exception as inst:
 			print "error updating DB"
 			print inst
 
-		return result
+		return "Success"
 
 
 

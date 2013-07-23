@@ -10,6 +10,7 @@ from DAO.postDAO import PostDAO
 from DAO.userDAO import UserDAO
 from DAO.sessionDAO import SessionDAO
 from DAO.categoryDAO import CategoryDAO
+from DAO.groupDAO import GroupDAO
 
 from model.responseWrapper import ResponseWrapper
 from model.user import User
@@ -32,6 +33,7 @@ postDAO = PostDAO(db)
 userDAO = UserDAO(db)
 sessionDAO = SessionDAO(db)
 categoryDAO = CategoryDAO(db)
+groupDAO = GroupDAO(db)
 
 # @app.route('/')
 # def home_page():
@@ -139,12 +141,12 @@ def insert_new_post():
 	post.link = json_data['link']
 	post.category = json_data['category']
 	post.tags = json_data['tags']
-	post.group = json_data['group']
+	post.group = json_data['groups']
 	post.added_by = user.name
 
 	print post.db_serializer()
 	result = postDAO.insert_post(post);
-	
+	print result
 	responseWrapper = ResponseWrapper()
 	if result != None:
 		responseWrapper.set_error(False)
@@ -223,7 +225,8 @@ def append_user_groups():
 		group.id = json_data['_id']
 		group.name = json_data['group_name']
 		result = userDAO.append_group(user.id,group)
-
+		print result
+		responseWrapper = ResponseWrapper()
 		if result != None:
 			responseWrapper.set_error(False)
 			responseWrapper.set_data(result)
@@ -236,6 +239,32 @@ def append_user_groups():
 		# TODO redirect to login page
 		return "please login"
 	
+@app.route('/group', methods=['POST'])
+def create_user_groups():
+	user = validate_cookie(request)
+	if user != None:
+		# TODO
+		form_data = request.form['data']
+		json_data = json.loads(form_data)
+		group = Group()
+		group.name = json_data['group_name']
+
+		new_group_id = groupDAO.insert_group(group)
+		group.id = new_group_id
+		result = userDAO.append_group(user.id,group)
+		print result
+
+		responseWrapper = ResponseWrapper()
+		if result != None:
+			responseWrapper.set_error(False)
+			responseWrapper.set_data(result)
+		else:
+			responseWrapper.set_error(True)
+
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+	else:
+		# TODO redirect to login page
+		return "please login"
 
 # Helper Functions
 
