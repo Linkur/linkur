@@ -1,6 +1,7 @@
 __author__ = 'raghothams'
 
 from model.user import User
+from model.group import Group
 # import hmac
 import pymongo
 import hashlib
@@ -93,3 +94,44 @@ class UserDAO:
 			return None
 		else:
 			return user
+
+	def get_groups(self, uname):
+		# get all groups for this user
+		group = None
+		try:
+			collection = self.collection
+			user_groups = collection.find({'_id':uname},{groups=True})
+		except Exception as inst:
+			print "error reading groups"
+			print inst
+
+		if user_groups != None:
+			group_cursor = user_groups["groups"]
+			groups = []
+
+			for item in group_cursor:
+				group = Group()
+				group.id = item["_id"]
+				group.name = item["name"]
+
+				groups.append(group)
+
+			return [groups]
+		else:
+			return None
+
+
+	def append_group(self, uname, group_obj):
+		# append this group to the groups array of the user document
+		collection = self.collection
+		group = group.__str__()
+		try:
+			result = collection.update({"_id":uname},{"$push":{"groups":group}})
+		except Exception as inst:
+			print "error updating DB"
+			print inst
+
+		return result
+
+
+

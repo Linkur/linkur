@@ -185,6 +185,7 @@ def insert_catergory():
 		responseWrapper = ResponseWrapper()
 		if result != None:
 			responseWrapper.set_error(False)
+			responseWrapper.set_data(result)
 		else:
 			responseWrapper.set_error(True)
 
@@ -192,6 +193,24 @@ def insert_catergory():
 	else:
 		# TODO redirect to login page
 		return "please login"
+
+@app.route('/user/<userid>/group', methods=['GET'])
+def get_user_groups(userid):
+	user = validate_cookie(request)
+	if user != None:
+		groups = userDAO.get_groups(userid)
+		responseWrapper = ResponseWrapper()
+		if groups != None:
+			responseWrapper.set_error(False)
+			responseWrapper.set_data(groups)
+		else:
+			responseWrapper.set_error(True)
+
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+	else:
+		# TODO redirect to login page
+		return "please login"
+	
 
 # Helper Functions
 
