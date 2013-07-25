@@ -140,13 +140,15 @@ class UserDAO:
 	def does_group_exist(self, uname, group_obj):
 		collection = self.user_collection
 		result = None
+		print group_obj.id
 		try:
-			result = collection.find({"_id":uname, "groups._id":group_obj.id})
+			result = collection.find_one({"_id":uname, "groups._id":group_obj.id})
 		except Exception as inst:
 			print "error updating DB"
 			print inst
 		if 	result != None:
 			# do something
+			print(result['_id'])
 			return True
 		else:
 			return False

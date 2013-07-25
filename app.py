@@ -285,9 +285,10 @@ def accept_group_invite(invite_hash):
 		if group_obj != None:
 			#  check if group is already part for the user
 			group_exists = userDAO.does_group_exist(user.id,group_obj)
+			print "group exists", group_exists
 			result = None
 			if group_exists == False:
-				# result = userDAO.append_group(user.id,group_obj)
+				result = userDAO.append_group(user.id,group_obj)
 				print "result"
 			else:
 				return "group already part of user"
