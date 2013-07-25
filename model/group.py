@@ -8,14 +8,17 @@ class Group:
 	def __init__(self):
 		self.id = None
 		self.name = None
+		self.hash = None
 
 	def __str__(self):
 		return {
 			'_id' : self.id,
-			'name' : self.name
+			'name' : self.name,
+			'hash' : self.hash
 		}
 
 	def db_serializer(self):
 		return {
-			'name': self.name
+			'name': self.name,
+			'hash': self.hash
 		}

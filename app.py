@@ -1,5 +1,5 @@
 __author__ = 'raghothams'
-
+#change just to try stash
 from flask import Flask
 from flask import request
 from flask import make_response
@@ -266,8 +266,8 @@ def create_user_groups():
 		# TODO redirect to login page
 		return "please login"
 
-@app.route('/acceptInvite/<group_id>', methods=['GET'])
-def accept_group_invite(group_id):
+@app.route('/acceptInvite/<invite_hash>', methods=['GET'])
+def accept_group_invite(invite_hash):
 	# check for cookie
 	# check group collection for group id
 	# if exists, append group object to table
@@ -275,14 +275,14 @@ def accept_group_invite(group_id):
 
 	user = validate_cookie(request)
 	if user != None:
-		group_obj = groupDAO.get_group_by_id(str(group_id))
+		group_obj = groupDAO.get_group_by_hash(str(invite_hash))
 		if group_obj != None:
 			#  check if group is already part for the user
 			group_exists = userDAO.does_group_exist(user.id,group_obj)
 			result = None
-			if !group_exists:
+			if group_exists == False:
 				# result = userDAO.append_group(user.id,group_obj)
-				# print result
+				print "result"
 			else:
 				return "group already part of user"
 
