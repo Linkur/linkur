@@ -1,6 +1,7 @@
 __author__ = 'raghothams'
 
 from model.post import Post
+import datetime
 
 class PostDAO:
 
@@ -9,21 +10,20 @@ class PostDAO:
 		self.recent_collection = self.db.new
 		self.achived_collection = self.db.archive
 
-	def get_recent_posts(self, group):
+	def get_recent_posts(self, groupid):
 		
 		collection = self.recent_collection
 		posts = collection.find({
-			'group' : group
+			'group' : groupid
 			})
-		
 		post_list = self.get_modelled_list(posts)
 		return post_list
 
-	def get_archived_posts(self, group):
+	def get_archived_posts(self, groupid):
 
 		collection = self.achived_collection
 		posts = collection.find({
-			'group' : group
+				'group' : groupid
 			})
 
 		post_list = self.get_modelled_list(posts)
@@ -37,14 +37,16 @@ class PostDAO:
 
 			modelled_post = Post()
 			modelled_post.id = post['_id']
-			# modelled_post.date = post['date']
+			print post['date']
+			date_obj = post['date']
+			modelled_post.date = date_obj.isoformat()
 			modelled_post.title = post['title']
 			modelled_post.link = post['link']
 			modelled_post.category = post['category']
 			modelled_post.tags = post['tags']
 			modelled_post.group = post['group']
 			modelled_post.added_by = post['added_by']
-
+			
 			modelled_post_list.append(modelled_post)
 
 		return modelled_post_list
@@ -54,6 +56,7 @@ class PostDAO:
 		collection = self.recent_collection
 
 		to_insert = post_obj.db_serializer()
+		print to_insert
 		result = collection.insert(to_insert)
 
 		return result

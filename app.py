@@ -103,7 +103,7 @@ def get_recent_posts():
 
 	user = userDAO.get_user_by_id(userid)
 	# groups = user['groups']
-	posts = postDAO.get_recent_posts("test_group")
+	posts = postDAO.get_recent_posts("test-group")
 	wrapped_response = ResponseWrapper()
 
 	json_result = None
