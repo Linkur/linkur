@@ -97,27 +97,32 @@ def get_recent_posts():
 		print "cookie : ",cookies['session']
 		userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
 		print "user : ",userid
+		user = userDAO.get_user_by_id(userid)
+		
+		if user != None:
+
+			posts = postDAO.get_recent_posts("test-group")
+			wrapped_response = ResponseWrapper()
+
+			json_result = None
+
+			if posts != None :
+				wrapped_response.set_data(posts)
+				wrapped_response.set_error(False)
+			
+			else:
+				wrapped_response.set_error(True)
+			print(json_result)
+			json_result = json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+
+			return 	json_result
+		else:
+			return "please log in"
 
 	else:
 		print "no cookie set"
 
-	user = userDAO.get_user_by_id(userid)
-	# groups = user['groups']
-	posts = postDAO.get_recent_posts("test-group")
-	wrapped_response = ResponseWrapper()
-
-	json_result = None
-
-	if posts != None :
-		wrapped_response.set_data(posts)
-		wrapped_response.set_error(False)
 	
-	else:
-		wrapped_response.set_error(True)
-	print(json_result)
-	json_result = json.dumps(wrapped_response, default=ResponseWrapper.__str__)
-
-	return 	json_result
 
 @app.route('/post', methods=['POST'])
 def insert_new_post():
@@ -252,12 +257,13 @@ def create_user_groups():
 		new_group_id = groupDAO.insert_group(group)
 		group.id = new_group_id
 		result = userDAO.append_group(user.id,group)
-		print result
 
 		responseWrapper = ResponseWrapper()
 		if result != None:
 			responseWrapper.set_error(False)
-			responseWrapper.set_data(result)
+			new_group_id = str(new_group_id)
+			print new_group_id
+			responseWrapper.set_data([{"group_id":new_group_id}])
 		else:
 			responseWrapper.set_error(True)
 

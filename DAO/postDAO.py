@@ -2,7 +2,7 @@ __author__ = 'raghothams'
 
 from model.post import Post
 import datetime
-import bson.ObjectId
+from bson import ObjectId
 
 class PostDAO:
 
@@ -13,9 +13,9 @@ class PostDAO:
 
 	def get_recent_posts(self, groupid):
 		
-		groupid = ObjectId(groupid)
 		posts = None
 		try:
+			groupid = ObjectId(groupid)
 			collection = self.recent_collection
 			posts = collection.find({
 				'group' : groupid

@@ -50,13 +50,14 @@ class GroupDAO:
 		# do something
 
 		collection = self.collection
-		invite_hash = createInviteHash()
+		invite_hash = self.createInviteHash()
 
 		if invite_hash != None:
-
+			group_obj.hash = invite_hash
 			to_insert = group_obj.db_serializer()
+			print to_insert
 			result = collection.insert(to_insert)
-			print result
+			
 			return result
 
 		else:
@@ -71,7 +72,7 @@ class GroupDAO:
 			randno = random.randint(0,99)
 			randno = str(randno)
 
-			invite_hash = hashlib.sha256(now+randno).hexdigest()
+			invite_hash = hashlib.sha1(now+randno).hexdigest()
 
 		except Exception as inst:
 			print "error generating invite hash"
