@@ -134,6 +134,7 @@ class UserDAO:
 		except Exception as inst:
 			print "error updating DB"
 			print inst
+			return None
 
 		return "Success"
 

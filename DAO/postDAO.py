@@ -59,16 +59,17 @@ class PostDAO:
 			try:
 				modelled_post = Post()
 				modelled_post.id = post['_id']
-				# print post['date']
+
 				date_obj = post['date']
 				modelled_post.date = date_obj.isoformat()
+
 				modelled_post.title = post['title']
 				modelled_post.link = post['link']
 				modelled_post.category = post['category']
 				modelled_post.tags = post['tags']
 				modelled_post.group = post['group']
 				modelled_post.added_by = post['added_by']
-			
+				
 				modelled_post_list.append(modelled_post)
 			except Exception as inst:
 				print "error processing objects"

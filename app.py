@@ -100,8 +100,15 @@ def get_recent_posts():
 		user = userDAO.get_user_by_id(userid)
 		
 		if user != None:
+			print request.args
+			group_id = None
+			try:
+				group_id = request.args["groupId"]
+			except Exception as inst:
+				print "please send groupID as part of url parameter"
+				return "GroupID not supplied as URL param"
 
-			posts = postDAO.get_recent_posts("test-group")
+			posts = postDAO.get_recent_posts(group_id)
 			wrapped_response = ResponseWrapper()
 
 			json_result = None
@@ -289,7 +296,6 @@ def accept_group_invite(invite_hash):
 			result = None
 			if group_exists == False:
 				result = userDAO.append_group(user.id,group_obj)
-				print "result"
 			else:
 				return "group already part of user"
 
