@@ -34,12 +34,22 @@ class PostDAO:
 	def get_archived_posts(self, groupid):
 
 		collection = self.achived_collection
-		posts = collection.find({
+		posts = None
+		try:
+			collection = self.recent_collection
+			posts = collection.find({
 				'group' : groupid
-			})
+				})
 
-		post_list = self.get_modelled_list(posts)
-		return post_list
+		except Exception as inst:
+			print "error reading recent posts"
+			print inst
+
+		if posts != None:
+			post_list = self.get_modelled_list(posts)
+			return post_list
+		else:
+			return None
 
 
 	def get_modelled_list(self, posts):
