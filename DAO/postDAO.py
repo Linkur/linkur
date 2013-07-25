@@ -33,10 +33,10 @@ class PostDAO:
 
 	def get_archived_posts(self, groupid):
 
-		collection = self.achived_collection
 		posts = None
 		try:
-			collection = self.recent_collection
+			groupid = ObjectId(groupid)
+			collection = self.achived_collection
 			posts = collection.find({
 				'group' : groupid
 				})
