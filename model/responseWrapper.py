@@ -19,6 +19,7 @@ class ResponseWrapper:
 		if len(self.data) > 0 :
 			for item in self.data:
 				serialized = item.__str__()
+				print serialized
 				results.append(serialized)
 			return results
 		else:

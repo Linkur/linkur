@@ -2,6 +2,8 @@ __author__ = 'raghothams'
 
 from model.user import User
 from model.group import Group
+from DAO.groupDAO import GroupDAO
+from bson import ObjectId
 # import hmac
 import pymongo
 import hashlib
@@ -76,6 +78,37 @@ class UserDAO:
 			return False
 
 		return True
+
+	def get_user_info(self, uname):
+
+		user = self.get_user_by_id(uname)
+		groups_list = []
+		if user != None:
+			#  get the groups data
+			for group in user.groups:
+				try:
+					groupDAO = GroupDAO(self.db)
+					group_obj = groupDAO.get_group_by_id(str(group['_id']))
+					
+					group_data = {
+						'_id': str(group_obj.id),
+						'name': group_obj.name,
+						'hash': group_obj.hash
+					}
+					groups_list.append(group_data)
+
+				except Exception as inst:
+					print "error readin group data"
+					print inst
+					return None
+
+			user.groups = groups_list
+			return user
+
+		else:
+			print "user not in DB."
+			return "Cannot find User"
+
 
 	def get_user_by_id(self, uname):
 		user = None

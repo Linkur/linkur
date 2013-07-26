@@ -143,7 +143,27 @@ def get_recent_posts():
 	else:
 		print "no cookie set"
 
-	
+@app.route('/userinfo', methods=['GET'])
+def get_userinfo():
+	userid = None
+	cookies = request.cookies
+	if 'session' in cookies:
+		print "cookie : ",cookies['session']
+		userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
+		print "user : ",userid
+		user = userDAO.get_user_info(userid)
+
+		wrapped_response = ResponseWrapper()
+		if user != None:
+			wrapped_response.set_data([user])
+			wrapped_response.set_error(False)
+		else:
+			wrapped_response.set_error(True)
+		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+	else:
+		print "no cookie set"
+		return "login"
+
 
 @app.route('/post', methods=['POST'])
 def insert_new_post():
