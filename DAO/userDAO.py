@@ -82,6 +82,8 @@ class UserDAO:
 	def get_user_info(self, uname):
 
 		user = self.get_user_by_id(uname)
+		user.password = None
+		user.id = None
 		groups_list = []
 		if user != None:
 			#  get the groups data
