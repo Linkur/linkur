@@ -7,7 +7,7 @@ from bson import ObjectId
 	# DATE
 	# TITLE
 	# LINK
-	# CATEGORY
+	# CATEGORY (categoryid) optional
 	# TAGS
 	# GROUP (groupid)
 	# ADDED BY USER (username)

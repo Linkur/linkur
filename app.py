@@ -86,7 +86,21 @@ def user_login():
 		return response
 	else:
 		return "fail"
-	
+
+@app.route('/logout')
+def process_signout():
+	cookies = request.cookies
+	if 'session' in cookies:
+		print "cookie : ",cookies['session']
+		userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
+		print "user : ",userid
+	sessionDAO.end_session(cookies['session'])
+
+	response = make_response()
+	response.set_cookie("session", value="")
+	# to redirect
+	return "signed out"
+
 
 @app.route('/post', methods=['GET'])
 def get_recent_posts():
@@ -100,10 +114,10 @@ def get_recent_posts():
 		user = userDAO.get_user_by_id(userid)
 		
 		if user != None:
-			print request.args
 			group_id = None
 			try:
 				group_id = request.args["groupId"]
+				print group_id
 			except Exception as inst:
 				print "please send groupID as part of url parameter"
 				return "GroupID not supplied as URL param"
@@ -148,24 +162,39 @@ def insert_new_post():
 	form_data = request.form['data']
 
 	json_data = json.loads(form_data)
-
-	post.title = json_data['title']
-	post.link = json_data['link']
-	post.category = json_data['category']
-	post.tags = json_data['tags']
-	post.group = json_data['groups']
-	post.added_by = user.name
-
-	print post.db_serializer()
-	result = postDAO.insert_post(post);
-	print result
-	responseWrapper = ResponseWrapper()
-	if result != None:
-		responseWrapper.set_error(False)
-	else:
+	try:
+		# build post object from form data
+		post.title = json_data['title']
+		post.link = json_data['link']
+		post.category = json_data['category']
+		post.tags = json_data['tags']
+		post.group = json_data['groups']
+		post.added_by = user.name
+	except Exception as inst:
+		print "error reading form data"
+		print inst
+		responseWrapper = ResponseWrapper()
 		responseWrapper.set_error(True)
+		responseWrapper.set_data(["error reading form data"])
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+	if post.title != None and post.link != None and post.group != None and post.added_by != None:
 
-	return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+		print post.db_serializer()
+		result = postDAO.insert_post(post);
+		print result
+		responseWrapper = ResponseWrapper()
+		if result != None:
+			responseWrapper.set_error(False)
+		else:
+			responseWrapper.set_error(True)
+
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+	else:
+		print "error in form data"
+		responseWrapper = ResponseWrapper()
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["insufficient fields, try again"])
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 @app.route('/category', methods=['GET'])
 def get_categories():

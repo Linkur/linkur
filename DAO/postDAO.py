@@ -20,13 +20,15 @@ class PostDAO:
 			posts = collection.find({
 				'group' : groupid
 				})
-
+			print 'posts - ', posts
 		except Exception as inst:
 			print "error reading recent posts"
 			print inst
 
 		if posts != None:
 			post_list = self.get_modelled_list(posts)
+			print 'LOL'
+			print post_list
 			return post_list
 		else:
 			return None
@@ -62,18 +64,19 @@ class PostDAO:
 
 				date_obj = post['date']
 				modelled_post.date = date_obj.isoformat()
-
+				print post['title']
 				modelled_post.title = post['title']
 				modelled_post.link = post['link']
 				modelled_post.category = post['category']
 				modelled_post.tags = post['tags']
 				modelled_post.group = post['group']
 				modelled_post.added_by = post['added_by']
-				
+				print modelled_post.title
 				modelled_post_list.append(modelled_post)
 			except Exception as inst:
 				print "error processing objects"
 				print inst
+				return None
 
 		return modelled_post_list
 
