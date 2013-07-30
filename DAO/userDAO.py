@@ -30,7 +30,6 @@ class UserDAO:
 
 	def validate_login(self, uname, pw):
 
-		print 'ello'
 		user = None
 		try:
 			collection = self.user_collection
@@ -52,7 +51,6 @@ class UserDAO:
 			return None
 
 		# User password matches. Return user
-		print "user found"
 		return user
 
 	def add_user(self, modelled_user):
