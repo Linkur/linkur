@@ -21,19 +21,26 @@ from model.group import Group
 import json
 import cgi
 import re
+import sys
 
 
 app = Flask(__name__)
-mongo = PyMongo(app)
-connection = Connection()
+mongo = connection = db = None
+try:
+	mongo = PyMongo(app)
+	connection = Connection()
+	db = connection.sharurl
+except Exception as inst:
+	print "Error connecting to mongo db server"
+	print inst
+	sys.exit(-1)
 
-db = connection.sharurl
-
-postDAO = PostDAO(db)
-userDAO = UserDAO(db)
-sessionDAO = SessionDAO(db)
-categoryDAO = CategoryDAO(db)
-groupDAO = GroupDAO(db)
+if db != None:
+	postDAO = PostDAO(db)
+	userDAO = UserDAO(db)
+	sessionDAO = SessionDAO(db)
+	categoryDAO = CategoryDAO(db)
+	groupDAO = GroupDAO(db)
 
 # @app.route('/')
 # def home_page():
@@ -52,6 +59,7 @@ def user_signup():
 		print inst
 
 	responseWrapper = ResponseWrapper()
+	response = make_response()
 	if email != None and password != None and name != None:
 
 		# set these up in case we have an error case
@@ -64,28 +72,37 @@ def user_signup():
 			if not userDAO.add_user(temp_user):
 				# this was a duplicate
 				errors['username_error'] = "Username already in use. Please choose another"
-				# return bottle.template("index", signup_errors = errors, batch_list = result)
+				responseWrapper.set_error(True)
+				responseWrapper.set_data(errors)
+				response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+				response.mimetype = "json"
 
-			session_id = sessionDAO.start_session(email)
-			response = make_response()
+				return response
+
+			session_id = sessionDAO.start_session(email)			
 			response.set_cookie("session", value=session_id)
 
 			responseWrapper.set_error(False)
 			responseWrapper.set_data(["User Signup success!"])
-			return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+			response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+			response.mimetype = "json"
 
 		else:
 			
 			print "user did not validate"
 			responseWrapper.set_error(True)
 			responseWrapper.set_data(["User did not validate. Signup failed!"])
-			return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+			response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+			response.mimetype = "json"
 
 	else:
 		
 		responseWrapper.set_error(True)
 		responseWrapper.set_data(["Error in form data"])
-		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+		response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+		response.mimetype = "json"
+
+	return response
 
 
 @app.route('/signin', methods=['POST'])
@@ -103,17 +120,20 @@ def user_login():
 		if session_id is None:
 			responseWrapper.set_error(True)
 			responseWrapper.set_data(["Session not found. Signin again"])
-			return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+			return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 		
 		response = make_response()
 		response.set_cookie("session", value=session_id)
 
 		responseWrapper.set_error(False)
-		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+		response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+		response.mimetype = "json"
+		return response
+
 	else:
 		responseWrapper.set_error(True)
 		responseWrapper.set_data(["User not found"])
-		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 @app.route('/logout')
 def process_signout():
@@ -170,12 +190,13 @@ def get_recent_posts():
 		else:
 			responseWrapper.set_error(True)
 			responseWrapper.set_data(["User not found"])
-			return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+			return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 	else:
-		responseWrapper.set_error(True)
-		responseWrapper.set_data(["User not logged in"])
-		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+		# responseWrapper.set_error(True)
+		# responseWrapper.set_data(["User not logged in"])
+		# return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+		redirect("/index.html")
 
 
 @app.route('/userinfo', methods=['GET'])
@@ -200,7 +221,7 @@ def get_userinfo():
 	else:
 		responseWrapper.set_error(True)
 		responseWrapper.set_data(["User not logged in"])
-		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 
 @app.route('/post', methods=['POST'])
