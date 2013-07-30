@@ -5,6 +5,7 @@ from flask import request
 from flask import make_response
 from flask.ext.pymongo import PyMongo
 from pymongo import Connection
+from bson import ObjectId
 
 from DAO.postDAO import PostDAO
 from DAO.userDAO import UserDAO
@@ -60,7 +61,7 @@ def user_signup():
 	except Exception as inst:
 		print "error reading form values"
 		responseWrapper.set_error(True)
-		responseWrapper.set_data(errors)
+		responseWrapper.set_data(["error reading form values. Check form data"])
 		response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 		response.mimetype = "application/json"
 		return response
@@ -108,31 +109,54 @@ def user_signup():
 @app.route('/signin', methods=['POST'])
 def user_login():
 
-	username = request.form['email']
-	password = request.form['password']
-
-	user_record = userDAO.validate_login(username, password)
 	responseWrapper = ResponseWrapper()
 	response = make_response()
-	
-	if user_record:
-		session_id = sessionDAO.start_session(user_record['_id'])
+	username = None
+	password = None
 
-		if session_id is None:
+	try:
+		username = request.form['email']
+		password = request.form['password']
+
+	except Exception as inst:
+		print "error reading form data"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["Error reading form data. check form data"])
+		response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+		response.mimetype = "application/json"
+		return response
+
+	if username != None and password != None:
+		validation_result = userDAO.validate_login(username, password)
+		if validation_result["error"] == True:
+			# error
 			responseWrapper.set_error(True)
-			responseWrapper.set_data(["Session not found. Signin again"])
-			response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
-			response.mimetype = "application/json"
-			return response
-		
-		response.set_cookie("session", value=session_id)
+			responseWrapper.set_data(validation_result["data"])
 
-		responseWrapper.set_error(False)
-		
+		else:
+			# continue processing
+			user_record = validation_result["data"]
+			
+			if user_record:
+				session_id = sessionDAO.start_session(user_record['_id'])
 
+				if session_id is None:
+					responseWrapper.set_error(True)
+					responseWrapper.set_data(["Session not found. Signin again"])
+					response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+					response.mimetype = "application/json"
+					return response
+				
+				response.set_cookie("session", value=session_id)
+				responseWrapper.set_error(False)	
+				responseWrapper.set_data(["Signin success"])		
+
+			else:
+				responseWrapper.set_error(True)
+				responseWrapper.set_data(["User not found"])
 	else:
 		responseWrapper.set_error(True)
-		responseWrapper.set_data(["User not found"])
+		responseWrapper.set_data(["Username / password blank"])
 	
 	response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 	response.mimetype = "application/json"
@@ -251,7 +275,7 @@ def insert_new_post():
 	cookie = request.cookies["session"]
 	print "cookie : ",cookie
 
-	if cookie != None:
+	if cookie != None and cookie != "":
 		userid = sessionDAO.get_userid(cookie)  # see if user is logged in
 		print "user : ",userid
 
@@ -282,10 +306,13 @@ def insert_new_post():
 
 			result = postDAO.insert_post(post);
 			responseWrapper = ResponseWrapper()
+
 			if result != None:
 				responseWrapper.set_error(False)
+				responseWrapper.set_data([str(result)])
 			else:
 				responseWrapper.set_error(True)
+				responseWrapper.set_data(["error writing post"])
 
 		else:
 			print "error in form data"
