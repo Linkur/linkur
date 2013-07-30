@@ -29,7 +29,7 @@ class UserDAO:
 		return hashlib.sha256(pw + salt).hexdigest()+","+salt
 
 	def validate_login(self, uname, pw):
-
+		return_data = {"error":None,"data":None}
 		user = None
 		try:
 			collection = self.user_collection
@@ -37,10 +37,15 @@ class UserDAO:
 
 		except Exception as inst:
 			print "error finding user"
+			return_data["error"]=True
+			return_data["data"]=["error finding user"]
+			return return_data
 
 		if user is None:
 			print "User not in database"
-			return None
+			return_data["error"]=True
+			return_data["data"]=["User not in database"]
+			return return_data
 
 		password = user["password"]
 		salt = password.split(',')[1]
@@ -48,10 +53,15 @@ class UserDAO:
 		# Check if the user password matches
 		if password != self.make_pw_hash(pw, salt):
 			print "user password is not a match"
-			return None
+			return_data["error"]=True
+			return_data["data"]=["user password is not a match"]
+			return return_data
 
 		# User password matches. Return user
-		return user
+		return_data["error"]=False
+		return_data["data"]=user
+		return return_data
+		
 
 	def add_user(self, modelled_user):
 
@@ -150,6 +160,7 @@ class UserDAO:
 				group = Group()
 				group.id = str(item["_id"])
 				group.name = item["name"]
+				group.hash = item["hash"]
 
 				groups.append(group)
 
