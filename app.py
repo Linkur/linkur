@@ -40,30 +40,43 @@ groupDAO = GroupDAO(db)
 
 @app.route('/signup', methods=['POST'])
 def user_signup():
-	email = request.form['email']
-	password = request.form['password']
-	verify = request.form['verify']
-	name = request.form['name']
+	email = None
+	password = None
+	name = None
+	try:
+		email = request.form['email']
+		password = request.form['password']
+		name = request.form['name']
+	except Exception as inst:
+		print "error reading form values"
+		print inst
 
-	# set these up in case we have an error case
-	errors = {'username': cgi.escape(name), 'email': cgi.escape(email)}
-	if validate_signup(name, password, verify, email, errors):
+	if email != None and password != None and name != None:
 
-		#create a modelled user
-		temp_user = User(email, password, name)
-		if not userDAO.add_user(temp_user):
-			# this was a duplicate
-			errors['username_error'] = "Username already in use. Please choose another"
+		# set these up in case we have an error case
+		errors = {'username': cgi.escape(name), 'email': cgi.escape(email)}
+		if validate_signup(name, password, verify, email, errors):
+
+			#create a modelled user
+			temp_user = User(email, password, name)
+			if not userDAO.add_user(temp_user):
+				# this was a duplicate
+				errors['username_error'] = "Username already in use. Please choose another"
+				# return bottle.template("index", signup_errors = errors, batch_list = result)
+
+			session_id = sessionDAO.start_session(email)
+			response = make_response()
+			response.set_cookie("session", value=session_id)
+			return "signup success"
+		else:
+			print "user did not validate"
+			return "signup fail"
 			# return bottle.template("index", signup_errors = errors, batch_list = result)
-
-		session_id = sessionDAO.start_session(email)
-		response = make_response()
-		response.set_cookie("session", value=session_id)
-		return "signup success"
 	else:
-		print "user did not validate"
-		return "signup fail"
-		# return bottle.template("index", signup_errors = errors, batch_list = result)
+		responseWrapper = ResponseWrapper()
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["Error in form data"])
+		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
 
 
 @app.route('/signin', methods=['POST'])
@@ -381,7 +394,7 @@ def accept_group_invite(invite_hash):
 
 # validates that the user information is valid for new signup, return True of False
 # and fills in the error string if there is an issue
-def validate_signup(username, password, verify, email, errors):
+def validate_signup(username, password, email, errors):
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     PASS_RE = re.compile(r"^.{3,20}$")
     EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
@@ -398,9 +411,9 @@ def validate_signup(username, password, verify, email, errors):
     if not PASS_RE.match(password):
         errors['password_error'] = "invalid password."
         return False
-    if password != verify:
-        errors['verify_error'] = "password must match"
-        return False
+    # if password != verify:
+    #     errors['verify_error'] = "password must match"
+    #     return False
     if email != "":
         if not EMAIL_RE.match(email):
             errors['email_error'] = "invalid email address"
