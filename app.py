@@ -51,10 +51,12 @@ def user_signup():
 		print "error reading form values"
 		print inst
 
+	responseWrapper = ResponseWrapper()
 	if email != None and password != None and name != None:
 
 		# set these up in case we have an error case
 		errors = {'username': cgi.escape(name), 'email': cgi.escape(email)}
+		
 		if validate_signup(name, password, verify, email, errors):
 
 			#create a modelled user
@@ -67,13 +69,20 @@ def user_signup():
 			session_id = sessionDAO.start_session(email)
 			response = make_response()
 			response.set_cookie("session", value=session_id)
-			return "signup success"
+
+			responseWrapper.set_error(False)
+			responseWrapper.set_data(["User Signup success!"])
+			return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+
 		else:
+			
 			print "user did not validate"
-			return "signup fail"
-			# return bottle.template("index", signup_errors = errors, batch_list = result)
+			responseWrapper.set_error(True)
+			responseWrapper.set_data(["User did not validate. Signup failed!"])
+			return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+
 	else:
-		responseWrapper = ResponseWrapper()
+		
 		responseWrapper.set_error(True)
 		responseWrapper.set_data(["Error in form data"])
 		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
@@ -86,19 +95,25 @@ def user_login():
 	password = request.form['password']
 
 	user_record = userDAO.validate_login(username, password)
+	responseWrapper = ResponseWrapper()
 	
 	if user_record:
 		session_id = sessionDAO.start_session(user_record['_id'])
 
 		if session_id is None:
-			return "Internal Error"
+			responseWrapper.set_error(True)
+			responseWrapper.set_data(["Session not found. Signin again"])
+			return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
 		
 		response = make_response()
 		response.set_cookie("session", value=session_id)
 
-		return response
+		responseWrapper.set_error(False)
+		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
 	else:
-		return "fail"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not found"])
+		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
 
 @app.route('/logout')
 def process_signout():
@@ -120,6 +135,8 @@ def get_recent_posts():
 	
 	userid = None
 	cookies = request.cookies
+	responseWrapper = ResponseWrapper()
+
 	if 'session' in cookies:
 		print "cookie : ",cookies['session']
 		userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
@@ -151,15 +168,22 @@ def get_recent_posts():
 
 			return 	json_result
 		else:
-			return "please log in"
+			responseWrapper.set_error(True)
+			responseWrapper.set_data(["User not found"])
+			return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
 
 	else:
-		print "no cookie set"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not logged in"])
+		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
+
 
 @app.route('/userinfo', methods=['GET'])
 def get_userinfo():
 	userid = None
 	cookies = request.cookies
+	responseWrapper = ResponseWrapper()
+
 	if 'session' in cookies:
 		print "cookie : ",cookies['session']
 		userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
@@ -174,8 +198,9 @@ def get_userinfo():
 			wrapped_response.set_error(True)
 		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
 	else:
-		print "no cookie set"
-		return "login"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not logged in"])
+		return json.dumps(wrapped_response, default=ResponseWrapper.__str__)
 
 
 @app.route('/post', methods=['POST'])
@@ -210,6 +235,7 @@ def insert_new_post():
 		responseWrapper.set_error(True)
 		responseWrapper.set_data(["error reading form data"])
 		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+
 	if post.title != None and post.link != None and post.group != None and post.added_by != None:
 
 		print post.db_serializer()
@@ -233,10 +259,11 @@ def insert_new_post():
 def get_categories():
 
 	user = validate_cookie(request)
+	responseWrapper = ResponseWrapper()
+
 	if user != None:
 		# process things
 		result = categoryDAO.get_categories()
-		responseWrapper = ResponseWrapper()
 		if result != None:
 			responseWrapper.set_error(False)
 			responseWrapper.set_data(result)
@@ -245,12 +272,15 @@ def get_categories():
 
 		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 	else:
-		# redirect to log in screen later
-		return "Please sign in"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not found. Please login again"])
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 @app.route('/category', methods=['POST'])
 def insert_catergory():
 	user = validate_cookie(request)
+	responseWrapper = ResponseWrapper()
+
 	if user != None:
 		category = Category()
 
@@ -259,7 +289,6 @@ def insert_catergory():
 		category.name = json_data['category_name']
 		result = categoryDAO.insert_category(category)
 
-		responseWrapper = ResponseWrapper()
 		if result != None:
 			responseWrapper.set_error(False)
 			responseWrapper.set_data(result)
@@ -268,15 +297,17 @@ def insert_catergory():
 
 		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 	else:
-		# TODO redirect to login page
-		return "please login"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not found. Please login again"])
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 @app.route('/user/group', methods=['GET'])
 def get_user_groups():
 	user = validate_cookie(request)
+	responseWrapper = ResponseWrapper()
+
 	if user != None:
-		groups = userDAO.get_groups(user.id)
-		responseWrapper = ResponseWrapper()
+		groups = userDAO.get_groups(user.id)		
 		if groups != None:
 			responseWrapper.set_error(False)
 			responseWrapper.set_data(groups)
@@ -285,12 +316,16 @@ def get_user_groups():
 
 		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 	else:
-		# TODO redirect to login page
-		return "please login"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not found. Please login again"])
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 @app.route('/user/group', methods=['POST'])
 def append_user_groups():
+	
 	user = validate_cookie(request)
+	responseWrapper = ResponseWrapper()
+
 	if user != None:
 		# TODO
 		form_data = request.form['data']
@@ -300,7 +335,7 @@ def append_user_groups():
 		group.name = json_data['group_name']
 		result = userDAO.append_group(user.id,group)
 		print result
-		responseWrapper = ResponseWrapper()
+		
 		if result != None:
 			responseWrapper.set_error(False)
 			responseWrapper.set_data(result)
@@ -310,12 +345,15 @@ def append_user_groups():
 		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 	else:
-		# TODO redirect to login page
-		return "please login"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not found. Please login again"])
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 	
 @app.route('/group', methods=['POST'])
 def create_user_groups():
 	user = validate_cookie(request)
+	responseWrapper = ResponseWrapper()
+
 	if user != None:
 		# TODO
 		form_data = request.form['data']
@@ -327,7 +365,6 @@ def create_user_groups():
 		group.id = new_group_id
 		result = userDAO.append_group(user.id,group)
 
-		responseWrapper = ResponseWrapper()
 		if result != None:
 			responseWrapper.set_error(False)
 			new_group_id = str(new_group_id)
@@ -338,8 +375,9 @@ def create_user_groups():
 
 		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 	else:
-		# TODO redirect to login page
-		return "please login"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not found. Please login again"])
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 @app.route('/acceptInvite/<invite_hash>', methods=['GET'])
 def accept_group_invite(invite_hash):
@@ -349,6 +387,8 @@ def accept_group_invite(invite_hash):
 	# else throw error
 
 	user = validate_cookie(request)
+	responseWrapper = ResponseWrapper()
+
 	if user != None:
 		group_obj = groupDAO.get_group_by_hash(str(invite_hash))
 		if group_obj != None:
@@ -373,7 +413,9 @@ def accept_group_invite(invite_hash):
 			return {"error":True,"data":"Group not found"}
 	else:
 		# TODO redirect to login page
-		return "please login"
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not found. Please login again"])
+		return json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 
 # @app.route('/invite/<group_id>', methods=['GET'])
 # def generate_group_invite(group_id):
