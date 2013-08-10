@@ -236,6 +236,21 @@ def get_recent_posts():
 	response.mimetype = "application/json"
 	return response
 
+@app.route('/search', methods=['GET'])
+def search():
+	queryText = request.args["q"]
+	# print queryText
+	result = postDAO.search(queryText)
+
+	response = make_response()
+	responseWrapper = ResponseWrapper()
+
+	responseWrapper.set_data(result)
+	responseWrapper.set_error(False)
+	
+	response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+	response.mimetype = "application/json"
+	return response
 
 @app.route('/user/info', methods=['GET'])
 def get_userinfo():
