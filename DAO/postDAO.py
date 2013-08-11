@@ -53,76 +53,57 @@ class PostDAO:
 		else:
 			return None
 
-	def searchTitle(self, queryText):
+	def searchCollection(self, collection, queryTexts):
 		modelled_search_results = None
-		collection = self.recent_collection
 
-		for query in queryText:
+		query_string = []
+		for query in queryTexts:
+			# check for title field
+			interim_string = {"title":query}
+			query_string.append(interim_string)
+
+			# check if string is part of tags array
+			interim_string = {"tags":{"$in":[query]}}
+			query_string.append(interim_string)
+
+		query_string = {"$or":query_string}
+		print query_string
 			# print query
-			try:
-				results = collection.find({
-					'title': query
-					})
+		try:
+			results = collection.find(
+				query_string				
+				)
 
-				if results != None:
-					intermediate_result = self.get_modelled_list(results)
-					print "interim result", intermediate_result
-					if modelled_search_results == None:
-						modelled_search_results = intermediate_result
-					else:
-						modelled_search_results = modelled_search_results + intermediate_result
+			if results != None:
+				intermediate_result = self.get_modelled_list(results)
+				print "interim result", intermediate_result
+				if modelled_search_results == None:
+					modelled_search_results = intermediate_result
+				else:
+					modelled_search_results = modelled_search_results + intermediate_result
 
-			except Exception as inst:
-				print "error processing search"
-				print inst
-				return None
+		except Exception as inst:
+			print "error processing search"
+			print inst
+			return None
 		print "final result title", modelled_search_results
-		return modelled_search_results
-
-	def searchTags(self, queryText):
-		modelled_search_results = None
-		collection = self.recent_collection
-		
-		for query in queryText:
-
-			try:
-				results = collection.find({
-					"tags": {
-						"$in":[query]
-					}
-				})
-
-				if results != None:
-					intermediate_result = self.get_modelled_list(results)
-					
-					if modelled_search_results == None:
-						modelled_search_results = intermediate_result
-					else:
-						modelled_search_results = modelled_search_results + intermediate_result
-
-
-			except Exception as inst:
-				print "error processing search"
-				print inst
-				return None
-		
 		return modelled_search_results
 
 	def search(self, queryText):
 		posts = None
-		queryText = queryText.split()
-		# search for title field for query text
-		title_results = self.searchTitle(queryText)
+		queryText = queryText.split(',')
+		
+		title_results = self.searchCollection(self.recent_collection, queryText)
 		if title_results != None:
 			posts = title_results
 		
-		# search for tags array for query text
-		tags_results = self.searchTags(queryText)
-		if tags_results != None:
+		title_results = self.searchCollection(self.achived_collection, queryText)
+		
+		if title_results != None:
 			if posts != None:
-				posts = posts + tags_results
+				posts = posts + title_results
 			else:
-				posts = tags_results
+				posts = title_results
 
 		return posts
 
