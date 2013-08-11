@@ -52,7 +52,7 @@ def user_signup():
 	password = None
 	name = None
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	try:
 		email = request.form['email']
@@ -106,16 +106,16 @@ def user_signup():
 	return response
 
 
-@app.route('/signin', methods=['POST'])
+@app.route('/signin', methods=['POST','OPTIONS'])
 def user_login():
 
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 	username = None
 	password = None
 
 	try:
-		username = request.form['email']
+		username = request.form['username']
 		password = request.form['password']
 
 	except Exception as inst:
@@ -162,11 +162,11 @@ def user_login():
 	response.mimetype = "application/json"
 	return response
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def process_signout():
 	cookies = request.cookies
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if 'session' in cookies:
 		print "cookie : ",cookies['session']
@@ -190,7 +190,7 @@ def get_recent_posts():
 	userid = None
 	cookies = request.cookies
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if 'session' in cookies:
 		print "cookie : ",cookies['session']
@@ -201,12 +201,12 @@ def get_recent_posts():
 		if user != None:
 			group_id = None
 			try:
-				group_id = request.args["groupId"]
+				group_id = request.args["group_id"]
 				print group_id
 			except Exception as inst:
-				print "please send groupID as part of url parameter"
+				print "please send group_id as part of url parameter"
 				responseWrapper.set_error(True)
-				responseWrapper.set_data(["GroupID not supplied as URL param"])
+				responseWrapper.set_data(["group_id not supplied as URL param"])
 				response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 				response.mimetype = "application/json"
 				return response
@@ -242,7 +242,7 @@ def search():
 	# print queryText
 	result = postDAO.search(queryText)
 
-	response = make_response()
+	response = any_response(request)
 	responseWrapper = ResponseWrapper()
 
 	responseWrapper.set_data(result)
@@ -257,7 +257,7 @@ def get_userinfo():
 	userid = None
 	cookies = request.cookies
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if 'session' in cookies:
 		print "cookie : ",cookies['session']
@@ -285,7 +285,7 @@ def get_userinfo():
 def insert_new_post():
 
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	cookie = request.cookies["session"]
 	print "cookie : ",cookie
@@ -347,7 +347,7 @@ def get_categories():
 
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if user != None:
 		# process things
@@ -371,7 +371,7 @@ def get_categories():
 def insert_catergory():
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if user != None:
 		category = Category()
@@ -401,7 +401,7 @@ def insert_catergory():
 def get_user_groups():
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if user != None:
 		groups = userDAO.get_groups(user.id)		
@@ -425,7 +425,7 @@ def get_user_groups():
 	
 # 	user = validate_cookie(request)
 # 	responseWrapper = ResponseWrapper()
-# 	response = make_response()
+# 	response = any_response(request)
 
 # 	if user != None:
 		
@@ -465,7 +465,7 @@ def get_user_groups():
 def create_user_groups():
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if user != None:
 		
@@ -512,7 +512,7 @@ def accept_group_invite(invite_hash):
 
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if user != None:
 		group_obj = groupDAO.get_group_by_hash(str(invite_hash))
@@ -606,6 +606,13 @@ def validate_cookie(request):
 			if user != None:
 				return user
 	return None
+
+# CORS
+def any_response(request):
+  ALLOWED = ['http://localhost:9005']
+  response = make_response()
+  response.headers['Access-Control-Allow-Origin'] = ALLOWED[0]
+  return response
 
 if __name__ == '__main__':
 	app.run(debug=True)
