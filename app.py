@@ -116,7 +116,9 @@ def user_login():
 
 	try:
 		username = request.form['username']
+		print username
 		password = request.form['password']
+		print password
 
 	except Exception as inst:
 		print "error reading form data"
@@ -184,7 +186,7 @@ def process_signout():
 	return response
 
 
-@app.route('/post', methods=['GET'])
+@app.route('/post', methods=['GET', 'OPTIONS'])
 def get_recent_posts():
 	
 	userid = None
@@ -397,7 +399,7 @@ def insert_catergory():
 	return response
 
 
-@app.route('/user/group', methods=['GET'])
+@app.route('/user/group', methods=['GET', 'OPTIONS'])
 def get_user_groups():
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
@@ -611,7 +613,9 @@ def validate_cookie(request):
 def any_response(request):
   ALLOWED = ['http://localhost:9005']
   response = make_response()
-  response.headers['Access-Control-Allow-Origin'] = ALLOWED[0]
+  response.headers['Access-Control-Allow-Origin'] = "*"
+  response.headers['Access-Control-Allow-Credentials'] = True
+  response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Credentials'
   return response
 
 if __name__ == '__main__':
