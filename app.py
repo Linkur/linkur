@@ -61,6 +61,7 @@ def user_signup():
 		verify = request.form('verify')
 	except Exception as inst:
 		print "error reading form values"
+		print inst
 		responseWrapper.set_error(True)
 		responseWrapper.set_data(["error reading form values. Check form data"])
 		response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
@@ -116,7 +117,7 @@ def user_login():
 	password = None
 
 	try:
-		username = request.form['username']
+		username = request.form['email']
 		print username
 		password = request.form['password']
 		print password
