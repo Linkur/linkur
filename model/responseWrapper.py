@@ -16,7 +16,7 @@ class ResponseWrapper:
 
 	def get_stringified_data(self):
 		results = []
-		if len(self.data) > 0 :
+		if self.data != None and len(self.data) > 0 :
 			for item in self.data:
 				serialized = item.__str__()
 				print serialized
