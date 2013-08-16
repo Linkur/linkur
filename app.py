@@ -148,8 +148,9 @@ def user_login():
 					response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 					response.mimetype = "application/json"
 					return response
-				
-				response.set_cookie("session", value=session_id)
+				# set_cookie(key, value='', max_age=None, expires=None, path='/', domain=None, secure=None, httponly=False)
+				response.set_cookie("session", value=session_id, expires=None, path="/", httponly=True)
+
 				responseWrapper.set_error(False)	
 				responseWrapper.set_data(["Signin success"])		
 
@@ -620,6 +621,7 @@ def validate_signup(username, password, email, errors):
 
 # validates cookie and check if user is valid
 def validate_cookie(request):
+	print request.cookies
 	cookie = request.cookies["session"]
 	
 	print "cookie : ",cookie
@@ -635,11 +637,12 @@ def validate_cookie(request):
 
 # CORS
 def any_response(request):
-  ALLOWED = ['http://localhost:9005']
+  # ALLOWED = ['http://localhost:9005']
   response = make_response()
-  response.headers['Access-Control-Allow-Origin'] = "*"
-  response.headers['Access-Control-Allow-Credentials'] = True
   response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Credentials'
+  response.headers['Access-Control-Allow-Origin'] = "*"
+  response.headers['Access-Control-Allow-Credentials'] = "true"
+  
   return response
 
 if __name__ == '__main__':
