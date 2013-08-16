@@ -53,11 +53,12 @@ def user_signup():
 	name = None
 	responseWrapper = ResponseWrapper()
 	response = any_response(request)
-
+	print request.form
 	try:
 		email = request.form['email']
 		password = request.form['password']
 		name = request.form['name']
+		verify = request.form('verify')
 	except Exception as inst:
 		print "error reading form values"
 		responseWrapper.set_error(True)
@@ -71,7 +72,7 @@ def user_signup():
 		# set these up in case we have an error case
 		errors = {'username': cgi.escape(name), 'email': cgi.escape(email)}
 		
-		if validate_signup(name, password, email, errors):
+		if validate_signup(name, password, verify, email, errors):
 
 			#create a modelled user
 			temp_user = User(email, password, name)
@@ -593,7 +594,7 @@ def accept_group_invite(invite_hash):
 
 # validates that the user information is valid for new signup, return True of False
 # and fills in the error string if there is an issue
-def validate_signup(username, password, email, errors):
+def validate_signup(username, password, verify, email, errors):
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     PASS_RE = re.compile(r"^.{3,20}$")
     EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
@@ -610,9 +611,9 @@ def validate_signup(username, password, email, errors):
     if not PASS_RE.match(password):
         errors['password_error'] = "invalid password."
         return False
-    # if password != verify:
-    #     errors['verify_error'] = "password must match"
-    #     return False
+    if password != verify:
+        errors['verify_error'] = "password must match"
+        return False
     if email != "":
         if not EMAIL_RE.match(email):
             errors['email_error'] = "invalid email address"
@@ -646,5 +647,6 @@ def any_response(request):
   return response
 
 if __name__ == '__main__':
-	app.run(debug=True)
+	# app.run(debug=True)
+	app.run(host='0.0.0.0',debug=True)
 
