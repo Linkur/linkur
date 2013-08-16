@@ -238,21 +238,42 @@ def get_recent_posts():
 	response.mimetype = "application/json"
 	return response
 
-@app.route('/search', methods=['GET'])
+@app.route('/search', methods=['GET','OPTIONS'])
 def search():
-	queryText = request.args["q"]
-	# print queryText
-	result = postDAO.search(queryText)
-
-	response = any_response(request)
+	userid = None
+	cookies = request.cookies
 	responseWrapper = ResponseWrapper()
+	response = any_response(request)
 
-	responseWrapper.set_data(result)
-	responseWrapper.set_error(False)
-	
+	if 'session' in cookies:
+		print "cookie : ",cookies['session']
+		userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
+		print "user : ",userid
+		user = userDAO.get_user_by_id(userid)
+
+		if user != None:
+			queryText = request.args["q"]
+			# print queryText
+			result = postDAO.search(queryText)
+			response = any_response(request)
+
+			responseWrapper.set_data(result)
+			responseWrapper.set_error(False)
+			
+		else:
+			responseWrapper.set_error(True)
+			responseWrapper.set_data(["User not found, Login"])
+
+	else:
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not logged in"])
+
 	response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 	response.mimetype = "application/json"
 	return response
+
+
+	
 
 @app.route('/user/info', methods=['GET'])
 def get_userinfo():
