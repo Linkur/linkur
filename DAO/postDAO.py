@@ -53,10 +53,12 @@ class PostDAO:
 		else:
 			return None
 
-	def searchCollection(self, collection, queryTexts):
+	def searchCollection(self, groups, collection, queryTexts):
 		modelled_search_results = None
-
+		
 		query_string = []
+
+		# build query based on the search strings
 		for query in queryTexts:
 			# check for title field
 			interim_string = {"title":query}
@@ -66,7 +68,15 @@ class PostDAO:
 			interim_string = {"tags":{"$in":[query]}}
 			query_string.append(interim_string)
 
-		query_string = {"$or":query_string}
+		# and group
+		group_query = []
+		for group in groups:
+			interim_clause = {"group":group["_id"]}
+			group_query.append(interim_clause)
+		group_query = [{"$or":group_query}]
+
+		query_string = {"$or":query_string, "$and":group_query}
+
 		print query_string
 			# print query
 		try:
@@ -88,16 +98,20 @@ class PostDAO:
 			return None
 		print "final result title", modelled_search_results
 		return modelled_search_results
+		
 
-	def search(self, queryText):
+	def search(self, user, queryText):
 		posts = None
 		queryText = queryText.split(',')
 		
-		title_results = self.searchCollection(self.recent_collection, queryText)
+		# find the groups user belongs to and pass groups array as a param to searchCollection
+		groups = user.groups
+		
+		title_results = self.searchCollection(groups, self.recent_collection, queryText)
 		if title_results != None:
 			posts = title_results
 		
-		title_results = self.searchCollection(self.achived_collection, queryText)
+		title_results = self.searchCollection(groups, self.achived_collection, queryText)
 		
 		if title_results != None:
 			if posts != None:

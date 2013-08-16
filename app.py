@@ -52,14 +52,16 @@ def user_signup():
 	password = None
 	name = None
 	responseWrapper = ResponseWrapper()
-	response = make_response()
-
+	response = any_response(request)
+	print request.form
 	try:
 		email = request.form['email']
 		password = request.form['password']
 		name = request.form['name']
+		verify = request.form('verify')
 	except Exception as inst:
 		print "error reading form values"
+		print inst
 		responseWrapper.set_error(True)
 		responseWrapper.set_data(["error reading form values. Check form data"])
 		response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
@@ -71,7 +73,7 @@ def user_signup():
 		# set these up in case we have an error case
 		errors = {'username': cgi.escape(name), 'email': cgi.escape(email)}
 		
-		if validate_signup(name, password, email, errors):
+		if validate_signup(name, password, verify, email, errors):
 
 			#create a modelled user
 			temp_user = User(email, password, name)
@@ -106,17 +108,19 @@ def user_signup():
 	return response
 
 
-@app.route('/signin', methods=['POST'])
+@app.route('/signin', methods=['POST','OPTIONS'])
 def user_login():
 
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 	username = None
 	password = None
 
 	try:
 		username = request.form['email']
+		print username
 		password = request.form['password']
+		print password
 
 	except Exception as inst:
 		print "error reading form data"
@@ -146,8 +150,9 @@ def user_login():
 					response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 					response.mimetype = "application/json"
 					return response
-				
-				response.set_cookie("session", value=session_id)
+				# set_cookie(key, value='', max_age=None, expires=None, path='/', domain=None, secure=None, httponly=False)
+				response.set_cookie("session", value=session_id, expires=None, path="/", httponly=True)
+
 				responseWrapper.set_error(False)	
 				responseWrapper.set_data(["Signin success"])		
 
@@ -162,11 +167,11 @@ def user_login():
 	response.mimetype = "application/json"
 	return response
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def process_signout():
 	cookies = request.cookies
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if 'session' in cookies:
 		print "cookie : ",cookies['session']
@@ -184,13 +189,13 @@ def process_signout():
 	return response
 
 
-@app.route('/post', methods=['GET'])
+@app.route('/post', methods=['GET', 'OPTIONS'])
 def get_recent_posts():
 	
 	userid = None
 	cookies = request.cookies
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if 'session' in cookies:
 		print "cookie : ",cookies['session']
@@ -201,12 +206,12 @@ def get_recent_posts():
 		if user != None:
 			group_id = None
 			try:
-				group_id = request.args["groupId"]
+				group_id = request.args["group_id"]
 				print group_id
 			except Exception as inst:
-				print "please send groupID as part of url parameter"
+				print "please send group_id as part of url parameter"
 				responseWrapper.set_error(True)
-				responseWrapper.set_data(["GroupID not supplied as URL param"])
+				responseWrapper.set_data(["group_id not supplied as URL param"])
 				response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 				response.mimetype = "application/json"
 				return response
@@ -236,28 +241,49 @@ def get_recent_posts():
 	response.mimetype = "application/json"
 	return response
 
-@app.route('/search', methods=['GET'])
+@app.route('/search', methods=['GET','OPTIONS'])
 def search():
-	queryText = request.args["q"]
-	# print queryText
-	result = postDAO.search(queryText)
-
-	response = make_response()
+	userid = None
+	cookies = request.cookies
 	responseWrapper = ResponseWrapper()
+	response = any_response(request)
 
-	responseWrapper.set_data(result)
-	responseWrapper.set_error(False)
-	
+	if 'session' in cookies:
+		print "cookie : ",cookies['session']
+		userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
+		print "user : ",userid
+		user = userDAO.get_user_by_id(userid)
+		print user.__str__()
+		if user != None:
+			queryText = request.args["q"]
+			# print queryText
+			result = postDAO.search(user, queryText)
+			response = any_response(request)
+
+			responseWrapper.set_data(result)
+			responseWrapper.set_error(False)
+			
+		else:
+			responseWrapper.set_error(True)
+			responseWrapper.set_data(["User not found, Login"])
+
+	else:
+		responseWrapper.set_error(True)
+		responseWrapper.set_data(["User not logged in"])
+
 	response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
 	response.mimetype = "application/json"
 	return response
+
+
+	
 
 @app.route('/user/info', methods=['GET'])
 def get_userinfo():
 	userid = None
 	cookies = request.cookies
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if 'session' in cookies:
 		print "cookie : ",cookies['session']
@@ -285,7 +311,7 @@ def get_userinfo():
 def insert_new_post():
 
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	cookie = request.cookies["session"]
 	print "cookie : ",cookie
@@ -347,7 +373,7 @@ def get_categories():
 
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if user != None:
 		# process things
@@ -371,7 +397,7 @@ def get_categories():
 def insert_catergory():
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if user != None:
 		category = Category()
@@ -397,11 +423,11 @@ def insert_catergory():
 	return response
 
 
-@app.route('/user/group', methods=['GET'])
+@app.route('/user/group', methods=['GET', 'OPTIONS'])
 def get_user_groups():
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if user != None:
 		groups = userDAO.get_groups(user.id)		
@@ -425,7 +451,7 @@ def get_user_groups():
 	
 # 	user = validate_cookie(request)
 # 	responseWrapper = ResponseWrapper()
-# 	response = make_response()
+# 	response = any_response(request)
 
 # 	if user != None:
 		
@@ -463,15 +489,18 @@ def get_user_groups():
 # create a new group. On success of new group creation, the group is automatically appended to the user
 @app.route('/group', methods=['POST'])
 def create_user_groups():
+	
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	form_data = request.form['data']
+	response = any_response(request)
 
 	if user != None:
 		
 		group = Group()
 		try:
-			form_data = request.form['data']
+			print request.form
+			# form_data = request.form['data']
 			json_data = json.loads(form_data)
 			group.name = json_data['group_name']
 
@@ -512,7 +541,7 @@ def accept_group_invite(invite_hash):
 
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
-	response = make_response()
+	response = any_response(request)
 
 	if user != None:
 		group_obj = groupDAO.get_group_by_hash(str(invite_hash))
@@ -566,7 +595,7 @@ def accept_group_invite(invite_hash):
 
 # validates that the user information is valid for new signup, return True of False
 # and fills in the error string if there is an issue
-def validate_signup(username, password, email, errors):
+def validate_signup(username, password, verify, email, errors):
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     PASS_RE = re.compile(r"^.{3,20}$")
     EMAIL_RE = re.compile(r"^[\S]+@[\S]+\.[\S]+$")
@@ -583,9 +612,9 @@ def validate_signup(username, password, email, errors):
     if not PASS_RE.match(password):
         errors['password_error'] = "invalid password."
         return False
-    # if password != verify:
-    #     errors['verify_error'] = "password must match"
-    #     return False
+    if password != verify:
+        errors['verify_error'] = "password must match"
+        return False
     if email != "":
         if not EMAIL_RE.match(email):
             errors['email_error'] = "invalid email address"
@@ -594,6 +623,7 @@ def validate_signup(username, password, email, errors):
 
 # validates cookie and check if user is valid
 def validate_cookie(request):
+	print request.cookies
 	cookie = request.cookies["session"]
 	
 	print "cookie : ",cookie
@@ -607,6 +637,17 @@ def validate_cookie(request):
 				return user
 	return None
 
+# CORS
+def any_response(request):
+  # ALLOWED = ['http://localhost:9005']
+  response = make_response()
+  response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Credentials'
+  response.headers['Access-Control-Allow-Origin'] = "*"
+  response.headers['Access-Control-Allow-Credentials'] = "true"
+  
+  return response
+
 if __name__ == '__main__':
-	app.run(debug=True)
+	# app.run(debug=True)
+	app.run(host='0.0.0.0',debug=True)
 
