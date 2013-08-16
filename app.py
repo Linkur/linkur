@@ -250,11 +250,11 @@ def search():
 		userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
 		print "user : ",userid
 		user = userDAO.get_user_by_id(userid)
-
+		print user.__str__()
 		if user != None:
 			queryText = request.args["q"]
 			# print queryText
-			result = postDAO.search(queryText)
+			result = postDAO.search(user, queryText)
 			response = any_response(request)
 
 			responseWrapper.set_data(result)
@@ -486,15 +486,18 @@ def get_user_groups():
 # create a new group. On success of new group creation, the group is automatically appended to the user
 @app.route('/group', methods=['POST'])
 def create_user_groups():
+	
 	user = validate_cookie(request)
 	responseWrapper = ResponseWrapper()
+	form_data = request.form['data']
 	response = any_response(request)
 
 	if user != None:
 		
 		group = Group()
 		try:
-			form_data = request.form['data']
+			print request.form
+			# form_data = request.form['data']
 			json_data = json.loads(form_data)
 			group.name = json_data['group_name']
 
