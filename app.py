@@ -54,19 +54,10 @@ def user_signup():
     responseWrapper = ResponseWrapper()
     response = any_response(request)
     print request.form
-    try:
-        email = request.form['email']
-        password = request.form['password']
-        name = request.form['name']
-        verify = request.form('verify')
-    except Exception as inst:
-        print "error reading form values"
-        print inst
-        responseWrapper.set_error(True)
-        responseWrapper.set_data(["error reading form values. Check form data"])
-        response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
-        response.mimetype = "application/json"
-        return response
+    email = request.form['email']
+    password = request.form['password']
+    name = request.form['name']
+    verify = request.form['verify']
 
     if email != None and password != None and name != None:
 
