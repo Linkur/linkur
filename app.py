@@ -615,17 +615,19 @@ def validate_signup(username, password, verify, email, errors):
 # validates cookie and check if user is valid
 def validate_cookie(request):
     print request.cookies
-    cookie = request.cookies["session"]
+    
+    cookies = request.cookies
 
-    print "cookie : ",cookie
-    if cookie != None:
-        userid = sessionDAO.get_userid(cookie)  # see if user is logged in
+    if 'session' in cookies:
+        print "cookie : ",cookies['session']
+        userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
         print "user : ",userid
         if userid != None:
             user = userDAO.get_user_by_id(userid)
             print user.__str__()
             if user != None:
                 return user
+
     return None
 
 # CORS
@@ -633,7 +635,7 @@ def any_response(request):
     # ALLOWED = ['http://localhost:9005']
   response = make_response()
   response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Credentials'
-  response.headers['Access-Control-Allow-Origin'] = "http://173.44.40.38"
+  response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
   response.headers['Access-Control-Allow-Credentials'] = "true"
 
   return response
