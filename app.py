@@ -3,6 +3,7 @@ __author__ = 'raghothams'
 from flask import Flask
 from flask import request
 from flask import make_response
+from flask import redirect
 from flask.ext.pymongo import PyMongo
 from pymongo import Connection
 from bson import ObjectId
@@ -158,9 +159,11 @@ def user_login():
     response.mimetype = "application/json"
     return response
 
-@app.route('/logout', methods=['POST'])
+@app.route('/logout', methods=['POST', 'OPTIONS'])
 def process_signout():
+   
     cookies = request.cookies
+    print cookies
     responseWrapper = ResponseWrapper()
     response = any_response(request)
 
@@ -168,10 +171,18 @@ def process_signout():
         print "cookie : ",cookies['session']
         userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
         print "user : ",userid
-    sessionDAO.end_session(cookies['session'])
-
-    responseWrapper.set_error(False)
-    responseWrapper.set_data(["Signed out"])
+        
+        if userid != None:
+            sessionDAO.end_session(cookies['session'])
+            
+            response.status_code = 302
+            return response
+        else:
+            responseWrapper.set_error(True)
+            responseWrapper.set_data(["User not found"])
+    else:
+        responseWrapper.set_error(True)
+        responseWrapper.set_data(["User not logged in"])
 
     response.set_cookie("session", value="")
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
@@ -634,6 +645,7 @@ def validate_cookie(request):
 def any_response(request):
     # ALLOWED = ['http://localhost:9005']
   response = make_response()
+  
   response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Credentials'
   response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
   response.headers['Access-Control-Allow-Credentials'] = "true"
