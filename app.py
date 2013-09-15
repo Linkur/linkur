@@ -489,24 +489,27 @@ def get_user_groups():
 # 	return response
 
 # create a new group. On success of new group creation, the group is automatically appended to the user
-@app.route('/group', methods=['POST'])
+@app.route('/group', methods=['POST', 'OPTIONS'])
 def create_user_groups():
 
     user = validate_cookie(request)
     responseWrapper = ResponseWrapper()
-    form_data = request.form['data']
+
+    print "hello new group"
     response = any_response(request)
 
     if user != None:
 
         group = Group()
         try:
-            print request.form
             # form_data = request.form['data']
+            print request.form
+            form_data = request.form['data']
             json_data = json.loads(form_data)
             group.name = json_data['group_name']
 
         except Exception as inst:
+            print inst
             print "Error reading form data"
             responseWrapper.set_error(True)
             responseWrapper.set_data([inst])
