@@ -180,11 +180,13 @@ def process_signout():
         else:
             responseWrapper.set_error(True)
             responseWrapper.set_data(["User not found"])
+            response.status_code = 302
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not logged in"])
+        response.status_code = 302
 
-    response.set_cookie("session", value="")
+    response.set_cookie("session", value="None")
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
 
@@ -233,10 +235,12 @@ def get_recent_posts():
         else:
             responseWrapper.set_error(True)
             responseWrapper.set_data(["User not found"])
+            response.status_code = 302
 
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not logged in"])
+        response.status_code = 302
 
         # redirect("/index.html")
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
@@ -268,10 +272,12 @@ def search():
         else:
             responseWrapper.set_error(True)
             responseWrapper.set_data(["User not found, Login"])
+            response.status_code = 302
 
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not logged in"])
+        response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
@@ -280,29 +286,39 @@ def search():
 
 
 
-@app.route('/user/info', methods=['GET'])
+@app.route('/user/info', methods=['GET', 'OPTIONS'])
 def get_userinfo():
     userid = None
     cookies = request.cookies
     responseWrapper = ResponseWrapper()
     response = any_response(request)
 
-    if 'session' in cookies:
+    if 'session' in cookies and (cookies['session'] != "None" or cookies['session'] != None):
         print "cookie : ",cookies['session']
+        
         userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
         print "user : ",userid
-        user = userDAO.get_user_info(userid)
 
-        if user != None:
-            responseWrapper.set_data([user])
-            responseWrapper.set_error(False)
+        if userid != None:
+
+            user = userDAO.get_user_info(userid)
+
+            if user != None:
+                responseWrapper.set_data([user])
+                responseWrapper.set_error(False)
+            else:
+                responseWrapper.set_error(True)
+                responseWrapper.set_data(["User not found. Please Login"])
+                response.status_code = 302
         else:
             responseWrapper.set_error(True)
-            responseWrapper.set_data(["User not found. Please Login"])
+            responseWrapper.set_data(["User not logged in. Please Login"])
+            response.status_code = 302
 
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not logged in. Please Login"])
+        response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
@@ -362,9 +378,11 @@ def insert_new_post():
             responseWrapper = ResponseWrapper()
             responseWrapper.set_error(True)
             responseWrapper.set_data(["insufficient fields, try again"])
+            response.status_code = 302
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not logged in. Please Login"])
+        response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
@@ -386,10 +404,12 @@ def get_categories():
         else:
             responseWrapper.set_error(True)
             responseWrapper.set_data(["error reading categories"])
+            response.status_code = 302
 
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not found. Please login again"])
+        response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
@@ -419,6 +439,7 @@ def insert_catergory():
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not found. Please login again"])
+        response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
@@ -443,6 +464,7 @@ def get_user_groups():
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not found. Please login again"])
+        response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
@@ -532,12 +554,13 @@ def create_user_groups():
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not found. Please login again"])
+        response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
     return response
 
-@app.route('/acceptInvite/<invite_hash>', methods=['GET'])
+@app.route('/group/join/<invite_hash>', methods=['POST', 'OPTIONS'])
 def accept_group_invite(invite_hash):
     # check for cookie
     # check group collection for group id
@@ -576,6 +599,7 @@ def accept_group_invite(invite_hash):
         # TODO redirect to login page
         responseWrapper.set_error(True)
         responseWrapper.set_data(["User not found. Please login again"])
+        response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
