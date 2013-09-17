@@ -178,9 +178,9 @@ class UserDAO:
 		except Exception as inst:
 			print "error updating DB"
 			print inst
-			return None
+			return False
 
-		return "Success"
+		return True
 
 	def does_group_exist(self, uname, group_obj):
 		collection = self.user_collection

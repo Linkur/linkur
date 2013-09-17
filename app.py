@@ -515,6 +515,7 @@ def get_user_groups():
 def create_user_groups():
 
     user = validate_cookie(request)
+    print user.__str__()
     responseWrapper = ResponseWrapper()
 
     print "hello new group"
@@ -529,6 +530,8 @@ def create_user_groups():
             form_data = request.form['data']
             json_data = json.loads(form_data)
             group.name = json_data['group_name']
+            print "appending to group user ", user.id
+            group.users.append(user.id)
 
         except Exception as inst:
             print inst
@@ -577,20 +580,32 @@ def accept_group_invite(invite_hash):
             #  check if group is already part for the user
             group_exists = userDAO.does_group_exist(user.id,group_obj)
             print "group exists", group_exists
-            result = None
+            append_group_result = None
+            append_user_result = None
+
             if group_exists == False:
-                result = userDAO.append_group(user.id,group_obj)
+                append_group_result = groupDAO.append_user(group_obj, user.id)
+                group_obj = groupDAO.get_group_by_id(group_obj.id)
+                print " modified grp \n"
+                print group_obj.__str__()
+                append_user_result = userDAO.append_group(user.id,group_obj)
+                
             else:
                 responseWrapper.set_error(False)
                 responseWrapper.set_data(["group already part of user"])
 
-            responseWrapper = ResponseWrapper()
-            if result != None:
+            # check for DB errors
+            if append_user_result != False and append_group_result != False:
                 responseWrapper.set_error(False)
-                responseWrapper.set_data(result)
-            else:
+                responseWrapper.set_data("")
+            
+            elif append_user_result == False:
                 responseWrapper.set_error(True)
                 responseWrapper.set_data(["error adding group to user"])
+            
+            else:
+                responseWrapper.set_error(True)
+                responseWrapper.set_data(["error adding user to group"])
 
         else:
             responseWrapper.set_error(True)
