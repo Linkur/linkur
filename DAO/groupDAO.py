@@ -94,8 +94,24 @@ class GroupDAO:
 		
 		except Exception as inst:
 			print inst
-			print "Error updating group collection"
+			print "Error updating group collection - appending user to group"
 			return False
 
-		print "append user to group result ", result
 		return True
+
+	# Remove user from group
+	def remove_user(self, group_obj, user_id):
+
+		collection = self.collection
+		result = None
+
+		try:
+			result = collection.update({"_id":group_obj.id}, {"$pull":{"users":user_id}})
+
+		except Exception as inst:
+			print inst
+			print "Error updating group collection - appending user to group"
+			return False
+
+		return True
+	

@@ -563,6 +563,61 @@ def create_user_groups():
     response.mimetype = "application/json"
     return response
 
+@app.route('/group/<group_id>', methods=['DELETE'])
+def remove_group_for_user(group_id):
+    # check for cookie & get user object
+    # check group collection for group id
+    # if exists, remove user from group collection
+    # then remove group from user collection
+    # else throw error
+
+    user = validate_cookie(request)
+    responseWrapper = ResponseWrapper()
+    response = any_response(request)
+
+    if user != None:
+        group_obj = groupDAO.get_group_by_id(str(group_id))
+        
+        if group_obj != None:
+            #  check if group is already part for the user
+            group_exists = userDAO.does_group_exist(user.id,group_obj)
+            print "group exists", group_exists
+            remove_group_result = None
+            remove_user_result = None
+
+            if group_exists == True:
+                remove_group_result = groupDAO.remove_user(group_obj, user.id)
+                remove_user_result = userDAO.remove_group(user.id, group_obj)
+
+            else:
+                print "Group not related to user"
+
+            # check for DB errors
+            if remove_group_result != False and remove_user_result != False:
+                responseWrapper.set_error(False)
+                responseWrapper.set_data(["Success removing group"])
+            
+            elif remove_user_result == False:
+                responseWrapper.set_error(True)
+                responseWrapper.set_data(["error removing group from user"])
+            
+            else:
+                responseWrapper.set_error(True)
+                responseWrapper.set_data(["error removing user from group"])
+
+        else:
+            responseWrapper.set_error(True)
+            responseWrapper.set_data(["No such group. Try again"])
+    else:
+        # TODO redirect to login page
+        responseWrapper.set_error(True)
+        responseWrapper.set_data(["User not found. Please login again"])
+        response.status_code = 302
+
+    response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+    response.mimetype = "application/json"
+    return response
+
 @app.route('/group/join/<invite_hash>', methods=['POST', 'OPTIONS'])
 def accept_group_invite(invite_hash):
     # check for cookie
