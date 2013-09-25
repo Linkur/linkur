@@ -4,6 +4,7 @@ from flask import Flask
 from flask import request
 from flask import make_response
 from flask import redirect
+from decorator import crossdomain
 from flask.ext.pymongo import PyMongo
 from pymongo import Connection
 from bson import ObjectId
@@ -563,8 +564,9 @@ def create_user_groups():
     response.mimetype = "application/json"
     return response
 
-@app.route('/group/<group_id>', methods=['DELETE'])
-def remove_group_for_user(group_id):
+@crossdomain(origin='http://localhost:8000', methods=['OPTIONS', 'DELETE'])
+@app.route('/group_delete', methods = ['OPTIONS', 'DELETE'])
+def remove_group_for_user():
     # check for cookie & get user object
     # check group collection for group id
     # if exists, remove user from group collection
@@ -576,6 +578,8 @@ def remove_group_for_user(group_id):
     response = any_response(request)
 
     if user != None:
+        group_id = request.args['group_id']
+        print group_id
         group_obj = groupDAO.get_group_by_id(str(group_id))
         
         if group_obj != None:
@@ -587,6 +591,7 @@ def remove_group_for_user(group_id):
 
             if group_exists == True:
                 remove_group_result = groupDAO.remove_user(group_obj, user.id)
+                # TODO if the group contains ZERO number of users, delete group
                 remove_user_result = userDAO.remove_group(user.id, group_obj)
 
             else:
@@ -744,6 +749,7 @@ def any_response(request):
   response = make_response()
   
   response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Credentials'
+  # response.headers['Access-Control-Allow-Methods'] = ['GET', 'POST', 'OPTIONS', 'DELETE']
   response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
   response.headers['Access-Control-Allow-Credentials'] = "true"
 

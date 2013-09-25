@@ -107,7 +107,7 @@ class GroupDAO:
 
 		try:
 			result = collection.update({"_id":group_obj.id}, {"$pull":{"users":user_id}})
-
+			print result
 		except Exception as inst:
 			print inst
 			print "Error updating group collection - appending user to group"
