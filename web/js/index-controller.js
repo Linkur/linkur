@@ -77,6 +77,3 @@ function loginCtr($scope,$http){
 
   	
 };
-
-
-
