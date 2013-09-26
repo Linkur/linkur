@@ -1,0 +1,30 @@
+<div ng-show="flags.isRemoveGroupModal">
+  <div id="removeGroupModal"class="modal fade">
+    <div class="modal-header">
+    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    	<h3>Remove Group</h3>
+    </div>
+    <div class="modal-body">
+      <!-- modal body comes here -->
+      <div>
+        <div class="row-fluid">
+            Are you sure you want to remove the group : lorem ipsum
+        </div>
+      </div>
+      <!-- progress bar -->
+                    <div id="removeGroupProgress" class="progress progress-warning progress-striped active" style="display:none;">
+                      <div class="bar" style="width: 100%;"></div>
+                    </div>
+    </div>
+    <div class="modal-footer">
+      <div class="control-group">
+            <div class="controls">
+              <button id="removeGroup" class="offset3 btn btn-large btn-primary span6" type="button" ng-click="removeGroup()">Remove Group</button>
+            </div>
+      </div>
+
+    </div>
+  </div>
+</div> 
+              
+            <!-- End of Modal -->
