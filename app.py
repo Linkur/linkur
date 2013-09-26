@@ -77,6 +77,7 @@ def user_signup():
                 responseWrapper.set_data(errors)
                 response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
                 response.mimetype = "application/json"
+                response.status_code = 400
                 return response
 
             session_id = sessionDAO.start_session(email)			
@@ -100,7 +101,7 @@ def user_signup():
     response.mimetype = "application/json"
     return response
 
-
+@crossdomain(origin='http://localhost:8000', methods=['OPTIONS', 'POST'])
 @app.route('/signin', methods=['POST','OPTIONS'])
 def user_login():
 
@@ -117,6 +118,7 @@ def user_login():
 
     except Exception as inst:
         print "error reading form data"
+        print inst
         responseWrapper.set_error(True)
         responseWrapper.set_data(["Error reading form data. check form data"])
         response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
@@ -564,7 +566,7 @@ def create_user_groups():
     response.mimetype = "application/json"
     return response
 
-@crossdomain(origin='http://localhost:8000', methods=['OPTIONS', 'DELETE'])
+
 @app.route('/group_delete', methods = ['OPTIONS', 'DELETE'])
 def remove_group_for_user():
     # check for cookie & get user object
@@ -748,10 +750,18 @@ def any_response(request):
     # ALLOWED = ['http://localhost:9005']
   response = make_response()
   
-  response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Credentials'
-  # response.headers['Access-Control-Allow-Methods'] = ['GET', 'POST', 'OPTIONS', 'DELETE']
-  response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
-  response.headers['Access-Control-Allow-Credentials'] = "true"
+  # response.headers['Access-Control-Allow-Headers'] = ['Access-Control-Allow-Credentials', 'Content-Type']
+  # # response.headers['Access-Control-Allow-Methods'] = ['GET', 'POST', 'OPTIONS', 'DELETE']
+  # response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
+  # response.headers['Access-Control-Allow-Credentials'] = "true"
+
+  response.headers['Access-Control-Allow-Origin'] = "http://192.168.1.11:8000"
+  print request.headers
+  if request.method == "OPTIONS" and 'Access-Control-Request-Headers' in request.headers:
+      response.headers['Access-Control-Allow-Headers'] = request.headers['Access-Control-Request-Headers']
+  response.headers['Access-Control-Allow-Origin'] = "http://192.168.1.11:8000"
+  response.headers['Access-Control-Allow-Credentials'] = "true"  
+  response.headers['Access-Control-Allow-Methods'] = "GET, POST, DELETE, OPTIONS"
 
   return response
 
