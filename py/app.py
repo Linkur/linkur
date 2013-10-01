@@ -328,7 +328,7 @@ def get_userinfo():
     return response
 
 
-@app.route('/post', methods=['POST'])
+@app.route('/post', methods=['PUT'])
 def insert_new_post():
 
     responseWrapper = ResponseWrapper()
@@ -567,7 +567,7 @@ def create_user_groups():
     return response
 
 
-@app.route('/group_delete', methods = ['OPTIONS', 'DELETE'])
+@app.route('/group', methods = ['OPTIONS', 'DELETE'])
 def remove_group_for_user():
     # check for cookie & get user object
     # check group collection for group id
@@ -755,11 +755,10 @@ def any_response(request):
   # response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
   # response.headers['Access-Control-Allow-Credentials'] = "true"
 
-  response.headers['Access-Control-Allow-Origin'] = "http://192.168.1.11:8000"
+  response.headers['Access-Control-Allow-Origin'] = "http://10.52.225.159:8000"
   print request.headers
   if request.method == "OPTIONS" and 'Access-Control-Request-Headers' in request.headers:
       response.headers['Access-Control-Allow-Headers'] = request.headers['Access-Control-Request-Headers']
-  response.headers['Access-Control-Allow-Origin'] = "http://192.168.1.11:8000"
   response.headers['Access-Control-Allow-Credentials'] = "true"  
   response.headers['Access-Control-Allow-Methods'] = "GET, POST, DELETE, OPTIONS"
 

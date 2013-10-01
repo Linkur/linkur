@@ -10,7 +10,7 @@ myAppModule.config(['$routeProvider','$httpProvider', function($routeProvider, $
 
 }]);
 
-myAppModule.value('apiEndPoint', 'http://localhost:5000');
+myAppModule.value('apiEndPoint', 'http://10.52.225.159:5000');
 
 myAppModule.directive("addurl", function(){
 	return{
@@ -52,7 +52,7 @@ myAppModule.directive("joingroup", function(){
 
 });
 
-function postCtr($scope,$http, apiEndPoint){
+function postCtr($scope, $http, $location, apiEndPoint){
 	
 	//  initialize models
 	$scope.currentGroup;
@@ -73,7 +73,7 @@ function postCtr($scope,$http, apiEndPoint){
 
 				// // HTTP request to get posts
 
-		    $http({method: 'GET', url : "http://192.168.1.11:5000/post?"+groupParam, withCredentials: true}).success(
+		    $http({method: 'GET', url : apiEndPoint+"/post?"+groupParam, withCredentials: true}).success(
                     function(data, status, headers, config){
                       
                       $scope.posts = data.data;
@@ -115,7 +115,7 @@ function postCtr($scope,$http, apiEndPoint){
 	
 		// fire http reqest to search user query for posts
 
-    $http({method: 'GET', url : "http://192.168.1.11:5000/search?q="+query, withCredentials: true}).success(
+    $http({method: 'GET', url : apiEndPoint+"/search?q="+query, withCredentials: true}).success(
                     function(data, status, headers, config){
                       
                       $scope.posts = data.data;
@@ -123,6 +123,9 @@ function postCtr($scope,$http, apiEndPoint){
                     }).error(
 	                    function(data, status, headers, config){
 	                      alert("search call fail");
+	                      if(status == "302"){
+	                      	$.location.path('/index.html');
+	                      }
                     }
       			);
 
@@ -164,7 +167,7 @@ function postCtr($scope,$http, apiEndPoint){
   		$('#submitURL').toggleClass('disabled');
   		// fire http reqest to search user query for posts
 
-	    $http({method: 'POST', url:'http://192.168.1.11:5000/post', 
+	    $http({method: 'PUT', url: apiEndPoint+'/post', 
 					withCredentials: true,
 					headers: {'Content-Type': 'application/x-www-form-urlencoded'},
 					data:"data="+JSON.stringify(payloadObj)
@@ -201,7 +204,7 @@ function postCtr($scope,$http, apiEndPoint){
   	$('#frmAddGroup').hide();
   	$('#submitGroup').toggleClass('disabled');
 
-		$http({method: 'POST', url:'http://192.168.1.11:5000/group', 
+		$http({method: 'POST', url: apiEndPoint+'/group', 
 					withCredentials: true,
 					headers: {'Content-Type': 'application/x-www-form-urlencoded'},
 					data:"data="+JSON.stringify(payloadObj)
@@ -229,7 +232,7 @@ function postCtr($scope,$http, apiEndPoint){
   	$('#frmJoinGroup').hide();
   	$('#submitJoinGroup').toggleClass('disabled');
 		
-			$http({method: 'POST', url:'http://192.168.1.11:5000/group/join/'+groupSharer, withCredentials: true}).success(
+			$http({method: 'POST', url: apiEndPoint+'/group/join/'+groupSharer, withCredentials: true}).success(
 										function(data, status, headers, config){
 											
 											console.log("joingroup success");
@@ -287,7 +290,7 @@ function postCtr($scope,$http, apiEndPoint){
 	};
 
 	$scope.logout = function(){
-						$http({method: 'POST', url:'http://192.168.1.11:5000/logout', withCredentials: true}).success(
+						$http({method: 'POST', url: apiEndPoint+'/logout', withCredentials: true}).success(
 										function(data, status, headers, config){
 											console.log("logout success");
 										}
@@ -300,7 +303,7 @@ function postCtr($scope,$http, apiEndPoint){
 
 	$scope.getUserInfo = function(){
 					
-						$http({method: 'GET', url : "http://192.168.1.11:5000/user/info", withCredentials: true}).success(
+						$http({method: 'GET', url : apiEndPoint+"/user/info", withCredentials: true}).success(
                     function(data, status, headers, config){
                       
                       $scope.groups = data.data[0].groups;
@@ -317,7 +320,7 @@ function postCtr($scope,$http, apiEndPoint){
 	$scope.removeGroup = function(){
 			var groupId = this.removeGroupData._id;
 				
-			$http({method: 'delete', url:'http://192.168.1.11:5000/group_delete?group_id='+groupId, withCredentials: true}).success(
+			$http({method: 'delete', url: apiEndPoint+'/group?group_id='+groupId, withCredentials: true}).success(
 										function(data, status, headers, config){
 											console.log("group remove success");
 											$scope.getUserInfo();
