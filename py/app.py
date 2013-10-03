@@ -199,50 +199,38 @@ def process_signout():
 @app.route('/post', methods=['GET', 'OPTIONS'])
 def get_recent_posts():
 
-    userid = None
-    cookies = request.cookies
     responseWrapper = ResponseWrapper()
     response = any_response(request)
+    user = validate_cookie(request)
 
-    if 'session' in cookies:
-        print "cookie : ",cookies['session']
-        userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
-        print "user : ",userid
-        user = userDAO.get_user_by_id(userid)
+    if user != None:
+        group_id = None
+        try:
+            group_id = request.args["group_id"]
+            print group_id
+        except Exception as inst:
+            print "please send group_id as part of url parameter"
+            responseWrapper.set_error(True)
+            responseWrapper.set_data(["group_id not supplied as URL param"])
+            response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+            response.mimetype = "application/json"
+            return response
 
-        if user != None:
-            group_id = None
-            try:
-                group_id = request.args["group_id"]
-                print group_id
-            except Exception as inst:
-                print "please send group_id as part of url parameter"
-                responseWrapper.set_error(True)
-                responseWrapper.set_data(["group_id not supplied as URL param"])
-                response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
-                response.mimetype = "application/json"
-                return response
+        posts = postDAO.get_recent_posts(group_id)
 
-            posts = postDAO.get_recent_posts(group_id)
+        json_result = None
 
-            json_result = None
-
-            if posts != None :
-                responseWrapper.set_data(posts)
-                responseWrapper.set_error(False)
-
-            else:
-                responseWrapper.set_error(True)
-            print(json_result)
+        if posts != None :
+            responseWrapper.set_data(posts)
+            responseWrapper.set_error(False)
 
         else:
             responseWrapper.set_error(True)
-            responseWrapper.set_data(["User not found"])
-            response.status_code = 302
+        print(json_result)
 
     else:
         responseWrapper.set_error(True)
-        responseWrapper.set_data(["User not logged in"])
+        responseWrapper.set_data(["User not found"])
         response.status_code = 302
 
         # redirect("/index.html")
@@ -252,34 +240,22 @@ def get_recent_posts():
 
 @app.route('/search', methods=['GET','OPTIONS'])
 def search():
-    userid = None
-    cookies = request.cookies
-    responseWrapper = ResponseWrapper()
-    response = any_response(request)
 
-    if 'session' in cookies:
-        print "cookie : ",cookies['session']
-        userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
-        print "user : ",userid
-        user = userDAO.get_user_by_id(userid)
-        print user.__str__()
-        if user != None:
-            queryText = request.args["q"]
-            # print queryText
-            result = postDAO.search(user, queryText)
-            response = any_response(request)
+    user = validate_cookie(request)
+    print user.__str__()
 
-            responseWrapper.set_data(result)
-            responseWrapper.set_error(False)
+    if user != None:
+        queryText = request.args["q"]
+        # print queryText
+        result = postDAO.search(user, queryText)
+        response = any_response(request)
 
-        else:
-            responseWrapper.set_error(True)
-            responseWrapper.set_data(["User not found, Login"])
-            response.status_code = 302
+        responseWrapper.set_data(result)
+        responseWrapper.set_error(False)
 
     else:
         responseWrapper.set_error(True)
-        responseWrapper.set_data(["User not logged in"])
+        responseWrapper.set_data(["User not found, Login"])
         response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
@@ -291,36 +267,18 @@ def search():
 
 @app.route('/user/info', methods=['GET', 'OPTIONS'])
 def get_userinfo():
-    userid = None
-    cookies = request.cookies
+    
     responseWrapper = ResponseWrapper()
     response = any_response(request)
+    user = validate_cookie(request)
 
-    if 'session' in cookies and (cookies['session'] != "None" or cookies['session'] != None):
-        print "cookie : ",cookies['session']
-        
-        userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
-        print "user : ",userid
-
-        if userid != None:
-
-            user = userDAO.get_user_info(userid)
-
-            if user != None:
-                responseWrapper.set_data([user])
-                responseWrapper.set_error(False)
-            else:
-                responseWrapper.set_error(True)
-                responseWrapper.set_data(["User not found. Please Login"])
-                response.status_code = 302
-        else:
-            responseWrapper.set_error(True)
-            responseWrapper.set_data(["User not logged in. Please Login"])
-            response.status_code = 302
-
+    if user != None:
+        user = userDAO.get_user_info(userid)
+        responseWrapper.set_data([user])
+        responseWrapper.set_error(False)
     else:
         responseWrapper.set_error(True)
-        responseWrapper.set_data(["User not logged in. Please Login"])
+        responseWrapper.set_data(["User not found. Please Login"])
         response.status_code = 302
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
@@ -333,16 +291,10 @@ def insert_new_post():
 
     responseWrapper = ResponseWrapper()
     response = any_response(request)
-
-    cookie = request.cookies["session"]
-    print "cookie : ",cookie
-
-    if cookie != None and cookie != "":
-        userid = sessionDAO.get_userid(cookie)  # see if user is logged in
-        print "user : ",userid
-
-        user = userDAO.get_user_by_id(userid)
-        print user.__str__()
+    
+    user = validate_cookie(request)
+    
+    if user != None:
         post = Post()
 
         try:
@@ -395,21 +347,13 @@ def insert_new_post():
     return response
 
 @app.route('/post/<post_id>', methods=['DELETE', 'OPTIONS'])
-def delete_psot(post_id=None):
+def delete_post(post_id=None):
     responseWrapper = ResponseWrapper()
     response = any_response(request)
 
-    cookie = request.cookies["session"]
-    print "cookie : ",cookie
-
-    if cookie != None and cookie != "":
-        userid = sessionDAO.get_userid(cookie)  # see if user is logged in
-        print "user : ",userid
-
-        user = userDAO.get_user_by_id(userid)
-        print user.__str__()
-        result = None
-
+    user = validate_cookie(request)
+    
+    if user != None:
         if post_id != None:
                         
             try:
@@ -579,8 +523,8 @@ def create_user_groups():
     return response
 
 
-@app.route('/group', methods = ['OPTIONS', 'DELETE'])
-def remove_group_for_user():
+@app.route('/group/<group_id>', methods = ['OPTIONS', 'DELETE'])
+def remove_group_for_user(group_id=None):
     # check for cookie & get user object
     # check group collection for group id
     # if exists, remove user from group collection
@@ -592,41 +536,44 @@ def remove_group_for_user():
     response = any_response(request)
 
     if user != None:
-        group_id = request.args['group_id']
-        print group_id
-        group_obj = groupDAO.get_group_by_id(str(group_id))
         
-        if group_obj != None:
-            #  check if group is already part for the user
-            group_exists = userDAO.does_group_exist(user.id,group_obj)
-            print "group exists", group_exists
-            remove_group_result = None
-            remove_user_result = None
+        if group_id != None:
+            group_obj = groupDAO.get_group_by_id(str(group_id))
+        
+            if group_obj != None:
+                #  check if group is already part for the user
+                group_exists = userDAO.does_group_exist(user.id,group_obj)
+                print "group exists", group_exists
+                remove_group_result = None
+                remove_user_result = None
 
-            if group_exists == True:
-                remove_group_result = groupDAO.remove_user(group_obj, user.id)
-                # TODO if the group contains ZERO number of users, delete group
-                remove_user_result = userDAO.remove_group(user.id, group_obj)
+                if group_exists == True:
+                    remove_group_result = groupDAO.remove_user(group_obj, user.id)
+                    # TODO if the group contains ZERO number of users, delete group
+                    remove_user_result = userDAO.remove_group(user.id, group_obj)
+
+                else:
+                    print "Group not related to user"
+
+                # check for DB errors
+                if remove_group_result != False and remove_user_result != False:
+                    responseWrapper.set_error(False)
+                    responseWrapper.set_data(["Success removing group"])
+                
+                elif remove_user_result == False:
+                    responseWrapper.set_error(True)
+                    responseWrapper.set_data(["error removing group from user"])
+                
+                else:
+                    responseWrapper.set_error(True)
+                    responseWrapper.set_data(["error removing user from group"])
 
             else:
-                print "Group not related to user"
-
-            # check for DB errors
-            if remove_group_result != False and remove_user_result != False:
-                responseWrapper.set_error(False)
-                responseWrapper.set_data(["Success removing group"])
-            
-            elif remove_user_result == False:
                 responseWrapper.set_error(True)
-                responseWrapper.set_data(["error removing group from user"])
-            
-            else:
-                responseWrapper.set_error(True)
-                responseWrapper.set_data(["error removing user from group"])
-
+                responseWrapper.set_data(["No such group. Try again"])
         else:
             responseWrapper.set_error(True)
-            responseWrapper.set_data(["No such group. Try again"])
+            responseWrapper.set_data(["group id is null"])
     else:
         # TODO redirect to login page
         responseWrapper.set_error(True)
