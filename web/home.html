@@ -133,7 +133,7 @@
 
                     <!-- placeholder for delete button -->
                     <div class="offset1 span1">
-                      <i data-toggle="modal" data-target="#removePostModal" rel="tooltip" title="Remove Post" class="icon-remove large offset1 pull-right remove-post" ng-click=""></i>
+                      <i data-toggle="modal" data-target="#removeModal" rel="tooltip" title="Remove Post" class="icon-remove large offset1 pull-right remove-post" ng-click="onRemovePost($event, post)"></i>
                     </div> 
                   </div>
                     
@@ -146,8 +146,8 @@
                     </div>
 
                     <!-- placholder for user -->
-                    <div class="span2 valign-middle pull-right">
-                      <h3><small>Added by : {{post.added_by}}</small></h3>
+                    <div rel="tooltip" title="Added By" class="span2 valign-middle pull-right">
+                      <h3><small class="pull-right">{{post.added_by}}</small></h3>
                     </div>
                   </div>  
 
@@ -159,8 +159,8 @@
                     </div>
 
                     <!-- placeholder for date -->
-                    <div class="span2 pull-right">
-                      <h5><small>{{post.date | date:'dd-MM-yyyy hh:mm'}}</small></h5>
+                    <div rel="tooltip" title="Added at" class="span2 pull-right">
+                      <h5><small class="pull-right">{{post.date | date:'dd-MM-yyyy hh:mm a'}}</small></h5>
                     </div>
 
                   </div>

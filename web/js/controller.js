@@ -289,11 +289,18 @@ function postCtr($scope, $http, $location, apiEndPoint){
 
 	$scope.onRemoveGroup = function(evt, group){
 		$scope.flags.isRemoveModal = true;
-
-		targetCLasses = evt.target.className.split(" ");
 		
 		$scope.remove.type = $scope.GROUP;
 		$scope.remove.data = group;
+		$scope.remove.desc = group.name;
+	};
+
+	$scope.onRemovePost = function(evt, post){
+		$scope.flags.isRemoveModal = true;
+		
+		$scope.remove.type = $scope.POST;
+		$scope.remove.data = post;
+		$scope.remove.desc = post.title;
 	};
 
 	$scope.logout = function(){
@@ -315,7 +322,12 @@ function postCtr($scope, $http, $location, apiEndPoint){
                       
                       $scope.groups = data.data[0].groups;
 						        	$scope.uname = data.data[0].name;
-						        	$scope.$emit("groupDataLoaded", $scope.groups);
+						        	
+						        	if($scope.groups.length > 0){
+						        		var groupsDOM = $('.group-item');
+						        		var firstGroupDOM = $(groupsDOM[0]).children();
+						        		$(firstGroupDOM).trigger('click');
+						        	}
 
                     }).error(
 	                    function(data, status, headers, config){
@@ -324,10 +336,18 @@ function postCtr($scope, $http, $location, apiEndPoint){
       			);
 	};
 
+	$scope.onRemoveItem = function(){
+		if($scope.remove.type == $scope.GROUP){
+			$scope.removeGroup();
+		} else{
+			$scope.removePost();
+		}
+	};
+
 	$scope.removeGroup = function(){
 			var groupId = $scope.remove.data._id;
 				
-			$http({method: 'delete', url: apiEndPoint+'/group?group_id='+groupId, withCredentials: true}).success(
+			$http({method: 'delete', url: apiEndPoint+'/group/'+groupId, withCredentials: true}).success(
 										function(data, status, headers, config){
 											console.log("group remove success");
 											$scope.getUserInfo();
@@ -337,7 +357,23 @@ function postCtr($scope, $http, $location, apiEndPoint){
 											alert("remove fail");
 										}
 			);
-	}
+	};
+
+	$scope.removePost = function(){
+			var postId = $scope.remove.data._id;
+				
+			$http({method: 'delete', url: apiEndPoint+'/post/'+postId, withCredentials: true}).success(
+										function(data, status, headers, config){
+											console.log("post remove success");
+											$scope.getData();
+										}
+			).error(
+										function(data, status, headers, config){
+											alert("remove fail");
+										}
+			);
+	};	
+
 
 	// util method to check if a tag (string starts with a blank space)
 	$scope.doesStartWithSpace = function(tag){

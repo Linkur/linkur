@@ -9,7 +9,7 @@
       <div>
         <div class="row-fluid">
             <div>Are you sure you want to remove ?</div>
-            <div>{{remove.data.name}}</div>
+            <div>{{remove.desc}}</div>
         </div>
       </div>
       <!-- progress bar -->
@@ -20,7 +20,7 @@
     <div class="modal-footer">
       <div class="control-group">
             <div class="controls">
-              <button id="removeGroup" class="offset3 btn btn-large btn-primary span6" type="button" ng-click="removeGroup()">Remove {{remove.type}}</button>
+              <button id="removeItem" class="offset3 btn btn-large btn-primary span6" type="button" ng-click="onRemoveItem()">Remove {{remove.type}}</button>
             </div>
       </div>
 
