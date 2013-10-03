@@ -372,6 +372,8 @@ def insert_new_post():
             if result != None:
                 responseWrapper.set_error(False)
                 responseWrapper.set_data([str(result)])
+                response.status_code = 201
+
             else:
                 responseWrapper.set_error(True)
                 responseWrapper.set_data(["error writing post"])
@@ -389,6 +391,56 @@ def insert_new_post():
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
+    
+    return response
+
+@app.route('/post/<post_id>', methods=['DELETE', 'OPTIONS'])
+def delete_psot(post_id=None):
+    responseWrapper = ResponseWrapper()
+    response = any_response(request)
+
+    cookie = request.cookies["session"]
+    print "cookie : ",cookie
+
+    if cookie != None and cookie != "":
+        userid = sessionDAO.get_userid(cookie)  # see if user is logged in
+        print "user : ",userid
+
+        user = userDAO.get_user_by_id(userid)
+        print user.__str__()
+        result = None
+
+        if post_id != None:
+                        
+            try:
+                result = postDAO.delete_post(post_id)
+                print "result is ", result
+
+                if result == None:
+                    responseWrapper.set_error(True)
+                    responseWrapper.set_data(["Error deleting post"])
+                else:
+                    responseWrapper.set_error(False)
+                    responseWrapper.set_data(["Success deleting post"])
+                    response.status_code = 200
+
+            except Exception as inst:
+                print inst
+                responseWrapper.set_error(True)
+                responseWrapper.set_data(["Error deleting post"])
+                response.status_code = 500
+        else:
+            responseWrapper.set_error(True)
+            responseWrapper.set_data(["Post id is null"])
+
+    else:
+        responseWrapper.set_error(True)
+        responseWrapper.set_data(["User not logged in. Please Login"])
+        response.status_code = 302
+
+    response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+    response.mimetype = "application/json"
+    
     return response
 
 @app.route('/category', methods=['GET'])
@@ -472,46 +524,6 @@ def get_user_groups():
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
     return response
-
-# @app.route('/user/group', methods=['POST'])
-# def append_user_groups():
-
-# 	user = validate_cookie(request)
-# 	responseWrapper = ResponseWrapper()
-# 	response = any_response(request)
-
-# 	if user != None:
-
-# 		group = Group()
-# 		try:
-# 			form_data = request.form['data']
-# 			json_data = json.loads(form_data)
-# 			group.id = json_data['_id']
-# 			group.name = json_data['group_name']
-# 		except Exceptionas inst:
-# 			print "error reading form data"
-# 			responseWrapper.set_error(True)
-# 			responseWrapper.set_data([str(inst)])
-# 			response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
-# 			response.mimetype = "application/json"
-# 			return response
-
-# 		result = userDAO.append_group(user.id,group)
-
-# 		if result != None:
-# 			responseWrapper.set_error(False)
-# 			responseWrapper.set_data(result)
-# 		else:
-# 			responseWrapper.set_error(True)
-# 			responseWrapper.set_data(["error writing user groups"])
-
-# 	else:
-# 		responseWrapper.set_error(True)
-# 		responseWrapper.set_data(["User not found. Please login again"])
-
-# 	response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
-# 	response.mimetype = "application/json"
-# 	return response
 
 # create a new group. On success of new group creation, the group is automatically appended to the user
 @app.route('/group', methods=['POST', 'OPTIONS'])
@@ -755,12 +767,12 @@ def any_response(request):
   # response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
   # response.headers['Access-Control-Allow-Credentials'] = "true"
 
-  response.headers['Access-Control-Allow-Origin'] = "http://10.52.225.159:8000"
+  response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
   print request.headers
   if request.method == "OPTIONS" and 'Access-Control-Request-Headers' in request.headers:
       response.headers['Access-Control-Allow-Headers'] = request.headers['Access-Control-Request-Headers']
   response.headers['Access-Control-Allow-Credentials'] = "true"  
-  response.headers['Access-Control-Allow-Methods'] = "GET, POST, DELETE, OPTIONS"
+  response.headers['Access-Control-Allow-Methods'] = "GET, POST, DELETE, PUT, OPTIONS"
 
   return response
 
