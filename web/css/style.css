@@ -421,3 +421,12 @@
   border-bottom-color: #000000;
   border-width: 0 5px 5px;
 }
+
+.valign-middle > a {
+  vertical-align: middle;
+}
+
+.valign-middle > h3 > small{
+  vertical-align: top;
+}
+

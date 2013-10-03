@@ -10,7 +10,7 @@ myAppModule.config(['$routeProvider','$httpProvider', function($routeProvider, $
 
 }]);
 
-myAppModule.value('apiEndPoint', 'http://10.52.225.159:5000');
+myAppModule.value('apiEndPoint', 'http://localhost:5000');
 
 myAppModule.directive("addurl", function(){
 	return{
@@ -28,10 +28,10 @@ myAppModule.directive("addgroup", function(){
 
 });
 
-myAppModule.directive("removegroup", function(){
+myAppModule.directive("removemodal", function(){
 	return{
 		restrict : 'E',
-		templateUrl : 'remove-group-modal.html'
+		templateUrl : 'remove-modal.html'
 	};
 
 });
@@ -57,9 +57,13 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	//  initialize models
 	$scope.currentGroup;
   $scope.posts = [];
-  $scope.posts = [];
   $scope.flags = {};
   $scope.joinGroup = {};
+  $scope.remove = {};
+
+  //Constants
+  $scope.GROUP = "group";
+  $scope.POST = "post";
 
   // method to fire http request & GET posts
 	$scope.getData = function(){
@@ -284,9 +288,12 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	}
 
 	$scope.onRemoveGroup = function(evt, group){
-		$scope.flags.isRemoveGroupModal = true;
+		$scope.flags.isRemoveModal = true;
+
+		targetCLasses = evt.target.className.split(" ");
 		
-		$scope.removeGroupData = group;
+		$scope.remove.type = $scope.GROUP;
+		$scope.remove.data = group;
 	};
 
 	$scope.logout = function(){
@@ -318,7 +325,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	};
 
 	$scope.removeGroup = function(){
-			var groupId = this.removeGroupData._id;
+			var groupId = $scope.remove.data._id;
 				
 			$http({method: 'delete', url: apiEndPoint+'/group?group_id='+groupId, withCredentials: true}).success(
 										function(data, status, headers, config){

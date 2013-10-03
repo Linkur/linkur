@@ -85,7 +85,7 @@
             <!-- <i class="icon-search"></i> -->
             <addurl></addurl>
             <addgroup></addgroup>
-            <removegroup></removegroup>
+            <removemodal></removemodal>
             <sharegroup></sharegroup>
             <joingroup></joingroup>
       </div>
@@ -101,7 +101,7 @@
                  
                     <a href="#" ng-click="selectGroup($event, group)">{{group.name}}
                       <i data-toggle="modal" data-target="#shareGroupModal" rel="tooltip" title="Share group" class="icon-share offset5" ng-click="onShareGroup($event, group)"></i>
-                      <i data-toggle="modal" data-target="#removeGroupModal" rel="tooltip" title="Remove group" class="icon-remove large offset1" ng-click="onRemoveGroup($event, group)"></i>
+                      <i data-toggle="modal" data-target="#removeModal" rel="tooltip" title="Remove group" class="icon-remove large offset1 remove-group" ng-click="onRemoveGroup($event, group)"></i>
 
                     </a>
                  
@@ -127,13 +127,13 @@
                   <div class="row-fluid">                  
 
                     <!-- placeholder for title -->
-                    <div class="span10 valign-center">
+                    <div class="span10">
                       <div><h3>{{post.title}}</h3></div>
                     </div>
 
-                    <!-- placeholder for user -->
-                    <div class="span2 valign-center">
-                      <h3><small>Added by : {{post.added_by}}</small></h3>
+                    <!-- placeholder for delete button -->
+                    <div class="offset1 span1">
+                      <i data-toggle="modal" data-target="#removePostModal" rel="tooltip" title="Remove Post" class="icon-remove large offset1 pull-right remove-post" ng-click=""></i>
                     </div> 
                   </div>
                     
@@ -141,13 +141,13 @@
                   <!-- row for link & date -->
                   <div class="row-fluid">
                     <!-- placeholder for link -->
-                    <div class="lead span10">
+                    <div class="lead span10 valign-middle">
                       <a href=http://{{post.link}}>{{post.link}}</a>
                     </div>
 
-                    <!-- placholder for date -->
-                    <div class="span2 pull-right">
-                      <h5><small>{{post.date | date:'dd-MM-yyyy hh:mm'}}</small></h5>
+                    <!-- placholder for user -->
+                    <div class="span2 valign-middle pull-right">
+                      <h3><small>Added by : {{post.added_by}}</small></h3>
                     </div>
                   </div>  
 
@@ -158,9 +158,9 @@
                       <code ng-repeat="tag in post.tags" class="margin2">{{tag}}</code>
                     </div>
 
-                    <!-- placeholder for settings -->
+                    <!-- placeholder for date -->
                     <div class="span2 pull-right">
-                      <i class="icon-settings"></i>
+                      <h5><small>{{post.date | date:'dd-MM-yyyy hh:mm'}}</small></h5>
                     </div>
 
                   </div>

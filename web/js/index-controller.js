@@ -20,7 +20,7 @@ function loginCtr($scope,$http){
       
       var xsrf = $.param({"email": this.emailVal,"password":this.pwdVal});
 
-      $http({method: 'POST', url : "http://10.52.225.159:5000/signin", withCredentials: true, headers: {'Content-Type': 'application/x-www-form-urlencoded'}, data: xsrf}).success(
+      $http({method: 'POST', url : "http://localhost:5000/signin", withCredentials: true, headers: {'Content-Type': 'application/x-www-form-urlencoded'}, data: xsrf}).success(
                     function(data, status, headers, config){
                       alert("signin success");
                     }
