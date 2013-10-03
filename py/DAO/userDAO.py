@@ -168,7 +168,7 @@ class UserDAO:
 		else:
 			return None
 
-
+	#  append group to user
 	def append_group(self, uname, group_obj):
 		# append this group to the groups array of the user document
 		collection = self.user_collection
@@ -178,9 +178,9 @@ class UserDAO:
 		except Exception as inst:
 			print "error updating DB"
 			print inst
-			return None
+			return False
 
-		return "Success"
+		return True
 
 	def does_group_exist(self, uname, group_obj):
 		collection = self.user_collection
@@ -198,4 +198,17 @@ class UserDAO:
 		else:
 			return False
 
+	#  remove group to user
+	def remove_group(self, uname, group_obj):
+		# append this group to the groups array of the user document
+		collection = self.user_collection
+		group = group_obj.__str__()
+		try:
+			result = collection.update({"_id":uname},{"$pull":{"groups":group}})
+			print result
+		except Exception as inst:
+			print "error updating user DB - removing group from user"
+			print inst
+			return False
 
+		return True

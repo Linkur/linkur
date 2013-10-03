@@ -162,3 +162,20 @@ class PostDAO:
 			print inst
 
 		return result
+
+	def delete_post(self, post_id):
+
+		collection = self.recent_collection
+		result = None
+		
+		try:
+			to_delete = {"_id":ObjectId(post_id)}
+			print "to delete is ", to_delete
+			
+			result = collection.remove(to_delete, safe=True)
+
+		except Exception as inst:
+			print "error removing post"
+			print inst
+
+		return result
