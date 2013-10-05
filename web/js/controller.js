@@ -97,7 +97,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	};
 
 	$scope.showAddGroupModal = function(){
-		// $('#addGroupProgress').hide();
+		$('#addGroupProgress').hide();
 		$scope.flags.isAddGroupModal = true;
 	};
 
@@ -106,7 +106,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	};
 
 	$scope.showJoinGroupModal = function(){
-		// $('#joinGroupProgress').hide();
+		$('#joinGroupProgress').hide();
 		$scope.flags.isJoinGroupModal = true;
 	};
 
@@ -140,13 +140,22 @@ function postCtr($scope, $http, $location, apiEndPoint){
 		 $scope.getData();
 	});
 
+	// handler for groupLoaded event - triggers lead selection
+	$scope.$on('groupsLoaded', function(event) { 
+		var groupsDOM = $('.group-item');
+		var firstGroupDOM = $(groupsDOM[0]).children();
+		$(firstGroupDOM).trigger('click');
+	});
+
   // method to get the url details from modal dialog & send it to the backend
-  $scope.addUrl = function(){
+  $scope.addUrl = function(evt){
   		// get the user inputs
   		// fire POST request
 
   		var buttonRef = $('#submitURL');
   		buttonRef.button('loading');
+  		$('#addURLProgress').show();
+
   		var newPostData = $scope.newPost;
   		var payloadObj = {};
 
@@ -170,9 +179,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 
   		payloadObj.tags = correctedTags;
 
-  		$('#addURLProgress').show();
   		$('#frmAddURL').hide();
-  		$('#submitURL').toggleClass('disabled');
   		// fire http reqest to search user query for posts
 
 	    $http({method: 'PUT', url: apiEndPoint+'/post', 
@@ -180,19 +187,17 @@ function postCtr($scope, $http, $location, apiEndPoint){
 					headers: {'Content-Type': 'application/x-www-form-urlencoded'},
 					data:"data="+JSON.stringify(payloadObj)
 			}).success(function(data, status, headers, config){
-											
-						$scope.ipTitle = "";
-						$scope.ipURL = "";
-						$scope.ipGroup = "";
-						$scope.ipTags = "";
 
 						$('#addURLProgress').hide();
-						buttonRef.button.reset();
+						var buttonRef = $('#submitURL');
+						buttonRef.button('reset');
+
 						$('#addURLModal').modal('hide');
   					$('#frmAddURL').show(); 
+  					$scope.newPost = {};
 
   					$scope.flags.isAddUrlModal = false;
-  					$scope.getUserInfo();  
+  					$scope.getData();  
 
 					}).error(function(data, status, headers, config){
 											alert("addurl fail");
@@ -211,7 +216,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 
 		$('#addGroupProgress').show();
   	$('#frmAddGroup').hide();
-  	$('#submitGroup').toggleClass('disabled');
+  	$('#submitGroup').button('loading');
 
 		$http({method: 'POST', url: apiEndPoint+'/group', 
 					withCredentials: true,
@@ -219,7 +224,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 					data:"data="+JSON.stringify(payloadObj)
 			}).success(function(data, status, headers, config){
 											
-								$('#submitGroup').toggleClass('disabled');
+								$('#submitGroup').button('reset');
 								$('#addGroupModal').modal('hide');
 		  					$('#frmAddGroup').show();  
 
@@ -239,8 +244,8 @@ function postCtr($scope, $http, $location, apiEndPoint){
 
 		$('#joinGroupProgress').show();
   	$('#frmJoinGroup').hide();
-  	$('#submitJoinGroup').toggleClass('disabled');
-		
+  	$('#submitJoinGroup').button('loading');
+
 			$http({method: 'POST', url: apiEndPoint+'/group/join/'+groupSharer, withCredentials: true}).success(
 										function(data, status, headers, config){
 											
@@ -248,7 +253,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 											if(json.error){
 												alert(json.data[0]);
 											}
-												$('#submitGroup').toggleClass('disabled');
+												$('#submitJoinGroup').button('reset');
 												$('#joinGroupModal').modal('hide');
 						  					$('#frmJoinGroup').show();  
 
@@ -271,7 +276,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 
 		// save the selected group in the factory - shared data
 		$scope.currentGroup = group;
-		console.log('selected - '+group._id);
+		// console.log('selected - '+group._id);
 
 		// change css class for selected group
 		$('.group-item').removeClass('active');
@@ -329,9 +334,11 @@ function postCtr($scope, $http, $location, apiEndPoint){
 						        	$scope.uname = data.data[0].name;
 						        	
 						        	if($scope.groups.length > 0){
-						        		var groupsDOM = $('.group-item');
-						        		var firstGroupDOM = $(groupsDOM[0]).children();
-						        		$(firstGroupDOM).trigger('click');
+						        		// fire groupSelected event, which triggers getData() in postCtr
+						        		setTimeout(function() {
+						        			$scope.$emit('groupsLoaded');	
+						        		}, 50);
+ 												
 						        	}
 
                     }).error(
@@ -342,6 +349,10 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	};
 
 	$scope.onRemoveItem = function(){
+
+		$('#removeItem').button('loading');
+		$('#removeItemProgress').show();
+		
 		if($scope.remove.type == $scope.GROUP){
 			$scope.removeGroup();
 		} else{
@@ -354,7 +365,13 @@ function postCtr($scope, $http, $location, apiEndPoint){
 				
 			$http({method: 'delete', url: apiEndPoint+'/group/'+groupId, withCredentials: true}).success(
 										function(data, status, headers, config){
+											
 											console.log("group remove success");
+											$('#removeItem').button('reset');
+											$('#removeItemProgress').hide();
+											$scope.flags.isRemoveModal = false;
+											$('#removeModal').modal('hide');
+
 											$scope.getUserInfo();
 										}
 			).error(
@@ -369,7 +386,13 @@ function postCtr($scope, $http, $location, apiEndPoint){
 				
 			$http({method: 'delete', url: apiEndPoint+'/post/'+postId, withCredentials: true}).success(
 										function(data, status, headers, config){
+											
 											console.log("post remove success");
+											$('#removeItem').button('reset');
+											$('#removeItemProgress').hide();
+											$scope.flags.isRemoveModal = false;
+											$('#removeModal').modal('hide');
+
 											$scope.getData();
 										}
 			).error(
