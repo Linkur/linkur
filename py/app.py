@@ -273,7 +273,7 @@ def get_userinfo():
     user = validate_cookie(request)
 
     if user != None:
-        user = userDAO.get_user_info(userid)
+        user = userDAO.get_user_info(user.id)
         responseWrapper.set_data([user])
         responseWrapper.set_error(False)
     else:
