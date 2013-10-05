@@ -97,7 +97,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	};
 
 	$scope.showAddGroupModal = function(){
-		$('#addGroupProgress').hide();
+		// $('#addGroupProgress').hide();
 		$scope.flags.isAddGroupModal = true;
 	};
 
@@ -106,7 +106,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	};
 
 	$scope.showJoinGroupModal = function(){
-		$('#joinGroupProgress').hide();
+		// $('#joinGroupProgress').hide();
 		$scope.flags.isJoinGroupModal = true;
 	};
 
@@ -144,8 +144,12 @@ function postCtr($scope, $http, $location, apiEndPoint){
   $scope.addUrl = function(){
   		// get the user inputs
   		// fire POST request
+
+  		var buttonRef = $('#submitURL');
+  		buttonRef.button('loading');
   		var newPostData = $scope.newPost;
   		var payloadObj = {};
+
   		payloadObj.title = encodeURIComponent(newPostData.ipTitle);
   		payloadObj.link = newPostData.ipURL;
   		payloadObj.category = null;
@@ -182,7 +186,8 @@ function postCtr($scope, $http, $location, apiEndPoint){
 						$scope.ipGroup = "";
 						$scope.ipTags = "";
 
-						$('#submitURL').toggleClass('disabled');
+						$('#addURLProgress').hide();
+						buttonRef.button.reset();
 						$('#addURLModal').modal('hide');
   					$('#frmAddURL').show(); 
 
