@@ -1,6 +1,11 @@
 // declare a module
 var myAppModule = angular.module('urlur', ['ngCookies']);
 
+/*
+	Setting up CORS
+	Removing header X-Requested-With, Content-Type
+	Adding useXDomain , withCredentials
+*/
 myAppModule.config(['$routeProvider','$httpProvider', function($routeProvider, $httpProvider){
 	delete $httpProvider.defaults.headers.common["X-Requested-With"];
 	delete $httpProvider.defaults.headers.common["content-type"];
@@ -10,8 +15,15 @@ myAppModule.config(['$routeProvider','$httpProvider', function($routeProvider, $
 
 }]);
 
+/*
+	Global variable across the module to store the API endpoint
+	All ajax calls use this as base url 
+*/
 myAppModule.value('apiEndPoint', 'http://localhost:5000');
 
+/*
+	Creating a directive to create a DOM element <addurl>
+*/
 myAppModule.directive("addurl", function(){
 	return{
 		restrict : 'E',
@@ -20,6 +32,9 @@ myAppModule.directive("addurl", function(){
 
 });
 
+/*
+	Creating a directive to create a DOM element <addgroup>
+*/
 myAppModule.directive("addgroup", function(){
 	return{
 		restrict : 'E',
@@ -28,6 +43,9 @@ myAppModule.directive("addgroup", function(){
 
 });
 
+/*
+	Creating a directive to create a DOM element <removemodal>
+*/
 myAppModule.directive("removemodal", function(){
 	return{
 		restrict : 'E',
@@ -36,6 +54,9 @@ myAppModule.directive("removemodal", function(){
 
 });
 
+/*
+	Creating a directive to create a DOM element <sharegroup>
+*/
 myAppModule.directive("sharegroup", function(){
 	return{
 		restrict : 'E',
@@ -44,6 +65,9 @@ myAppModule.directive("sharegroup", function(){
 
 });
 
+/*
+	Creating a directive to create a DOM element <joingroup>
+*/
 myAppModule.directive("joingroup", function(){
 	return{
 		restrict : 'E',
@@ -52,31 +76,39 @@ myAppModule.directive("joingroup", function(){
 
 });
 
+/*
+	Post Controller
+	Controller for home.html
+*/
 function postCtr($scope, $http, $location, apiEndPoint){
 	
-	//  initialize models
+	/*
+		initializing models
+	*/
 	$scope.currentGroup;
   $scope.posts = [];
   $scope.flags = {};
   $scope.joinGroup = {};
   $scope.remove = {};
 
-  //Constants
+  /*
+		Constants
+	*/
   $scope.GROUP = "group";
   $scope.POST = "post";
 
-  // method to fire http request & GET posts
+  /*
+		method to fire http request & GET posts for a group
+		group is specified by $scope.currentGroup
+	*/
 	$scope.getData = function(){
 		var me = this;
-		//$scope.cookieValue = $cookieStore.get('session');
 		
 		// check if any group is selected
 		if(typeof $scope.currentGroup !== "undefined"){
 				var groupParam = "group_id="+$scope.currentGroup._id;
-				console.log(groupParam);
 
-				// // HTTP request to get posts
-
+				// HTTP request to get posts
 		    $http({method: 'GET', url : apiEndPoint+"/post?"+groupParam, withCredentials: true}).success(
                     function(data, status, headers, config){
                       
@@ -84,41 +116,60 @@ function postCtr($scope, $http, $location, apiEndPoint){
 						        	
                     }).error(
 	                    function(data, status, headers, config){
-	                      alert("posts call fail");
+	                      console.log("posts call fail");
                     }
       			);
 		}
 		    
 	};
 
+	/*
+		set isAddUrlModal boolean to true.
+		this will show the Add Post Modal
+	*/
 	$scope.showAddURLModal = function(){
 		$('#addURLProgress').hide();
-		$scope.flags.isAddUrlModal = true;
+		$scope.flags.isAddURLModal = true;
 	};
 
+	/*
+		set isAddGroupModal boolean to true.
+		this will show the Add Group Modal
+	*/
 	$scope.showAddGroupModal = function(){
 		$('#addGroupProgress').hide();
 		$scope.flags.isAddGroupModal = true;
 	};
 
+	/*
+		set isShareGroupModal boolean to true.
+		this will show the Share Group Modal
+	*/
 	$scope.showShareGroupModal = function(){
 		$scope.flags.isShareGroupModal = true;
 	};
 
+	/*
+		set isJoinGroupModal boolean to true.
+		this will show the Join Group Modal
+	*/
 	$scope.showJoinGroupModal = function(){
 		$('#joinGroupProgress').hide();
 		$scope.flags.isJoinGroupModal = true;
 	};
 
-	// method called when user searches for a post
+	
+	/*
+		method called when user searches posts based on keywords
+	*/
 	$scope.search = function(){
 	
 		var me = this;
 		var query = this.searchQuery;
+		// encode the query with keywords, as this goes in the URL
 		query = encodeURIComponent(query);
 	
 		// fire http reqest to search user query for posts
-
     $http({method: 'GET', url : apiEndPoint+"/search?q="+query, withCredentials: true}).success(
                     function(data, status, headers, config){
                       
@@ -126,7 +177,11 @@ function postCtr($scope, $http, $location, apiEndPoint){
 						        	
                     }).error(
 	                    function(data, status, headers, config){
-	                      alert("search call fail");
+
+	                      console.log("search call fail");
+
+	                      // check for status code
+	                      // if 302, redirect to login page
 	                      if(status == "302"){
 	                      	$.location.path('/index.html');
 	                      }
@@ -135,19 +190,28 @@ function postCtr($scope, $http, $location, apiEndPoint){
 
 	};
 
-	// handler for groupSelected event - triggers getData()
+
+	/*
+		handler for groupSelected event - triggers getData()
+	*/
 	$scope.$on('groupSelected', function(event) { 
 		 $scope.getData();
 	});
 
-	// handler for groupLoaded event - triggers lead selection
+
+	/*
+		handler for groupLoaded event - triggers lead selection
+	*/
 	$scope.$on('groupsLoaded', function(event) { 
 		var groupsDOM = $('.group-item');
 		var firstGroupDOM = $(groupsDOM[0]).children();
 		$(firstGroupDOM).trigger('click');
 	});
 
-  // method to get the url details from modal dialog & send it to the backend
+
+  /*
+		method to get the url details from modal dialog & send it to the backend
+	*/
   $scope.addUrl = function(evt){
   		// get the user inputs
   		// fire POST request
@@ -196,16 +260,18 @@ function postCtr($scope, $http, $location, apiEndPoint){
   					$('#frmAddURL').show(); 
   					$scope.newPost = {};
 
-  					$scope.flags.isAddUrlModal = false;
+  					$scope.flags.isAddURLModal = false;
   					$scope.getData();  
 
-					}).error(function(data, status, headers, config){
-											alert("addurl fail");
-									}
-							);
-
+			}).error(function(data, status, headers, config){
+						console.log("addurl fail");
+			});
   };
 
+
+  /*
+		method to get the add new group from modal dialog & send it to the backend
+	*/
   $scope.addGroup = function(){
 		
 		var groupName = this.newGroupName;
@@ -228,16 +294,21 @@ function postCtr($scope, $http, $location, apiEndPoint){
 								$('#addGroupModal').modal('hide');
 		  					$('#frmAddGroup').show();  
 
+		  					$scope.newGroupName = "";
 		  					$scope.flags.isAddGroupModal = false;
 								$scope.getUserInfo();  
 
 					}).error(function(data, status, headers, config){
-											alert("addgroup fail");
+											console.log("addgroup fail");
 									}
 							);
 
 	};
 
+
+	/*
+		method to join an existing group by entering the sharerID into modal dialog & send it to the backend
+	*/
 	$scope.joinGroup = function(){
 		
 		var groupSharer = this.joinGroup.sharer;
@@ -251,7 +322,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 											
 											console.log("joingroup success");
 											if(json.error){
-												alert(json.data[0]);
+												console.log(json.data[0]);
 											}
 												$('#submitJoinGroup').button('reset');
 												$('#joinGroupModal').modal('hide');
@@ -262,22 +333,21 @@ function postCtr($scope, $http, $location, apiEndPoint){
 										}
 							).error(
 									function(data, status, headers, config){
-											alert("joingroup fail");
+											console.log("joingroup fail");
 									}
 							);
 
 	};
 
-  /*
-	*	Methods to handle events & data related to groups
-	*/
 
+  /*
+		Method called when user selects any group from the sidebar
+	*/
 	$scope.selectGroup = function(evt, group){
 
 		// save the selected group in the factory - shared data
 		$scope.currentGroup = group;
-		// console.log('selected - '+group._id);
-
+		
 		// change css class for selected group
 		$('.group-item').removeClass('active');
 		$(evt.currentTarget).parent().addClass('active');
@@ -287,6 +357,11 @@ function postCtr($scope, $http, $location, apiEndPoint){
 		
 	};
 
+
+	/*
+		Method called when user clicks share icon for any group on the sidebar
+		This will open the confirmation modal
+	*/
 	$scope.onShareGroup = function(evt, group){
 		
 		$scope.flags.isShareGroupModal = true;
@@ -295,8 +370,13 @@ function postCtr($scope, $http, $location, apiEndPoint){
 		$scope.sharedGroup.hash = group.hash;
 		$scope.sharedGroup.name = group.name;
 
-	}
+	};
 
+
+	/*
+		Method called when user clicks remove icon for any group on the sidebar
+		This will open the confirmation modal
+	*/
 	$scope.onRemoveGroup = function(evt, group){
 		$scope.flags.isRemoveModal = true;
 		
@@ -305,6 +385,11 @@ function postCtr($scope, $http, $location, apiEndPoint){
 		$scope.remove.desc = group.name;
 	};
 
+
+	/*
+		Method called when user clicks remove icon for any post
+		This will open the confirmation modal
+	*/
 	$scope.onRemovePost = function(evt, post){
 		$scope.flags.isRemoveModal = true;
 		
@@ -313,6 +398,13 @@ function postCtr($scope, $http, $location, apiEndPoint){
 		$scope.remove.desc = post.title;
 	};
 
+
+	/*
+		Method called when user clicks Logout
+		TODO 
+			* check why this goes into error callback
+			* on success, redirect to signin page
+	*/
 	$scope.logout = function(){
 						$http({method: 'POST', url: apiEndPoint+'/logout', withCredentials: true}).success(
 										function(data, status, headers, config){
@@ -320,11 +412,16 @@ function postCtr($scope, $http, $location, apiEndPoint){
 										}
 							).error(
 									function(data, status, headers, config){
-											alert("logout fail");
+											console.log("logout fail");
 									}
 							);
 	};
 
+
+	/*
+		Method called to get user info with username, his groups
+		This is called on page load
+	*/
 	$scope.getUserInfo = function(){
 					
 						$http({method: 'GET', url : apiEndPoint+"/user/info", withCredentials: true}).success(
@@ -337,17 +434,22 @@ function postCtr($scope, $http, $location, apiEndPoint){
 						        		// fire groupSelected event, which triggers getData() in postCtr
 						        		setTimeout(function() {
 						        			$scope.$emit('groupsLoaded');	
-						        		}, 50);
+						        		}, 100);
  												
 						        	}
 
                     }).error(
 	                    function(data, status, headers, config){
-	                      alert("userinfo fail");
+	                      console.log("userinfo fail");
                     }
       			);
 	};
 
+
+	/*
+		Method called when user clicks remove icon on group or post
+		This method checks for the type of object which triggered remove & calls corresponding object's remove method
+	*/
 	$scope.onRemoveItem = function(){
 
 		$('#removeItem').button('loading');
@@ -360,6 +462,10 @@ function postCtr($scope, $http, $location, apiEndPoint){
 		}
 	};
 
+
+	/*
+		Method called to remove a group
+	*/
 	$scope.removeGroup = function(){
 			var groupId = $scope.remove.data._id;
 				
@@ -375,12 +481,16 @@ function postCtr($scope, $http, $location, apiEndPoint){
 											$scope.getUserInfo();
 										}
 			).error(
-										function(data, status, headers, config){
-											alert("remove fail");
-										}
+									function(data, status, headers, config){
+										console.log("remove fail");
+									}
 			);
 	};
 
+
+	/*
+		Method called to remove a post
+	*/
 	$scope.removePost = function(){
 			var postId = $scope.remove.data._id;
 				
@@ -397,13 +507,15 @@ function postCtr($scope, $http, $location, apiEndPoint){
 										}
 			).error(
 										function(data, status, headers, config){
-											alert("remove fail");
+											console.log("remove fail");
 										}
 			);
 	};	
 
 
-	// util method to check if a tag (string starts with a blank space)
+	/*
+		util method to check if a tag (string starts with a blank space)
+	*/
 	$scope.doesStartWithSpace = function(tag){
 		if(tag[0] === " "){
 			return true;

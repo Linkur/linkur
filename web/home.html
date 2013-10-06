@@ -80,9 +80,7 @@
                 <a class="btn" title="Add Group" href="#" data-toggle="modal" data-target="#addGroupModal" class="btn btn-primary" type="button" ng-click="showAddGroupModal()"><i class="icon-plus"></i><i class="icon-user"></i><i class="icon-user"></i><i class="icon-user"></i></a>
               <!-- </div> -->
             </div>
-            <!-- <button data-toggle="modal" data-target="#addURLModal" class="btn btn-primary" type="button" ng-click="showAddURLModal()">Add New URL</button>
-            <button data-toggle="modal" data-target="#addGroupModal" class="btn btn-primary" type="button" ng-click="showAddGroupModal()"></button> -->
-            <!-- <i class="icon-search"></i> -->
+            
             <addurl></addurl>
             <addgroup></addgroup>
             <removemodal></removemodal>
@@ -96,15 +94,24 @@
           <div class="row-fluid">
             <div class="well sidebar-nav">
               <ul class="nav nav-list">
-                <li class="nav"><h3>Groups</h3></li>
+                <li class="nav-header"><h3>Groups</h3></li>
                 <li class="group-item" ng-repeat="group in groups">
-                 
-                    <a href="#" ng-click="selectGroup($event, group)">{{group.name}}
-                      <i data-toggle="modal" data-target="#shareGroupModal" rel="tooltip" title="Share group" class="icon-share offset5" ng-click="onShareGroup($event, group)"></i>
-                      <i data-toggle="modal" data-target="#removeModal" rel="tooltip" title="Remove group" class="icon-remove large offset1 remove-group" ng-click="onRemoveGroup($event, group)"></i>
 
-                    </a>
-                 
+                  <div class="row-fluid" ng-click="selectGroup($event, group)">
+                    <a class="span7" href="#">{{group.name}}</a>
+                    <!-- Placeholder for share & remove icons -->
+                    <div class="offset1 span4">
+                      <!-- Placeholder for share -->
+                      <div class="span2">
+                        <i data-toggle="modal" data-target="#shareGroupModal" rel="tooltip" title="Share group" class="icon-share" ng-click="onShareGroup($event, group)"></i>
+                      </div>
+                      <!-- Placeholder for remove -->
+                      <div class="span3 pull-right">
+                        <i data-toggle="modal" data-target="#removeModal" rel="tooltip" title="Remove group" class="icon-remove large remove-group" ng-click="onRemoveGroup($event, group)"></i>
+                      </div>
+                    </div>
+
+                  </div>
                 </li>
               </ul>
             </div>
