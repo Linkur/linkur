@@ -117,6 +117,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
                     }).error(
 	                    function(data, status, headers, config){
 	                      console.log("posts call fail");
+	                      $scope.checkForRedirect(status, 302);
                     }
       			);
 		}
@@ -182,9 +183,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 
 	                      // check for status code
 	                      // if 302, redirect to login page
-	                      if(status == "302"){
-	                      	$.location.path('/index.html');
-	                      }
+	                      $scope.checkForRedirect(status, 302);
                     }
       			);
 
@@ -231,6 +230,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
   		if(typeof newPostData.ipTags !== "undefinded"){
   			var tagsArray = newPostData.ipTags.split(",");
 	  		var correctedTags = [];
+	  		
 	  		// check for tags starting with space
 	  		$.each(tagsArray, function(idx,tag){
 	  			while($scope.doesStartWithSpace(tag)){
@@ -265,6 +265,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 
 			}).error(function(data, status, headers, config){
 						console.log("addurl fail");
+						$scope.checkForRedirect(status, 302);
 			});
   };
 
@@ -300,6 +301,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 
 					}).error(function(data, status, headers, config){
 											console.log("addgroup fail");
+											$scope.checkForRedirect(status, 302);
 									}
 							);
 
@@ -334,6 +336,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 							).error(
 									function(data, status, headers, config){
 											console.log("joingroup fail");
+											$scope.checkForRedirect(status, 302);
 									}
 							);
 
@@ -409,6 +412,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 						$http({method: 'POST', url: apiEndPoint+'/logout', withCredentials: true}).success(
 										function(data, status, headers, config){
 											console.log("logout success");
+											$scope.checkForRedirect(status, 200);
 										}
 							).error(
 									function(data, status, headers, config){
@@ -441,6 +445,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
                     }).error(
 	                    function(data, status, headers, config){
 	                      console.log("userinfo fail");
+	                      $scope.checkForRedirect(status, 302);
                     }
       			);
 	};
@@ -483,6 +488,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 			).error(
 									function(data, status, headers, config){
 										console.log("remove fail");
+										$scope.checkForRedirect(status, 302);
 									}
 			);
 	};
@@ -508,6 +514,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 			).error(
 										function(data, status, headers, config){
 											console.log("remove fail");
+											$scope.checkForRedirect(status, 302);
 										}
 			);
 	};	
@@ -522,6 +529,19 @@ function postCtr($scope, $http, $location, apiEndPoint){
 		} else{
 			return false;
 		}
+	};
+
+
+	/*
+		util method to check if the response status is equal to @param2 status
+		if true, redirect to index.html
+	*/
+	$scope.checkForRedirect = function(responseStatus, status){
+
+			if(responseStatus == status){
+				// $location.path('/index.html');
+				window.location.href = $location.protocol()+'://'+$location.host()+':'+$location.port()+'/index.html';
+			}
 	};
 
 	// explicitly load group data on page load

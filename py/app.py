@@ -178,7 +178,7 @@ def process_signout():
         if userid != None:
             sessionDAO.end_session(cookies['session'])
             
-            response.status_code = 302
+            response.status_code = 200
             return response
         else:
             responseWrapper.set_error(True)
