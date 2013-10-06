@@ -13,14 +13,14 @@
         </div>
       </div>
       <!-- progress bar -->
-                    <div id="removeGroupProgress" class="progress progress-warning progress-striped active" style="display:none;">
+                    <div id="removeItemProgress" class="progress progress-warning progress-striped active" style="display:none;">
                       <div class="bar" style="width: 100%;"></div>
                     </div>
     </div>
     <div class="modal-footer">
       <div class="control-group">
             <div class="controls">
-              <button id="removeItem" class="offset3 btn btn-large btn-primary span6" type="button" ng-click="onRemoveItem()">Remove {{remove.type}}</button>
+              <button id="removeItem" data-loading-text="Removing..." class="offset3 btn btn-large btn-primary span6" type="button" ng-click="onRemoveItem()">Remove {{remove.type}}</button>
             </div>
       </div>
 

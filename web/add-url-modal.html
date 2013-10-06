@@ -1,4 +1,4 @@
-<div ng-show="flags.isAddUrlModal">
+<div ng-show="flags.isAddURLModal">
               <div id="addURLModal"class="modal fade">
                 <div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h3>Add New URL</h3></div>
@@ -45,7 +45,7 @@
                 <div class="modal-footer">
                   <div class="control-group">
                         <div class="controls">
-                          <button id="submitURL" class="offset3 btn btn-large btn-primary span6" type="button" ng-click="addUrl()">Add</button>
+                          <button id="submitURL" data-loading-text="Adding URL..." class="offset3 btn btn-large btn-primary span6" type="button" ng-click="addUrl($event)">Add</button>
                         </div>
                   </div>
 

@@ -10,7 +10,7 @@ myAppModule.config(['$httpProvider', function($httpProvider){
   console.log($httpProvider.defaults);
 }]);
 
-function loginCtr($scope,$http){
+function loginCtr($scope,$http, $location){
 	$http.defaults.useXDomain = true;
 
 	$scope.login = function(){
@@ -23,6 +23,10 @@ function loginCtr($scope,$http){
       $http({method: 'POST', url : "http://localhost:5000/signin", withCredentials: true, headers: {'Content-Type': 'application/x-www-form-urlencoded'}, data: xsrf}).success(
                     function(data, status, headers, config){
                       alert("signin success");
+
+                      if(status == "200"){
+                        window.location.href = $location.protocol()+'://'+$location.host()+':'+$location.port()+'/home.html';
+                      }
                     }
       ).error(
                     function(data, status, headers, config){

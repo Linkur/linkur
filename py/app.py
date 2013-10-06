@@ -178,7 +178,7 @@ def process_signout():
         if userid != None:
             sessionDAO.end_session(cookies['session'])
             
-            response.status_code = 302
+            response.status_code = 200
             return response
         else:
             responseWrapper.set_error(True)
@@ -273,7 +273,7 @@ def get_userinfo():
     user = validate_cookie(request)
 
     if user != None:
-        user = userDAO.get_user_info(userid)
+        user = userDAO.get_user_info(user.id)
         responseWrapper.set_data([user])
         responseWrapper.set_error(False)
     else:
