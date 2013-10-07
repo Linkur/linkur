@@ -241,6 +241,8 @@ def get_recent_posts():
 @app.route('/search', methods=['GET','OPTIONS'])
 def search():
 
+    responseWrapper = ResponseWrapper()
+    response = any_response(request)
     user = validate_cookie(request)
     print user.__str__()
 
