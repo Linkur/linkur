@@ -10,7 +10,9 @@ myAppModule.config(['$httpProvider', function($httpProvider){
   console.log($httpProvider.defaults);
 }]);
 
-function loginCtr($scope,$http, $location){
+myAppModule.value('apiEndPoint', 'http://localhost:5000');
+
+function loginCtr($scope,$http, $location, apiEndPoint){
 	$http.defaults.useXDomain = true;
 
 	$scope.login = function(){
@@ -20,7 +22,7 @@ function loginCtr($scope,$http, $location){
       
       var xsrf = $.param({"email": this.emailVal,"password":this.pwdVal});
 
-      $http({method: 'POST', url : "http://localhost:5000/signin", withCredentials: true, headers: {'Content-Type': 'application/x-www-form-urlencoded'}, data: xsrf}).success(
+      $http({method: 'POST', url : apiEndPoint+"/signin", withCredentials: true, headers: {'Content-Type': 'application/x-www-form-urlencoded'}, data: xsrf}).success(
                     function(data, status, headers, config){
                       alert("signin success");
 
@@ -52,7 +54,7 @@ function loginCtr($scope,$http, $location){
       var xsrf = $.param({"email": this.rgEmail,"password":this.rgPwd,"verify":this.rgRepeat,"name":this.rgName});
       $.ajax({
         crossDomain:true,
-        url : "http://localhost:5000/signup",
+        url : apiEndPoint+"/signup",
               type : "POST",
               data: xsrf,
                xhrFields: {
