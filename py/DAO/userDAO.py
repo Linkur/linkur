@@ -202,10 +202,12 @@ class UserDAO:
 	def remove_group(self, uname, group_obj):
 		# append this group to the groups array of the user document
 		collection = self.user_collection
-		group = group_obj.__str__()
+		# group = group_obj.__str__()
 		try:
-			result = collection.update({"_id":uname},{"$pull":{"groups":group}})
-			print result
+			result = collection.update({"_id":uname},
+				{"$pull":{"groups":{"_id":ObjectId(group_obj.id)}}}, 
+				safe=True)
+				
 		except Exception as inst:
 			print "error updating user DB - removing group from user"
 			print inst

@@ -106,8 +106,8 @@ class GroupDAO:
 		result = None
 
 		try:
-			result = collection.update({"_id":group_obj.id}, {"$pull":{"users":user_id}})
-			print result
+			result = collection.update({"_id":group_obj.id}, {"$pull":{"users":user_id}}, safe=True)
+			print "user update result ", result
 		except Exception as inst:
 			print inst
 			print "Error updating group collection - appending user to group"

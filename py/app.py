@@ -706,16 +706,10 @@ def validate_cookie(request):
 
 # CORS
 def any_response(request):
-    # ALLOWED = ['http://localhost:9005']
-  response = make_response()
-  
-  # response.headers['Access-Control-Allow-Headers'] = ['Access-Control-Allow-Credentials', 'Content-Type']
-  # # response.headers['Access-Control-Allow-Methods'] = ['GET', 'POST', 'OPTIONS', 'DELETE']
-  # response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
-  # response.headers['Access-Control-Allow-Credentials'] = "true"
 
+  response = make_response()
   response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
-  print request.headers
+  # print request.headers
   if request.method == "OPTIONS" and 'Access-Control-Request-Headers' in request.headers:
       response.headers['Access-Control-Allow-Headers'] = request.headers['Access-Control-Request-Headers']
   response.headers['Access-Control-Allow-Credentials'] = "true"  
