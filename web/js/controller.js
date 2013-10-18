@@ -13,6 +13,18 @@ myAppModule.config(['$routeProvider','$httpProvider', function($routeProvider, $
 	$httpProvider.defaults.withCredentials = true;
 	//$httpProvider.defaults.headers.common["Access-Control-Allow-Credentials"] = true;
 
+	$routeProvider.when('/',{
+			templateUrl : "login.html",
+			controller : "loginCtr"
+		}
+	);
+
+	$routeProvider.when('/home',{
+			templateUrl : "home.html",
+			controller : "postCtr"
+		}
+	);
+
 }]);
 
 /*
@@ -21,6 +33,21 @@ myAppModule.config(['$routeProvider','$httpProvider', function($routeProvider, $
 */
 myAppModule.value('apiEndPoint', 'http://localhost:5000');
 
+// myAppModule.controller("loginCtr", function loginCtr($scope, $http, $location, $route, apiEndPoint){
+// 	$scope.start = function(){
+// 		alert("in login controller");
+// 	}
+
+// 	$scope.start();
+// });
+
+// myAppModule.controller("homeCtr", function homeCtr($scope, $http, $location, $route, apiEndPoint){
+// 	$scope.start = function(){
+// 		alert("in home controller");
+// 	}
+
+// 	$scope.start();
+// });
 /*
 	Creating a directive to create a DOM element <addurl>
 */
@@ -80,7 +107,7 @@ myAppModule.directive("joingroup", function(){
 	Post Controller
 	Controller for home.html
 */
-function postCtr($scope, $http, $location, apiEndPoint){
+myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoint){
 	
 	/*
 		initializing models
@@ -547,4 +574,4 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	// explicitly load group data on page load
 	$scope.getUserInfo();
 
-}
+});
