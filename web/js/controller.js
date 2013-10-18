@@ -33,21 +33,6 @@ myAppModule.config(['$routeProvider','$httpProvider', function($routeProvider, $
 */
 myAppModule.value('apiEndPoint', 'http://localhost:5000');
 
-// myAppModule.controller("loginCtr", function loginCtr($scope, $http, $location, $route, apiEndPoint){
-// 	$scope.start = function(){
-// 		alert("in login controller");
-// 	}
-
-// 	$scope.start();
-// });
-
-// myAppModule.controller("homeCtr", function homeCtr($scope, $http, $location, $route, apiEndPoint){
-// 	$scope.start = function(){
-// 		alert("in home controller");
-// 	}
-
-// 	$scope.start();
-// });
 /*
 	Creating a directive to create a DOM element <addurl>
 */
