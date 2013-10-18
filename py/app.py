@@ -45,9 +45,8 @@ if db != None:
     categoryDAO = CategoryDAO(db)
     groupDAO = GroupDAO(db)
 
-# @app.route('/')
-# def home_page():
 
+# API for user registration
 @app.route('/signup', methods=['POST'])
 def user_signup():
     email = None
@@ -101,6 +100,7 @@ def user_signup():
     response.mimetype = "application/json"
     return response
 
+# API for user signin
 @crossdomain(origin='http://localhost:8000', methods=['OPTIONS', 'POST'])
 @app.route('/signin', methods=['POST','OPTIONS'])
 def user_login():
@@ -162,6 +162,7 @@ def user_login():
     response.mimetype = "application/json"
     return response
 
+# API for user session logout
 @app.route('/logout', methods=['POST', 'OPTIONS'])
 def process_signout():
    
@@ -195,7 +196,50 @@ def process_signout():
 
     return response
 
+# API to change user password
+@app.route('/user/password', methods=['POST', 'OPTIONS'])
+def change_user_password():
 
+    responseWrapper = ResponseWrapper()
+    response = any_response(request)
+    user = validate_cookie(request)
+
+    if user != None:
+
+        # read form data for old & new password
+        try:
+            old_password = request.form['old_password']
+            print old_password
+
+            new_password = request.form['new_password']
+            print new_password
+
+            result = userDAO.change_password(user.id, old_password, new_password)
+
+            if result != None:
+                # update success
+                responseWrapper.set_data(["Success updating password"])
+                responseWrapper.set_error(False)
+            
+            else:
+                # update FAILURE
+                responseWrapper.set_data(["Error updating password"])
+                responseWrapper.set_error(True)
+        except Exception as inst:
+            print "An error occurred while updating password"
+            print inst
+
+    else:
+        responseWrapper.set_error(True)
+        responseWrapper.set_data(["User not found"])
+        response.status_code = 302
+
+    response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+    response.mimetype = "application/json"
+    return response
+
+
+# API for reading all posts for a given group
 @app.route('/post', methods=['GET', 'OPTIONS'])
 def get_recent_posts():
 
@@ -238,6 +282,8 @@ def get_recent_posts():
     response.mimetype = "application/json"
     return response
 
+
+# API for searching posts with given keywords
 @app.route('/search', methods=['GET','OPTIONS'])
 def search():
 
@@ -266,7 +312,7 @@ def search():
 
 
 
-
+# API for reading user info
 @app.route('/user/info', methods=['GET', 'OPTIONS'])
 def get_userinfo():
     
@@ -288,6 +334,7 @@ def get_userinfo():
     return response
 
 
+# API for creating new post
 @app.route('/post', methods=['PUT'])
 def insert_new_post():
 
@@ -348,6 +395,7 @@ def insert_new_post():
     
     return response
 
+# API for deleting a post
 @app.route('/post/<post_id>', methods=['DELETE', 'OPTIONS'])
 def delete_post(post_id=None):
     responseWrapper = ResponseWrapper()
@@ -389,6 +437,7 @@ def delete_post(post_id=None):
     
     return response
 
+# API for reading categories
 @app.route('/category', methods=['GET'])
 def get_categories():
 
@@ -416,6 +465,7 @@ def get_categories():
     response.mimetype = "application/json"
     return response
 
+# API for adding category
 @app.route('/category', methods=['POST'])
 def insert_catergory():
     user = validate_cookie(request)
@@ -447,6 +497,7 @@ def insert_catergory():
     return response
 
 
+# API for reading user groups
 @app.route('/user/group', methods=['GET', 'OPTIONS'])
 def get_user_groups():
     user = validate_cookie(request)
@@ -471,7 +522,7 @@ def get_user_groups():
     response.mimetype = "application/json"
     return response
 
-# create a new group. On success of new group creation, the group is automatically appended to the user
+# API for creating new group. On success of new group creation, the group is automatically appended to the user
 @app.route('/group', methods=['POST', 'OPTIONS'])
 def create_user_groups():
 
@@ -524,7 +575,7 @@ def create_user_groups():
     response.mimetype = "application/json"
     return response
 
-
+# API for removing a user from a group
 @app.route('/group/<group_id>', methods = ['OPTIONS', 'DELETE'])
 def remove_group_for_user(group_id=None):
     # check for cookie & get user object
@@ -586,6 +637,8 @@ def remove_group_for_user(group_id=None):
     response.mimetype = "application/json"
     return response
 
+
+# API for joining a user to a group
 @app.route('/group/join/<invite_hash>', methods=['POST', 'OPTIONS'])
 def accept_group_invite(invite_hash):
     # check for cookie
@@ -643,20 +696,6 @@ def accept_group_invite(invite_hash):
     response.mimetype = "application/json"
     return response
 
-# @app.route('/invite/<group_id>', methods=['GET'])
-# def generate_group_invite(group_id):
-
-# 	user = validate_cookie(request)
-# 	if user != None:
-# 		group_obj = groupDAO.get_group_by_id(str(group_id))
-# 		if group_obj != None:
-# 			invite_url = request.url_root + str(group_id)
-# 			return invite_url
-# 		else:
-# 			return "no such group"
-# 	else:
-# 		# TODO redirect to login page
-# 		return "please login"
 
 # Helper Functions
 
