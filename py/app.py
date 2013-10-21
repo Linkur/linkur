@@ -131,6 +131,7 @@ def user_login():
             # error
             responseWrapper.set_error(True)
             responseWrapper.set_data(validation_result["data"])
+            response.status_code = 403
 
         else:
             # continue processing
@@ -144,7 +145,9 @@ def user_login():
                     responseWrapper.set_data(["Session not found. Signin again"])
                     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
                     response.mimetype = "application/json"
+                    response.status_code = 403
                     return response
+
                 # set_cookie(key, value='', max_age=None, expires=None, path='/', domain=None, secure=None, httponly=False)
                 response.set_cookie("session", value=session_id, expires=None, path="/", httponly=True)
 
@@ -154,9 +157,11 @@ def user_login():
             else:
                 responseWrapper.set_error(True)
                 responseWrapper.set_data(["User not found"])
+                response.status_code = 403
     else:
         responseWrapper.set_error(True)
         responseWrapper.set_data(["Username / password blank"])
+        response.status_code = 403
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"

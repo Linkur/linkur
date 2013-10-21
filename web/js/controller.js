@@ -424,7 +424,9 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 						$http({method: 'POST', url: apiEndPoint+'/logout', withCredentials: true}).success(
 										function(data, status, headers, config){
 											console.log("logout success");
-											$scope.checkForRedirect(status, 200);
+											
+											// redirect to login screen
+											$location.path("/");
 										}
 							).error(
 									function(data, status, headers, config){
@@ -457,7 +459,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
                     }).error(
 	                    function(data, status, headers, config){
 	                      console.log("userinfo fail");
-	                      $scope.checkForRedirect(status, 302);
+	                      $location.path("/");
                     }
       			);
 	};
@@ -564,8 +566,40 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 // LOGIN CONTROLLER 
 
 myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint){
+	
 	$http.defaults.useXDomain = true;
 
+
+	/*
+		Method called to get user info with username, his groups
+		This is called on page load
+	*/
+	$scope.getUserInfo = function(){
+					
+						$http({method: 'GET', url : apiEndPoint+"/user/info", withCredentials: true}).success(
+                    function(data, status, headers, config){
+                      
+                      $scope.groups = data.data[0].groups;
+						        	$scope.uname = data.data[0].name;
+						        	
+						        	if($scope.groups.length > 0){
+						        		
+						        		// this indicated user is already logged in
+						        		// redirect him to the home page
+						        		$location.path("/home");
+						        	}
+
+                    }).error(
+	                    function(data, status, headers, config){
+	                      console.log("userinfo fail");
+                    }
+      			);
+	};
+
+
+	/*
+		Method called to sigin the user with his credentials
+	*/
 	$scope.login = function(){
 		
 		var me = this;
@@ -573,17 +607,23 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
       
       var xsrf = $.param({"email": this.emailVal,"password":this.pwdVal});
 
-      $http({method: 'POST', url : apiEndPoint+"/signin", withCredentials: true, headers: {'Content-Type': 'application/x-www-form-urlencoded'}, data: xsrf}).success(
+      $http({method: 'POST', url : apiEndPoint+"/signin", withCredentials: true, headers: {'Content-Type': 'application/x-www-form-urlencoded'}, data: xsrf})
+      .success(
                     function(data, status, headers, config){
                       alert("signin success");
 
                       if(status == "200"){
-                        window.location.href = $location.protocol()+'://'+$location.host()+':'+$location.port()+'/home.html';
+                        // redirect to /home
+                        $location.path("/home");
                       }
-                    }
-      ).error(
+                    })
+      .error(
                     function(data, status, headers, config){
-                      alert("signin fail");
+                    // error logging in the user
+                    // display the error message on screen	
+                     	alert("signin fail");
+	                    $scope.authError = data.data[0];
+	            		$('#alert-container').show();
                     }
       );
 
@@ -595,8 +635,11 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
 		
 	};
 
-  
-   		
+
+
+	/*
+		Method called to sigup the user with his details
+	*/  
 	$scope.register = function(){
 		
 		var me = this;
@@ -631,6 +674,6 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
 		
 	};
 
-
+	$scope.getUserInfo();
   	
 });
