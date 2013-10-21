@@ -231,54 +231,92 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
   		buttonRef.button('loading');
   		$('#addURLProgress').show();
 
-  		var newPostData = $scope.newPost;
-  		var payloadObj = {};
-
-  		payloadObj.title = encodeURIComponent(newPostData.ipTitle);
-  		payloadObj.link = newPostData.ipURL;
-  		payloadObj.category = null;
-  		payloadObj.groups = newPostData.ipGroup._id;
-
-  		if(typeof newPostData.ipTags !== "undefinded"){
-  			var tagsArray = newPostData.ipTags.split(",");
-	  		var correctedTags = [];
-	  		
-	  		// check for tags starting with space
-	  		$.each(tagsArray, function(idx,tag){
-	  			while($scope.doesStartWithSpace(tag)){
-	  					tag = tag.slice(1,tag.length);
-	  			}
-	  			correctedTags.push(tag);
-	  		});	
+  		if($scope.newPost == undefined){
+  			// display error message for null value
+  			alert("check input");
+  			buttonRef.button('reset');
+  			$('#addURLProgress').hide();
+  			return ;
   		}
+
+  		var newPostData = $scope.newPost;
+
+  		// check for user input null values
+  		if(newPostData.ipTitle && newPostData.ipURL && newPostData.ipGroup && newPostData.ipTags){
+
+  			var result = $scope.checkBlanks(newPostData);
+
+  			if(result == 111){
+  				// no blank fields
+  				var payloadObj = {};
+
+		  		payloadObj.title = encodeURIComponent(newPostData.ipTitle);
+		  		payloadObj.link = newPostData.ipURL;
+		  		payloadObj.category = null;
+		  		payloadObj.groups = newPostData.ipGroup._id;
+
+		  		if(typeof newPostData.ipTags !== "undefinded"){
+		  			var tagsArray = newPostData.ipTags.split(",");
+			  		var correctedTags = [];
+			  		
+			  		// check for tags starting with space
+			  		$.each(tagsArray, function(idx,tag){
+			  			
+			  			// trim tag to remove extra spaces
+			  			tag = tag.trim();
+			  			correctedTags.push(tag);
+
+			  		});	
+		  		}
+		  		
+
+		  		payloadObj.tags = correctedTags;
+
+		  		$('#frmAddURL').hide();
+		  		// fire http reqest to search user query for posts
+
+			    $http({method: 'PUT', url: apiEndPoint+'/post', 
+							withCredentials: true,
+							headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+							data:"data="+JSON.stringify(payloadObj)
+					}).success(function(data, status, headers, config){
+
+								$('#addURLProgress').hide();
+								var buttonRef = $('#submitURL');
+								buttonRef.button('reset');
+
+								$('#addURLModal').modal('hide');
+		  					$('#frmAddURL').show(); 
+		  					$scope.newPost = {};
+
+		  					$scope.flags.isAddURLModal = false;
+		  					$scope.getData();  
+
+					}).error(function(data, status, headers, config){
+								console.log("addurl fail");
+								$scope.checkForRedirect(status, 302);
+					});
+
+  			} else{
+  				// display error message
+  				// ask user to input meaningful text rather than blank values
+  				alert("check input -> blanks");
+	  			buttonRef.button('reset');
+	  			$('#addURLProgress').hide();
+	  			return ;
+  			}
+  			
+	  	} else{
+
+	  		// display error message. Ask user to check for null values
+	  		alert("check input");
+  			buttonRef.button('reset');
+  			$('#addURLProgress').hide();
+  			return ;
+	  	}
+
+
   		
-
-  		payloadObj.tags = correctedTags;
-
-  		$('#frmAddURL').hide();
-  		// fire http reqest to search user query for posts
-
-	    $http({method: 'PUT', url: apiEndPoint+'/post', 
-					withCredentials: true,
-					headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-					data:"data="+JSON.stringify(payloadObj)
-			}).success(function(data, status, headers, config){
-
-						$('#addURLProgress').hide();
-						var buttonRef = $('#submitURL');
-						buttonRef.button('reset');
-
-						$('#addURLModal').modal('hide');
-  					$('#frmAddURL').show(); 
-  					$scope.newPost = {};
-
-  					$scope.flags.isAddURLModal = false;
-  					$scope.getData();  
-
-			}).error(function(data, status, headers, config){
-						console.log("addurl fail");
-						$scope.checkForRedirect(status, 302);
-			});
   };
 
 
@@ -531,21 +569,26 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 											$scope.checkForRedirect(status, 302);
 										}
 			);
-	};	
-
-
-	/*
-		util method to check if a tag (string starts with a blank space)
-	*/
-	$scope.doesStartWithSpace = function(tag){
-		if(tag[0] === " "){
-			return true;
-		} else{
-			return false;
-		}
 	};
 
+	$scope.checkBlanks = function(postObj){
+		
+		var bitResult = 0;
+		
+		if(postObj.ipTitle.trim().length > 0){
+			bitResult = 100;
+		}
 
+		if(postObj.ipURL.trim().length > 0){
+			bitResult = bitResult + 10;
+		}
+
+		if(postObj.ipTags.trim().length > 0){
+			bitResult = bitResult + 1;	
+		}		
+
+		return bitResult;
+	}
 	/*
 		util method to check if the response status is equal to @param2 status
 		if true, redirect to index.html
