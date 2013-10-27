@@ -363,7 +363,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 	*/
 	$scope.joinGroup = function(){
 		
-		var groupSharer = this.joinGroup.sharer;
+		var groupSharer = this.joinGroupData.sharer;
 
 		$('#joinGroupProgress').show();
   	$('#frmJoinGroup').hide();
@@ -373,15 +373,19 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 										function(data, status, headers, config){
 											
 											console.log("joingroup success");
-											if(json.error){
-												console.log(json.data[0]);
+											if(data.error){
+												console.log(data.data[0]);
 											}
 												$('#submitJoinGroup').button('reset');
 												$('#joinGroupModal').modal('hide');
 						  					$('#frmJoinGroup').show();  
 
 						  					$scope.flags.isJoinGroupModal = false;
-												$scope.getUserInfo();
+
+						  					//reset data
+						  					$scope.joinGroupData = {};
+
+											$scope.getUserInfo();
 										}
 							).error(
 									function(data, status, headers, config){
@@ -492,6 +496,10 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 						        			$scope.$emit('groupsLoaded');	
 						        		}, 100);
  												
+						        	} else{
+						        		// No groups present => no posts
+						        		// therefore, make posts model empty
+						        		$scope.posts = [];
 						        	}
 
                     }).error(
@@ -529,12 +537,14 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 			$http({method: 'delete', url: apiEndPoint+'/group/'+groupId, withCredentials: true}).success(
 										function(data, status, headers, config){
 											
+											// on success remove modal
 											console.log("group remove success");
 											$('#removeItem').button('reset');
 											$('#removeItemProgress').hide();
 											$scope.flags.isRemoveModal = false;
 											$('#removeModal').modal('hide');
 
+											// get new data
 											$scope.getUserInfo();
 										}
 			).error(
@@ -555,12 +565,14 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 			$http({method: 'delete', url: apiEndPoint+'/post/'+postId, withCredentials: true}).success(
 										function(data, status, headers, config){
 											
+											// remove modal
 											console.log("post remove success");
 											$('#removeItem').button('reset');
 											$('#removeItemProgress').hide();
 											$scope.flags.isRemoveModal = false;
 											$('#removeModal').modal('hide');
 
+											// get new data
 											$scope.getData();
 										}
 			).error(
@@ -596,8 +608,9 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 	$scope.checkForRedirect = function(responseStatus, status){
 
 			if(responseStatus == status){
-				// $location.path('/index.html');
-				window.location.href = $location.protocol()+'://'+$location.host()+':'+$location.port()+'/index.html';
+				// display error : User not logged in
+				alert("User not logged in");
+				$location.path("/");
 			}
 	};
 
@@ -653,10 +666,12 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
       $http({method: 'POST', url : apiEndPoint+"/signin", withCredentials: true, headers: {'Content-Type': 'application/x-www-form-urlencoded'}, data: xsrf})
       .success(
                     function(data, status, headers, config){
-                      alert("signin success");
 
-                      if(status == "200"){
+                      // If no error in response & http status code = 200
+                      // redirect to home page
+                      if(data.error == false && status == "200"){
                         // redirect to /home
+                        console.log("signin success");
                         $location.path("/home");
                       }
                     })
