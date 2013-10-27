@@ -65,6 +65,7 @@ class UserDAO:
 
 	def add_user(self, modelled_user):
 
+		# convert password to hash before storing it in DB
 		password_hash = self.make_pw_hash(modelled_user.password)
 
 		user = {
@@ -214,3 +215,38 @@ class UserDAO:
 			return False
 
 		return True
+
+	# change_user_password
+	def change_password(self, uname, password, new_password):
+
+		# call validate login & validate user
+		# on success change password
+
+		validation_result = self.validate_login(uname, password)
+
+		# check if user is validated
+		if validation_result != None and validation_result["error"] == False:
+
+			# convert the new password to hash before updating DB
+			new_password_hash = self.make_pw_hash(new_password)
+
+			# Data to be updated, for query
+			update_data = {
+					'password' : new_password_hash,
+				}
+			
+			collection = self.user_collection
+			update_result = collection.update({
+									"_id" : uname
+								},
+								{"$set" : update_data},
+								safe=True
+							)
+			
+			return update_result
+
+		else:
+			print "user no match"
+			return None
+
+

@@ -13,6 +13,18 @@ myAppModule.config(['$routeProvider','$httpProvider', function($routeProvider, $
 	$httpProvider.defaults.withCredentials = true;
 	//$httpProvider.defaults.headers.common["Access-Control-Allow-Credentials"] = true;
 
+	$routeProvider.when('/',{
+			templateUrl : "login.html",
+			controller : "loginCtr"
+		}
+	);
+
+	$routeProvider.when('/home',{
+			templateUrl : "home.html",
+			controller : "postCtr"
+		}
+	);
+
 }]);
 
 /*
@@ -80,7 +92,7 @@ myAppModule.directive("joingroup", function(){
 	Post Controller
 	Controller for home.html
 */
-function postCtr($scope, $http, $location, apiEndPoint){
+myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoint){
 	
 	/*
 		initializing models
@@ -219,54 +231,92 @@ function postCtr($scope, $http, $location, apiEndPoint){
   		buttonRef.button('loading');
   		$('#addURLProgress').show();
 
-  		var newPostData = $scope.newPost;
-  		var payloadObj = {};
-
-  		payloadObj.title = encodeURIComponent(newPostData.ipTitle);
-  		payloadObj.link = newPostData.ipURL;
-  		payloadObj.category = null;
-  		payloadObj.groups = newPostData.ipGroup._id;
-
-  		if(typeof newPostData.ipTags !== "undefinded"){
-  			var tagsArray = newPostData.ipTags.split(",");
-	  		var correctedTags = [];
-	  		
-	  		// check for tags starting with space
-	  		$.each(tagsArray, function(idx,tag){
-	  			while($scope.doesStartWithSpace(tag)){
-	  					tag = tag.slice(1,tag.length);
-	  			}
-	  			correctedTags.push(tag);
-	  		});	
+  		if($scope.newPost == undefined){
+  			// display error message for null value
+  			alert("check input");
+  			buttonRef.button('reset');
+  			$('#addURLProgress').hide();
+  			return ;
   		}
+
+  		var newPostData = $scope.newPost;
+
+  		// check for user input null values
+  		if(newPostData.ipTitle && newPostData.ipURL && newPostData.ipGroup && newPostData.ipTags){
+
+  			var result = $scope.checkBlanks(newPostData);
+
+  			if(result == 111){
+  				// no blank fields
+  				var payloadObj = {};
+
+		  		payloadObj.title = encodeURIComponent(newPostData.ipTitle);
+		  		payloadObj.link = newPostData.ipURL;
+		  		payloadObj.category = null;
+		  		payloadObj.groups = newPostData.ipGroup._id;
+
+		  		if(typeof newPostData.ipTags !== "undefinded"){
+		  			var tagsArray = newPostData.ipTags.split(",");
+			  		var correctedTags = [];
+			  		
+			  		// check for tags starting with space
+			  		$.each(tagsArray, function(idx,tag){
+			  			
+			  			// trim tag to remove extra spaces
+			  			tag = tag.trim();
+			  			correctedTags.push(tag);
+
+			  		});	
+		  		}
+		  		
+
+		  		payloadObj.tags = correctedTags;
+
+		  		$('#frmAddURL').hide();
+		  		// fire http reqest to search user query for posts
+
+			    $http({method: 'PUT', url: apiEndPoint+'/post', 
+							withCredentials: true,
+							headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+							data:"data="+JSON.stringify(payloadObj)
+					}).success(function(data, status, headers, config){
+
+								$('#addURLProgress').hide();
+								var buttonRef = $('#submitURL');
+								buttonRef.button('reset');
+
+								$('#addURLModal').modal('hide');
+		  					$('#frmAddURL').show(); 
+		  					$scope.newPost = {};
+
+		  					$scope.flags.isAddURLModal = false;
+		  					$scope.getData();  
+
+					}).error(function(data, status, headers, config){
+								console.log("addurl fail");
+								$scope.checkForRedirect(status, 302);
+					});
+
+  			} else{
+  				// display error message
+  				// ask user to input meaningful text rather than blank values
+  				alert("check input -> blanks");
+	  			buttonRef.button('reset');
+	  			$('#addURLProgress').hide();
+	  			return ;
+  			}
+  			
+	  	} else{
+
+	  		// display error message. Ask user to check for null values
+	  		alert("check input");
+  			buttonRef.button('reset');
+  			$('#addURLProgress').hide();
+  			return ;
+	  	}
+
+
   		
-
-  		payloadObj.tags = correctedTags;
-
-  		$('#frmAddURL').hide();
-  		// fire http reqest to search user query for posts
-
-	    $http({method: 'PUT', url: apiEndPoint+'/post', 
-					withCredentials: true,
-					headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-					data:"data="+JSON.stringify(payloadObj)
-			}).success(function(data, status, headers, config){
-
-						$('#addURLProgress').hide();
-						var buttonRef = $('#submitURL');
-						buttonRef.button('reset');
-
-						$('#addURLModal').modal('hide');
-  					$('#frmAddURL').show(); 
-  					$scope.newPost = {};
-
-  					$scope.flags.isAddURLModal = false;
-  					$scope.getData();  
-
-			}).error(function(data, status, headers, config){
-						console.log("addurl fail");
-						$scope.checkForRedirect(status, 302);
-			});
   };
 
 
@@ -313,7 +363,7 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	*/
 	$scope.joinGroup = function(){
 		
-		var groupSharer = this.joinGroup.sharer;
+		var groupSharer = this.joinGroupData.sharer;
 
 		$('#joinGroupProgress').show();
   	$('#frmJoinGroup').hide();
@@ -323,15 +373,19 @@ function postCtr($scope, $http, $location, apiEndPoint){
 										function(data, status, headers, config){
 											
 											console.log("joingroup success");
-											if(json.error){
-												console.log(json.data[0]);
+											if(data.error){
+												console.log(data.data[0]);
 											}
 												$('#submitJoinGroup').button('reset');
 												$('#joinGroupModal').modal('hide');
 						  					$('#frmJoinGroup').show();  
 
 						  					$scope.flags.isJoinGroupModal = false;
-												$scope.getUserInfo();
+
+						  					//reset data
+						  					$scope.joinGroupData = {};
+
+											$scope.getUserInfo();
 										}
 							).error(
 									function(data, status, headers, config){
@@ -412,7 +466,9 @@ function postCtr($scope, $http, $location, apiEndPoint){
 						$http({method: 'POST', url: apiEndPoint+'/logout', withCredentials: true}).success(
 										function(data, status, headers, config){
 											console.log("logout success");
-											$scope.checkForRedirect(status, 200);
+											
+											// redirect to login screen
+											$location.path("/");
 										}
 							).error(
 									function(data, status, headers, config){
@@ -440,12 +496,16 @@ function postCtr($scope, $http, $location, apiEndPoint){
 						        			$scope.$emit('groupsLoaded');	
 						        		}, 100);
  												
+						        	} else{
+						        		// No groups present => no posts
+						        		// therefore, make posts model empty
+						        		$scope.posts = [];
 						        	}
 
                     }).error(
 	                    function(data, status, headers, config){
 	                      console.log("userinfo fail");
-	                      $scope.checkForRedirect(status, 302);
+	                      $location.path("/");
                     }
       			);
 	};
@@ -477,12 +537,14 @@ function postCtr($scope, $http, $location, apiEndPoint){
 			$http({method: 'delete', url: apiEndPoint+'/group/'+groupId, withCredentials: true}).success(
 										function(data, status, headers, config){
 											
+											// on success remove modal
 											console.log("group remove success");
 											$('#removeItem').button('reset');
 											$('#removeItemProgress').hide();
 											$scope.flags.isRemoveModal = false;
 											$('#removeModal').modal('hide');
 
+											// get new data
 											$scope.getUserInfo();
 										}
 			).error(
@@ -503,12 +565,14 @@ function postCtr($scope, $http, $location, apiEndPoint){
 			$http({method: 'delete', url: apiEndPoint+'/post/'+postId, withCredentials: true}).success(
 										function(data, status, headers, config){
 											
+											// remove modal
 											console.log("post remove success");
 											$('#removeItem').button('reset');
 											$('#removeItemProgress').hide();
 											$scope.flags.isRemoveModal = false;
 											$('#removeModal').modal('hide');
 
+											// get new data
 											$scope.getData();
 										}
 			).error(
@@ -517,21 +581,26 @@ function postCtr($scope, $http, $location, apiEndPoint){
 											$scope.checkForRedirect(status, 302);
 										}
 			);
-	};	
-
-
-	/*
-		util method to check if a tag (string starts with a blank space)
-	*/
-	$scope.doesStartWithSpace = function(tag){
-		if(tag[0] === " "){
-			return true;
-		} else{
-			return false;
-		}
 	};
 
+	$scope.checkBlanks = function(postObj){
+		
+		var bitResult = 0;
+		
+		if(postObj.ipTitle.trim().length > 0){
+			bitResult = 100;
+		}
 
+		if(postObj.ipURL.trim().length > 0){
+			bitResult = bitResult + 10;
+		}
+
+		if(postObj.ipTags.trim().length > 0){
+			bitResult = bitResult + 1;	
+		}		
+
+		return bitResult;
+	}
 	/*
 		util method to check if the response status is equal to @param2 status
 		if true, redirect to index.html
@@ -539,12 +608,130 @@ function postCtr($scope, $http, $location, apiEndPoint){
 	$scope.checkForRedirect = function(responseStatus, status){
 
 			if(responseStatus == status){
-				// $location.path('/index.html');
-				window.location.href = $location.protocol()+'://'+$location.host()+':'+$location.port()+'/index.html';
+				// display error : User not logged in
+				alert("User not logged in");
+				$location.path("/");
 			}
 	};
 
 	// explicitly load group data on page load
 	$scope.getUserInfo();
 
-}
+});
+
+// LOGIN CONTROLLER 
+
+myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint){
+	
+	$http.defaults.useXDomain = true;
+
+
+	/*
+		Method called to get user info with username, his groups
+		This is called on page load
+	*/
+	$scope.getUserInfo = function(){
+					
+						$http({method: 'GET', url : apiEndPoint+"/user/info", withCredentials: true}).success(
+                    function(data, status, headers, config){
+                      
+                      $scope.groups = data.data[0].groups;
+						        	$scope.uname = data.data[0].name;
+						        	
+						        	if($scope.groups.length > 0){
+						        		
+						        		// this indicated user is already logged in
+						        		// redirect him to the home page
+						        		$location.path("/home");
+						        	}
+
+                    }).error(
+	                    function(data, status, headers, config){
+	                      console.log("userinfo fail");
+                    }
+      			);
+	};
+
+
+	/*
+		Method called to sigin the user with his credentials
+	*/
+	$scope.login = function(){
+		
+		var me = this;
+    if(this.emailVal != undefined && this.pwdVal != undefined){
+      
+      var xsrf = $.param({"email": this.emailVal,"password":this.pwdVal});
+
+      $http({method: 'POST', url : apiEndPoint+"/signin", withCredentials: true, headers: {'Content-Type': 'application/x-www-form-urlencoded'}, data: xsrf})
+      .success(
+                    function(data, status, headers, config){
+
+                      // If no error in response & http status code = 200
+                      // redirect to home page
+                      if(data.error == false && status == "200"){
+                        // redirect to /home
+                        console.log("signin success");
+                        $location.path("/home");
+                      }
+                    })
+      .error(
+                    function(data, status, headers, config){
+                    // error logging in the user
+                    // display the error message on screen	
+                     	alert("signin fail");
+	                    $scope.authError = data.data[0];
+	            		$('#alert-container').show();
+                    }
+      );
+
+    } else{
+            // throw alert for wrong username password
+            $scope.authError = "Check username / password";
+            $('#alert-container').show();
+    }
+		
+	};
+
+
+
+	/*
+		Method called to sigup the user with his details
+	*/  
+	$scope.register = function(){
+		
+		var me = this;
+    if(this.rgName != undefined && this.rgEmail != undefined && this.rgPwd != undefined && this.rgRepeat != undefined){
+      
+      var xsrf = $.param({"email": this.rgEmail,"password":this.rgPwd,"verify":this.rgRepeat,"name":this.rgName});
+      $.ajax({
+        crossDomain:true,
+        url : apiEndPoint+"/signup",
+              type : "POST",
+              data: xsrf,
+               xhrFields: {
+        withCredentials: true
+        }
+      }).success(function(data, status, header) {
+            console.log(data);
+            // check for statusCode. if success, redirect to home.html
+            if(data.error == false){
+              $scope.authResult = "Hurray! Registration successful";
+              $('#alert-container').show();
+            } else{
+              // throw error
+              $scope.authResult = "Error registering user";
+              $('#alert-container').show();
+            }
+      });
+    } else{
+            // throw alert for wrong username password
+            $scope.authError = "Check user info for registration";
+            $('#alert-container').show();
+    }
+		
+	};
+
+	$scope.getUserInfo();
+  	
+});
