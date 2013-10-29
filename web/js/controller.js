@@ -246,6 +246,8 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 
   			var result = $scope.checkBlanks(newPostData);
 
+  			// if bitResult is 111, user input is valid
+			// else, one of the mandatory fields are empty
   			if(result == 111){
   				// no blank fields
   				var payloadObj = {};
@@ -280,17 +282,20 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 							headers: {'Content-Type': 'application/x-www-form-urlencoded'},
 							data:"data="+JSON.stringify(payloadObj)
 					}).success(function(data, status, headers, config){
-
+								// reset the buttons
+								// hide the modal
 								$('#addURLProgress').hide();
 								var buttonRef = $('#submitURL');
 								buttonRef.button('reset');
-
 								$('#addURLModal').modal('hide');
-		  					$('#frmAddURL').show(); 
-		  					$scope.newPost = {};
+		  						$('#frmAddURL').show(); 
 
-		  					$scope.flags.isAddURLModal = false;
-		  					$scope.getData();  
+		  						// reset the inout model
+		  						$scope.newPost = {};
+		  						$scope.flags.isAddURLModal = false;
+		  						
+		  						// refresh data
+		  						$scope.getData();  
 
 					}).error(function(data, status, headers, config){
 								console.log("addurl fail");
@@ -332,28 +337,33 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		console.log(payload);
 
 		$('#addGroupProgress').show();
-  	$('#frmAddGroup').hide();
-  	$('#submitGroup').button('loading');
+	  	$('#frmAddGroup').hide();
+	  	$('#submitGroup').button('loading');
 
 		$http({method: 'POST', url: apiEndPoint+'/group', 
 					withCredentials: true,
 					headers: {'Content-Type': 'application/x-www-form-urlencoded'},
 					data:"data="+JSON.stringify(payloadObj)
 			}).success(function(data, status, headers, config){
-											
+								
+								// reset buttons
+								// hide modal
 								$('#submitGroup').button('reset');
 								$('#addGroupModal').modal('hide');
-		  					$('#frmAddGroup').show();  
+		  						$('#frmAddGroup').show();
+		  						$scope.flags.isAddGroupModal = false;
 
-		  					$scope.newGroupName = "";
-		  					$scope.flags.isAddGroupModal = false;
+		  						// reset input model
+		  						$scope.newGroupName = "";
+
+		  						// refresh data
 								$scope.getUserInfo();  
 
 					}).error(function(data, status, headers, config){
 											console.log("addgroup fail");
 											$scope.checkForRedirect(status, 302);
 									}
-							);
+					);
 
 	};
 
@@ -366,25 +376,28 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		var groupSharer = this.joinGroupData.sharer;
 
 		$('#joinGroupProgress').show();
-  	$('#frmJoinGroup').hide();
-  	$('#submitJoinGroup').button('loading');
+	  	$('#frmJoinGroup').hide();
+	  	$('#submitJoinGroup').button('loading');
 
-			$http({method: 'POST', url: apiEndPoint+'/group/join/'+groupSharer, withCredentials: true}).success(
+		$http({method: 'POST', url: apiEndPoint+'/group/join/'+groupSharer, withCredentials: true}).success(
 										function(data, status, headers, config){
 											
 											console.log("joingroup success");
 											if(data.error){
 												console.log(data.data[0]);
 											}
-												$('#submitJoinGroup').button('reset');
-												$('#joinGroupModal').modal('hide');
+
+											// reset buttons
+											// hide modal
+											$('#submitJoinGroup').button('reset');
+											$('#joinGroupModal').modal('hide');
 						  					$('#frmJoinGroup').show();  
+											$scope.flags.isJoinGroupModal = false;
 
-						  					$scope.flags.isJoinGroupModal = false;
-
-						  					//reset data
+						  					//reset input model
 						  					$scope.joinGroupData = {};
 
+						  					// refresh data
 											$scope.getUserInfo();
 										}
 							).error(
@@ -433,6 +446,9 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 	/*
 		Method called when user clicks remove icon for any group on the sidebar
 		This will open the confirmation modal
+
+		Input model $scope.remove is used as a generic model for remove group & remove post
+		The property "type" signifies what object is being removed by user
 	*/
 	$scope.onRemoveGroup = function(evt, group){
 		$scope.flags.isRemoveModal = true;
@@ -446,6 +462,9 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 	/*
 		Method called when user clicks remove icon for any post
 		This will open the confirmation modal
+
+		Input model $scope.remove is used as a generic model for remove group & remove post
+		The property "type" signifies what object is being removed by user
 	*/
 	$scope.onRemovePost = function(evt, post){
 		$scope.flags.isRemoveModal = true;
@@ -520,6 +539,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		$('#removeItem').button('loading');
 		$('#removeItemProgress').show();
 		
+		// determine the type of object beeing removed & calls the respective remove method
 		if($scope.remove.type == $scope.GROUP){
 			$scope.removeGroup();
 		} else{
@@ -599,6 +619,8 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 			bitResult = bitResult + 1;	
 		}		
 
+		// if bitResult is 111, user input is valid
+		// else, one of the mandatory fields are empty
 		return bitResult;
 	}
 	/*
