@@ -664,16 +664,12 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
                     function(data, status, headers, config){
                       
                       $scope.groups = data.data[0].groups;
-						        	$scope.uname = data.data[0].name;
-						        	
-						        	if($scope.groups.length > 0){
-						        		
+						        	$scope.uname = data.data[0].name;	
 						        		// this indicated user is already logged in
 						        		// redirect him to the home page
 						        		if($location.path() != "/settings"){
 						        			$location.path("/home");	
 						        		}
-						        	}
 
                     }).error(
 	                    function(data, status, headers, config){
