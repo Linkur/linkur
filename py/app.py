@@ -230,6 +230,7 @@ def change_user_password():
                 # update FAILURE
                 responseWrapper.set_data(["Error updating password"])
                 responseWrapper.set_error(True)
+        
         except Exception as inst:
             print "An error occurred while updating password"
             print inst
