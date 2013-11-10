@@ -15,7 +15,7 @@
           <div class="menu">
           <ul class="nav pull-right" >
             <li data-toggle="modal" data-target="#joinGroupModal" ng-click="showJoinGroupModal()"><a href="#">Join a Group</a></li>
-            <li><a href="/#/settings">Change Password</a></li>
+            <li ng-click="navigateToSettings()"><a href="#">Change Password</a></li>
             <li ng-click="logout()"><a href="#">{{uname}} Logout</a></li>
           </ul>
           </div>

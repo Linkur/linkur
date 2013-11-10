@@ -6,30 +6,36 @@ var myAppModule = angular.module('urlur', ['ngCookies']);
 	Removing header X-Requested-With, Content-Type
 	Adding useXDomain , withCredentials
 */
-myAppModule.config(['$routeProvider','$httpProvider', function($routeProvider, $httpProvider){
+myAppModule.config(['$routeProvider','$httpProvider', '$locationProvider', function($routeProvider, $httpProvider, $locationProvider){
 	delete $httpProvider.defaults.headers.common["X-Requested-With"];
 	delete $httpProvider.defaults.headers.common["content-type"];
 	$httpProvider.defaults.useXDomain = true;
 	$httpProvider.defaults.withCredentials = true;
 	//$httpProvider.defaults.headers.common["Access-Control-Allow-Credentials"] = true;
 
-	$routeProvider.when('/',{
-			templateUrl : "login.html",
+	$routeProvider.when('/login',{
+			templateUrl : "linkur/login.html",
 			controller : "loginCtr"
 		}
 	);
 
 	$routeProvider.when('/home',{
-			templateUrl : "home.html",
+			templateUrl : "linkur/home.html",
 			controller : "postCtr"
 		}
 	);
 
 	$routeProvider.when('/settings',{
-			templateUrl : "settings.html",
-			controller : "loginCtr"
+			templateUrl : "linkur/settings.html",
+			controller : "settingsCtr"
 		}
 	);
+
+	$routeProvider.otherwise({
+		redirectTo: "/login"
+	});
+
+	$locationProvider.html5Mode(true).hashPrefix('!');
 
 }]);
 
@@ -493,7 +499,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 											console.log("logout success");
 											
 											// redirect to login screen
-											$location.path("/");
+											$location.path("/login");
 										}
 							).error(
 									function(data, status, headers, config){
@@ -530,7 +536,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
                     }).error(
 	                    function(data, status, headers, config){
 	                      console.log("userinfo fail");
-	                      $location.path("/");
+	                      $location.path("/login");
                     }
       			);
 	};
@@ -629,6 +635,15 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		// else, one of the mandatory fields are empty
 		return bitResult;
 	}
+
+	/*
+		event handler
+		called when user clicks on "Change Password" link in home page
+	*/
+	$scope.navigateToSettings = function(evt){
+		$location.path("/settings");
+	}
+
 	/*
 		util method to check if the response status is equal to @param2 status
 		if true, redirect to index.html
@@ -638,7 +653,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 			if(responseStatus == status){
 				// display error : User not logged in
 				alert("User not logged in");
-				$location.path("/");
+				$location.path("/login");
 			}
 	};
 
@@ -761,6 +776,17 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
 		
 	};
 
+	
+
+	$scope.getUserInfo();
+  	
+});
+
+
+myAppModule.controller("settingsCtr", function($scope,$http, $location, apiEndPoint){
+	
+	$http.defaults.useXDomain = true;
+
 	/*
 		Method called when change password is click from settings screen
 	*/
@@ -798,6 +824,13 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
 					                        alert("change password success");
 					                        console.log("change password success");
 					                        $location.path("/home");
+					                      } else{
+					                      	// error logging in the user
+					                    	// display the error message on screen	
+					                      	
+					                      	alert("Error changing password");
+					                      	$scope.authError = data.data[0];
+						            		$('#alert-container').show();
 					                      }
 						                })
 						      .error(
@@ -812,6 +845,5 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
 		}
 	};
 
-	$scope.getUserInfo();
-  	
 });
+
