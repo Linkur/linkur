@@ -755,7 +755,7 @@ def validate_cookie(request):
 def any_response(request):
 
   response = make_response()
-  response.headers['Access-Control-Allow-Origin'] = "http://localhost:8000"
+  response.headers['Access-Control-Allow-Origin'] = config["cors_host"]
   # print request.headers
   if request.method == "OPTIONS" and 'Access-Control-Request-Headers' in request.headers:
       response.headers['Access-Control-Allow-Headers'] = request.headers['Access-Control-Request-Headers']
@@ -765,6 +765,10 @@ def any_response(request):
   return response
 
 if __name__ == '__main__':
-    # app.run(debug=True)
+
+    # read CORS host form config file
+    config = {}
+    execfile("config.py", config)
+
     app.run(host='0.0.0.0',debug=True)
 
