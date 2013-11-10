@@ -85,7 +85,7 @@ myAppModule.directive("removemodal", function(){
 myAppModule.directive("sharegroup", function(){
 	return{
 		restrict : 'E',
-		templateUrl : '/slinkur/hare-group-modal.html'
+		templateUrl : '/linkur/share-group-modal.html'
 	};
 
 });
