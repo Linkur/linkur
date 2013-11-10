@@ -1,0 +1,11 @@
+Flask==0.9
+Flask-PyMongo==0.3.0
+Jinja2==2.7
+MarkupSafe==0.18
+Werkzeug==0.8.3
+bottle==0.11.6
+distribute==0.6.43
+pymongo==2.5.1
+virtualenv==1.9.1
+wsgiref==0.1.2
+
