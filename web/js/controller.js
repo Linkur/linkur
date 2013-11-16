@@ -14,19 +14,19 @@ myAppModule.config(['$routeProvider','$httpProvider', '$locationProvider', funct
 	//$httpProvider.defaults.headers.common["Access-Control-Allow-Credentials"] = true;
 
 	$routeProvider.when('/login',{
-			templateUrl : "linkur/login.html",
+			templateUrl : "login.html",
 			controller : "loginCtr"
 		}
 	);
 
 	$routeProvider.when('/home',{
-			templateUrl : "linkur/home.html",
+			templateUrl : "home.html",
 			controller : "postCtr"
 		}
 	);
 
 	$routeProvider.when('/settings',{
-			templateUrl : "linkur/settings.html",
+			templateUrl : "settings.html",
 			controller : "settingsCtr"
 		}
 	);
@@ -52,7 +52,7 @@ myAppModule.value('apiEndPoint', 'http://localhost:5000');
 myAppModule.directive("addurl", function(){
 	return{
 		restrict : 'E',
-		templateUrl : '/linkur/add-url-modal.html'
+		templateUrl : 'add-url-modal.html'
 	};
 
 });
@@ -63,7 +63,7 @@ myAppModule.directive("addurl", function(){
 myAppModule.directive("addgroup", function(){
 	return{
 		restrict : 'E',
-		templateUrl : '/linkur/add-group-modal.html'
+		templateUrl : 'add-group-modal.html'
 	};
 
 });
@@ -74,7 +74,7 @@ myAppModule.directive("addgroup", function(){
 myAppModule.directive("removemodal", function(){
 	return{
 		restrict : 'E',
-		templateUrl : '/linkur/remove-modal.html'
+		templateUrl : 'remove-modal.html'
 	};
 
 });
@@ -85,7 +85,7 @@ myAppModule.directive("removemodal", function(){
 myAppModule.directive("sharegroup", function(){
 	return{
 		restrict : 'E',
-		templateUrl : '/linkur/share-group-modal.html'
+		templateUrl : 'share-group-modal.html'
 	};
 
 });
@@ -96,7 +96,7 @@ myAppModule.directive("sharegroup", function(){
 myAppModule.directive("joingroup", function(){
 	return{
 		restrict : 'E',
-		templateUrl : '/linkur/join-group-modal.html'
+		templateUrl : 'join-group-modal.html'
 	};
 
 });
