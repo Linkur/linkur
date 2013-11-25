@@ -20,7 +20,7 @@ myAppModule.config(['$routeProvider','$httpProvider', '$locationProvider', funct
 	);
 
 	$routeProvider.when('/home',{
-			templateUrl : "home/home.html",
+			templateUrl : "home/index.html",
 			controller : "postCtr"
 		}
 	);
@@ -35,8 +35,8 @@ myAppModule.config(['$routeProvider','$httpProvider', '$locationProvider', funct
 		redirectTo: "/login"
 	});
 
-	//$locationProvider.html5Mode(true).hashPrefix('!');
-	$locationProvider.html5Mode(true);
+	$locationProvider.html5Mode(true).hashPrefix('!');
+	//$locationProvider.html5Mode(true);
 
 }]);
 
