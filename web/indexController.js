@@ -35,7 +35,7 @@ myAppModule.config(['$routeProvider','$httpProvider', '$locationProvider', funct
 		redirectTo: "/login"
 	});
 
-	$locationProvider.html5Mode(true).hashPrefix('!');
+	//$locationProvider.html5Mode(true).hashPrefix('!');
 	//$locationProvider.html5Mode(true);
 
 }]);
