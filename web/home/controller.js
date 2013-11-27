@@ -540,7 +540,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		called when user clicks on "Change Password" link in home page
 	*/
 	$scope.navigateToSettings = function(evt){
-		$location.path("/settings");
+		$location.path("/#/settings");
 	}
 
 	/*
