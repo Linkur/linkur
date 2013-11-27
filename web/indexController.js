@@ -1,3 +1,4 @@
+'use strict';
 // declare a module
 var myAppModule = angular.module('urlur', ['ngCookies']);
 
