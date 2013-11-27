@@ -61,10 +61,10 @@ myAppModule.directive("addurl", function(){
 /*
 	Creating a directive to create a DOM element <addgroup>
 */
-myAppModule.directive("modals/addgroup", function(){
+myAppModule.directive("addgroup", function(){
 	return{
 		restrict : 'E',
-		templateUrl : 'add-group-modal.html'
+		templateUrl : 'modals/add-group-modal.html'
 	};
 
 });
@@ -72,10 +72,10 @@ myAppModule.directive("modals/addgroup", function(){
 /*
 	Creating a directive to create a DOM element <removemodal>
 */
-myAppModule.directive("modals/removemodal", function(){
+myAppModule.directive("removemodal", function(){
 	return{
 		restrict : 'E',
-		templateUrl : 'remove-modal.html'
+		templateUrl : 'modals/remove-modal.html'
 	};
 
 });
@@ -83,10 +83,10 @@ myAppModule.directive("modals/removemodal", function(){
 /*
 	Creating a directive to create a DOM element <sharegroup>
 */
-myAppModule.directive("modals/sharegroup", function(){
+myAppModule.directive("sharegroup", function(){
 	return{
 		restrict : 'E',
-		templateUrl : 'share-group-modal.html'
+		templateUrl : 'modals/share-group-modal.html'
 	};
 
 });
