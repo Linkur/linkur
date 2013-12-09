@@ -45,7 +45,7 @@ myAppModule.config(['$routeProvider','$httpProvider', '$locationProvider', funct
 	Global variable across the module to store the API endpoint
 	All ajax calls use this as base url 
 */
-myAppModule.value('apiEndPoint', 'http://localhost:5000');
+myAppModule.value('apiEndPoint', '/api');
 
 /*
 	Creating a directive to create a DOM element <addurl>
