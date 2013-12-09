@@ -195,7 +195,7 @@ def process_signout():
         responseWrapper.set_data(["User not logged in"])
         response.status_code = 302
 
-    response.set_cookie("session", value="None")
+    response.set_cookie("session", value=" ", expires=0)
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
 
