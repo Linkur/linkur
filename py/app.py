@@ -341,7 +341,7 @@ def get_userinfo():
 
 
 # API for creating new post
-@app.route('/api/post', methods=['POST','OPTIONS'])
+@app.route('/api/post', methods=['PUT','OPTIONS'])
 def insert_new_post():
 
     responseWrapper = ResponseWrapper()
@@ -402,7 +402,7 @@ def insert_new_post():
     return response
 
 # API for deleting a post
-@app.route('/api/post/<post_id>', methods=['POST', 'OPTIONS'])
+@app.route('/api/post/<post_id>', methods=['DELETE', 'OPTIONS'])
 def delete_post(post_id=None):
     responseWrapper = ResponseWrapper()
     response = any_response(request)
@@ -529,7 +529,7 @@ def get_user_groups():
     return response
 
 # API for creating new group. On success of new group creation, the group is automatically appended to the user
-@app.route('/api/group', methods=['POST', 'OPTIONS'])
+@app.route('/api/group', methods=['PUT', 'OPTIONS'])
 def create_user_groups():
 
     user = validate_cookie(request)
@@ -582,7 +582,7 @@ def create_user_groups():
     return response
 
 # API for removing a user from a group
-@app.route('/api/group/<group_id>', methods = ['OPTIONS', 'POST'])
+@app.route('/api/group/<group_id>', methods = ['OPTIONS', 'DELETE'])
 def remove_group_for_user(group_id=None):
     # check for cookie & get user object
     # check group collection for group id
