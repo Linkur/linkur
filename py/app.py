@@ -341,7 +341,7 @@ def get_userinfo():
 
 
 # API for creating new post
-@app.route('/post', methods=['PUT'])
+@app.route('/post', methods=['POST','OPTIONS'])
 def insert_new_post():
 
     responseWrapper = ResponseWrapper()
@@ -402,7 +402,7 @@ def insert_new_post():
     return response
 
 # API for deleting a post
-@app.route('/post/<post_id>', methods=['DELETE', 'OPTIONS'])
+@app.route('/post/<post_id>', methods=['POST', 'OPTIONS'])
 def delete_post(post_id=None):
     responseWrapper = ResponseWrapper()
     response = any_response(request)
@@ -472,7 +472,7 @@ def get_categories():
     return response
 
 # API for adding category
-@app.route('/category', methods=['POST'])
+@app.route('/category', methods=['POST', 'OPTIONS'])
 def insert_catergory():
     user = validate_cookie(request)
     responseWrapper = ResponseWrapper()
@@ -582,7 +582,7 @@ def create_user_groups():
     return response
 
 # API for removing a user from a group
-@app.route('/group/<group_id>', methods = ['OPTIONS', 'DELETE'])
+@app.route('/group/<group_id>', methods = ['OPTIONS', 'POST'])
 def remove_group_for_user(group_id=None):
     # check for cookie & get user object
     # check group collection for group id

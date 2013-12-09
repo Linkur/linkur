@@ -5,6 +5,7 @@
 */
 myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoint){
 	
+  $http.defaults.useXDomain = true;
 	/*
 		initializing models
 	*/
@@ -188,7 +189,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		  		$('#frmAddURL').hide();
 		  		// fire http reqest to search user query for posts
 
-			    $http({method: 'PUT', url: apiEndPoint+'/post', 
+			    $http({method: 'POST', url: apiEndPoint+'/post', 
 							withCredentials: true,
 							headers: {'Content-Type': 'application/x-www-form-urlencoded'},
 							data:"data="+JSON.stringify(payloadObj)
@@ -465,7 +466,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 	$scope.removeGroup = function(){
 			var groupId = $scope.remove.data._id;
 				
-			$http({method: 'delete', url: apiEndPoint+'/group/'+groupId, withCredentials: true}).success(
+			$http({method: 'POST', url: apiEndPoint+'/group/'+groupId, withCredentials: true}).success(
 										function(data, status, headers, config){
 											
 											// on success remove modal
@@ -493,7 +494,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 	$scope.removePost = function(){
 			var postId = $scope.remove.data._id;
 				
-			$http({method: 'delete', url: apiEndPoint+'/post/'+postId, withCredentials: true}).success(
+			$http({method: 'POST', url: apiEndPoint+'/post/'+postId, withCredentials: true}).success(
 										function(data, status, headers, config){
 											
 											// remove modal
