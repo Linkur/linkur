@@ -47,7 +47,7 @@ if db != None:
 
 
 # API for user registration
-@app.route('/signup', methods=['POST'])
+@app.route('/api/signup', methods=['POST'])
 def user_signup():
     email = None
     password = None
@@ -102,7 +102,7 @@ def user_signup():
 
 # API for user signin
 @crossdomain(origin='http://localhost:8000', methods=['OPTIONS', 'POST'])
-@app.route('/signin', methods=['POST','OPTIONS'])
+@app.route('/api/signin', methods=['POST','OPTIONS'])
 def user_login():
 
     responseWrapper = ResponseWrapper()
@@ -168,7 +168,7 @@ def user_login():
     return response
 
 # API for user session logout
-@app.route('/logout', methods=['POST', 'OPTIONS'])
+@app.route('/api/logout', methods=['POST', 'OPTIONS'])
 def process_signout():
    
     cookies = request.cookies
@@ -202,7 +202,7 @@ def process_signout():
     return response
 
 # API to change user password
-@app.route('/user/password', methods=['POST', 'OPTIONS'])
+@app.route('/api/user/password', methods=['POST', 'OPTIONS'])
 def change_user_password():
 
     responseWrapper = ResponseWrapper()
@@ -246,7 +246,7 @@ def change_user_password():
 
 
 # API for reading all posts for a given group
-@app.route('/post', methods=['GET', 'OPTIONS'])
+@app.route('/api/post', methods=['GET', 'OPTIONS'])
 def get_recent_posts():
 
     responseWrapper = ResponseWrapper()
@@ -290,7 +290,7 @@ def get_recent_posts():
 
 
 # API for searching posts with given keywords
-@app.route('/search', methods=['GET','OPTIONS'])
+@app.route('/api/search', methods=['GET','OPTIONS'])
 def search():
 
     responseWrapper = ResponseWrapper()
@@ -319,7 +319,7 @@ def search():
 
 
 # API for reading user info
-@app.route('/user/info', methods=['GET', 'OPTIONS'])
+@app.route('/api/user/info', methods=['GET', 'OPTIONS'])
 def get_userinfo():
     
     responseWrapper = ResponseWrapper()
@@ -341,7 +341,7 @@ def get_userinfo():
 
 
 # API for creating new post
-@app.route('/post', methods=['POST','OPTIONS'])
+@app.route('/api/post', methods=['POST','OPTIONS'])
 def insert_new_post():
 
     responseWrapper = ResponseWrapper()
@@ -402,7 +402,7 @@ def insert_new_post():
     return response
 
 # API for deleting a post
-@app.route('/post/<post_id>', methods=['POST', 'OPTIONS'])
+@app.route('/api/post/<post_id>', methods=['POST', 'OPTIONS'])
 def delete_post(post_id=None):
     responseWrapper = ResponseWrapper()
     response = any_response(request)
@@ -444,7 +444,7 @@ def delete_post(post_id=None):
     return response
 
 # API for reading categories
-@app.route('/category', methods=['GET'])
+@app.route('/api/category', methods=['GET'])
 def get_categories():
 
     user = validate_cookie(request)
@@ -472,7 +472,7 @@ def get_categories():
     return response
 
 # API for adding category
-@app.route('/category', methods=['POST', 'OPTIONS'])
+@app.route('/api/category', methods=['POST', 'OPTIONS'])
 def insert_catergory():
     user = validate_cookie(request)
     responseWrapper = ResponseWrapper()
@@ -504,7 +504,7 @@ def insert_catergory():
 
 
 # API for reading user groups
-@app.route('/user/group', methods=['GET', 'OPTIONS'])
+@app.route('/api/user/group', methods=['GET', 'OPTIONS'])
 def get_user_groups():
     user = validate_cookie(request)
     responseWrapper = ResponseWrapper()
@@ -529,7 +529,7 @@ def get_user_groups():
     return response
 
 # API for creating new group. On success of new group creation, the group is automatically appended to the user
-@app.route('/group', methods=['POST', 'OPTIONS'])
+@app.route('/api/group', methods=['POST', 'OPTIONS'])
 def create_user_groups():
 
     user = validate_cookie(request)
@@ -582,7 +582,7 @@ def create_user_groups():
     return response
 
 # API for removing a user from a group
-@app.route('/group/<group_id>', methods = ['OPTIONS', 'POST'])
+@app.route('/api/group/<group_id>', methods = ['OPTIONS', 'POST'])
 def remove_group_for_user(group_id=None):
     # check for cookie & get user object
     # check group collection for group id
@@ -645,7 +645,7 @@ def remove_group_for_user(group_id=None):
 
 
 # API for joining a user to a group
-@app.route('/group/join/<invite_hash>', methods=['POST', 'OPTIONS'])
+@app.route('/api/group/join/<invite_hash>', methods=['POST', 'OPTIONS'])
 def accept_group_invite(invite_hash):
     # check for cookie
     # check group collection for group id
