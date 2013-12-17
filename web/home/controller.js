@@ -165,7 +165,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
   				var payloadObj = {};
 
 		  		payloadObj.title = encodeURIComponent(newPostData.ipTitle);
-		  		payloadObj.link = newPostData.ipURL;
+		  		payloadObj.link = encodeURIComponent(newPostData.ipURL);
 		  		payloadObj.category = null;
 		  		payloadObj.groups = newPostData.ipGroup._id;
 
