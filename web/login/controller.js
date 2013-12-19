@@ -58,15 +58,17 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
                     // error logging in the user
                     // display the error message on screen	
                      	alert("signin fail");
-	                    $scope.authError = data.data[0];
-	            		$('#alert-container').show();
+	                    $scope.authResult = data.data[0];
+                      $('#alert-container').show();
+                      $scope.$apply();
                     }
-      );
+  );
 
     } else{
             // throw alert for wrong username password
-            $scope.authError = "Check username / password";
+            $scope.authResult = "Check username / password";
             $('#alert-container').show();
+            $scope.$apply();
     }
 		
 	};
@@ -99,16 +101,19 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
             if(data.error == false){
               $scope.authResult = "Hurray! Registration successful";
               $('#alert-container').show();
+              $scope.$apply();
             } else{
               // throw error
               $scope.authResult = "Error registering user";
               $('#alert-container').show();
+              $scope.$apply();
             }
       });
     } else{
             // throw alert for wrong username password
-            $scope.authError = "Check user info for registration";
+            $scope.authResult = "Check user info for registration";
             $('#alert-container').show();
+            $scope.$apply();
     }
 		
 	};
