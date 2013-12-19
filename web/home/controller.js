@@ -244,7 +244,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		
 		var groupName = this.newGroupName;
 		var payloadObj = {};
-		payloadObj.group_name = groupName;
+		payloadObj.group_name = encodeURIComponent(groupName);
 		var payload = "data="+JSON.stringify(payloadObj);
 		console.log(payload);
 
