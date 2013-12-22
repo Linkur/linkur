@@ -71,12 +71,12 @@ def user_signup():
             temp_user = User(email, password, name)
             if not userDAO.add_user(temp_user):
                 # this was a duplicate
-                errors['username_error'] = "Username already in use. Please choose another"
+                error = ['Username already taken. Please choose a different username']
                 responseWrapper.set_error(True)
-                responseWrapper.set_data(errors)
+                responseWrapper.set_data(error)
                 response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
                 response.mimetype = "application/json"
-                response.status_code = 400
+                response.status_code = 409
                 return response
 
             session_id = sessionDAO.start_session(email)			

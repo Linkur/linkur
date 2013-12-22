@@ -108,6 +108,11 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
               $('#alert-container').show();
               $scope.$apply();
             }
+      }).error(function(data, status, header){
+          response = JSON.parse(data.responseText);
+          $scope.authResult = response.data[0];
+          $('#alert-container').show();
+          $scope.$apply();
       });
     } else{
             // throw alert for wrong username password
