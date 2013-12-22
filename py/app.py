@@ -401,6 +401,68 @@ def insert_new_post():
     
     return response
 
+# API for updating a post
+@app.route('/api/post', methods=['POST','OPTIONS'])
+def update_post():
+
+    responseWrapper = ResponseWrapper()
+    response = any_response(request)
+    
+    user = validate_cookie(request)
+    
+    if user != None:
+        post = Post()
+
+        try:
+            # build post object from form data
+            form_data = request.form['data']
+            json_data = json.loads(form_data)
+
+            post.title = json_data['title']
+            post.link = json_data['link']
+            post.category = json_data['category']
+            post.tags = json_data['tags']
+            post.group = json_data['groups']
+            post.added_by = user.name
+
+        except Exception as inst:
+            print "error reading form data"
+            print inst
+            responseWrapper = ResponseWrapper()
+            responseWrapper.set_error(True)
+            responseWrapper.set_data(["error reading form data. Retry posting"])
+
+        if post.title != None and post.link != None and post.group != None and post.added_by != None:
+
+            result = postDAO.insert_post(post);
+            responseWrapper = ResponseWrapper()
+
+            if result != None:
+                responseWrapper.set_error(False)
+                responseWrapper.set_data([str(result)])
+                response.status_code = 201
+
+            else:
+                responseWrapper.set_error(True)
+                responseWrapper.set_data(["error writing post"])
+
+        else:
+            print "error in form data"
+            responseWrapper = ResponseWrapper()
+            responseWrapper.set_error(True)
+            responseWrapper.set_data(["insufficient fields, try again"])
+            response.status_code = 302
+    else:
+        responseWrapper.set_error(True)
+        responseWrapper.set_data(["User not logged in. Please Login"])
+        response.status_code = 302
+
+    response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
+    response.mimetype = "application/json"
+    
+    return response
+
+
 # API for deleting a post
 @app.route('/api/post/<post_id>', methods=['DELETE', 'OPTIONS'])
 def delete_post(post_id=None):

@@ -179,3 +179,20 @@ class PostDAO:
 			print inst
 
 		return result
+
+    def update_post(self, post_obj):
+
+        collection = self.recent_collection
+        result = None
+
+        try:
+            to_update = post_obj.db_serializer()
+            result = collection.save(to_update, safe=True)
+
+        except Exception as inst:
+            print "error updating post"
+            print inst
+            return false
+
+        return result
+
