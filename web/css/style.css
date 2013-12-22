@@ -1,19 +1,4 @@
 
-.nav-list > .active > div,
-.nav-list > .active > div:hover,
-.nav-list > .active > div:focus {
-  color: #ffffff;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
-  background-color: #dd4814;
-}
-
-.nav-list > .active > div > a,
-.nav-list > .active > div > a:hover,
-.nav-list > .active > div > a:focus {
-  color: #ffffff;
-  /*text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
-  background-color: #dd4814;*/
-}
 
 .margin2{
 	margin: 2px;
@@ -445,5 +430,9 @@
 
 .valign-middle > h3 > small{
   vertical-align: top;
+}
+
+.group-ptr{
+  cursor:pointer;
 }
 

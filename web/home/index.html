@@ -70,15 +70,15 @@
                 <li class="group-item" ng-repeat="group in groups">
 
                   <div class="row-fluid" ng-click="selectGroup($event, group)">
-                    <a class="span7">{{group.name}}</a>
+                    <a class="span7 group-ptr">{{group.name}}</a>
                     <!-- Placeholder for share & remove icons -->
                     <div class="offset1 span4">
                       <!-- Placeholder for share -->
-                      <div class="span2">
+                      <div class="span2 group-ptr">
                         <i data-toggle="modal" data-target="#shareGroupModal" rel="tooltip" title="Share group" class="icon-share" ng-click="onShareGroup($event, group)"></i>
                       </div>
                       <!-- Placeholder for remove -->
-                      <div class="span3 pull-right">
+                      <div class="span3 pull-right group-ptr">
                         <i data-toggle="modal" data-target="#removeModal" rel="tooltip" title="Remove group" class="icon-remove large remove-group" ng-click="onRemoveGroup($event, group)"></i>
                       </div>
                     </div>
@@ -120,7 +120,7 @@
                   <!-- row for link & date -->
                   <div class="row-fluid">
                     <!-- placeholder for link -->
-                    <div class="lead span10 valign-middle">
+                    <div class="span10 valign-middle">
                       <a href={{post.link}}>{{post.link}}</a>
                     </div>
 
