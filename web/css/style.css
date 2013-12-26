@@ -1,5 +1,4 @@
 
-
 .margin2{
 	margin: 2px;
 }
@@ -434,5 +433,9 @@
 
 .group-ptr{
   cursor:pointer;
+}
+
+.settings-panel{
+  min-width: 84px;
 }
 

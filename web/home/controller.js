@@ -386,6 +386,9 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		$scope.remove.desc = post.title;
 	};
 
+  $scope.onEditPost = function(evt, post){
+    $scope.editPost(post);
+  }
 
 	/*
 		Method called when user clicks Logout
@@ -513,6 +516,35 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 											$scope.checkForRedirect(status, 302);
 										}
 			);
+	};
+
+	/*
+		Method called to edit a post
+	*/
+	$scope.editPost = function(post){
+			console.log(post);	
+
+      /*
+			$http({method: 'DELETE', url: apiEndPoint+'/post/'+postId, withCredentials: true}).success(
+										function(data, status, headers, config){
+											
+											// remove modal
+											console.log("post remove success");
+											$('#removeItem').button('reset');
+											$('#removeItemProgress').hide();
+											$scope.flags.isRemoveModal = false;
+											$('#removeModal').modal('hide');
+
+											// get new data
+											$scope.getData();
+										}
+			).error(
+										function(data, status, headers, config){
+											console.log("remove fail");
+											$scope.checkForRedirect(status, 302);
+										}
+			);
+      */
 	};
 
 	$scope.checkBlanks = function(postObj){
