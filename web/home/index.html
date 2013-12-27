@@ -69,8 +69,8 @@
                 <li class="nav-header"><h4>Groups</h4></li>
                 <li class="group-item" ng-repeat="group in groups">
 
-                  <div class="row-fluid" ng-click="selectGroup($event, group)">
-                    <a class="span7 group-ptr">{{group.name}}</a>
+                  <div class="row-fluid" >
+                    <a class="span7 group-ptr" ng-click="selectGroup($event, group)">{{group.name}}</a>
                     <!-- Placeholder for share & remove icons -->
                     <div class="offset3 span2">
                       
