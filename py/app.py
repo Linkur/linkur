@@ -418,6 +418,7 @@ def update_post():
             form_data = request.form['data']
             json_data = json.loads(form_data)
 
+            post.id = json_data['_id']
             post.title = json_data['title']
             post.link = json_data['link']
             post.category = json_data['category']
@@ -434,10 +435,10 @@ def update_post():
 
         if post.title != None and post.link != None and post.group != None and post.added_by != None:
 
-            result = postDAO.insert_post(post);
+            result = postDAO.update_post(post);
             responseWrapper = ResponseWrapper()
 
-            if result != None:
+            if result != None or result != False:
                 responseWrapper.set_error(False)
                 responseWrapper.set_data([str(result)])
                 response.status_code = 201

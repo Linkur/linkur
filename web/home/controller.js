@@ -53,6 +53,13 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		this will show the Add Post Modal
 	*/
 	$scope.showAddURLModal = function(){
+
+    var operation = {};
+    operation.id = 0;
+    operation.desc = "Add";
+    
+    $scope.post = {};
+    $scope.post.operation = operation;
 		$('#addURLProgress').hide();
 		$scope.flags.isAddURLModal = true;
 	};
@@ -135,85 +142,35 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
   /*
 		method to get the url details from modal dialog & send it to the backend
 	*/
-  $scope.addUrl = function(evt){
+  $scope.addPost = function(payloadObj){
   		// get the user inputs
-  		// fire POST request
+  		// fire PUT request
 
-  		var buttonRef = $('#submitURL');
-  		buttonRef.button('loading');
-  		$('#addURLProgress').show();
+      $http({method: 'PUT', url: apiEndPoint+'/post', 
+          withCredentials: true,
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          data:"data="+JSON.stringify(payloadObj)
+      }).success(function(data, status, headers, config){
+            // reset the buttons
+            // hide the modal
+            $('#addURLProgress').hide();
+            var buttonRef = $('#submitURL');
+            buttonRef.button('reset');
+            $('#addURLModal').modal('hide');
+              $('#frmAddURL').show(); 
 
-  		if($scope.newPost == undefined){
-  			// display error message for null value
-  			alert("check input");
-  			buttonRef.button('reset');
-  			$('#addURLProgress').hide();
-  			return ;
-  		}
+              // reset the inout model
+              $scope.newPost = {};
+              $scope.flags.isAddURLModal = false;
+              
+              // refresh data
+              $scope.getData();  
 
-  		var newPostData = $scope.newPost;
-
-  		// check for user input null values
-  		if(newPostData.ipTitle && newPostData.ipURL && newPostData.ipGroup && newPostData.ipTags){
-
-  			var result = $scope.checkBlanks(newPostData);
-
-  			// if bitResult is 111, user input is valid
-			// else, one of the mandatory fields are empty
-  			if(result == 111){
-  				// no blank fields
-  				var payloadObj = {};
-
-		  		payloadObj.title = encodeURIComponent(newPostData.ipTitle);
-		  		payloadObj.link = encodeURIComponent(newPostData.ipURL);
-		  		payloadObj.category = null;
-		  		payloadObj.groups = newPostData.ipGroup._id;
-
-		  		if(typeof newPostData.ipTags !== "undefinded"){
-		  			var tagsArray = newPostData.ipTags.split(",");
-			  		var correctedTags = [];
-			  		
-			  		// check for tags starting with space
-			  		$.each(tagsArray, function(idx,tag){
-			  			
-			  			// trim tag to remove extra spaces
-			  			tag = tag.trim();
-			  			correctedTags.push(tag);
-
-			  		});	
-		  		}
-		  		
-
-		  		payloadObj.tags = correctedTags;
-
-		  		$('#frmAddURL').hide();
-		  		// fire http reqest to search user query for posts
-
-			    $http({method: 'PUT', url: apiEndPoint+'/post', 
-							withCredentials: true,
-							headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-							data:"data="+JSON.stringify(payloadObj)
-					}).success(function(data, status, headers, config){
-								// reset the buttons
-								// hide the modal
-								$('#addURLProgress').hide();
-								var buttonRef = $('#submitURL');
-								buttonRef.button('reset');
-								$('#addURLModal').modal('hide');
-		  						$('#frmAddURL').show(); 
-
-		  						// reset the inout model
-		  						$scope.newPost = {};
-		  						$scope.flags.isAddURLModal = false;
-		  						
-		  						// refresh data
-		  						$scope.getData();  
-
-					}).error(function(data, status, headers, config){
-								console.log("addurl fail");
-								$scope.checkForRedirect(status, 302);
-					});
-
+      }).error(function(data, status, headers, config){
+            console.log("addurl fail");
+            $scope.checkForRedirect(status, 302);
+      });
+/*
   			} else{
   				// display error message
   				// ask user to input meaningful text rather than blank values
@@ -232,7 +189,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
   			return ;
 	  	}
 
-
+*/
   		
   };
 
@@ -386,7 +343,6 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		$scope.remove.desc = post.title;
 	};
 
-
 	/*
 		Method called when user clicks Logout
 		TODO 
@@ -515,6 +471,144 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 			);
 	};
 
+	/*
+		Event handler for Edit post, which opens the Modal with data binding
+	*/
+	$scope.onEditPost = function(evt, post){
+			console.log(post);	
+			console.log(evt);	
+     
+      var operation = {};
+      operation.id = 1;
+      operation.desc = "Edit";
+
+      $scope.post = {};
+      $scope.post.operation = operation;
+      $scope.post.data = {};
+      // bind data to the modal
+      $scope.post.data._id = post._id;
+      $scope.post.data.ipTitle = post.title;
+      $scope.post.data.ipURL = post.link;
+      var visibleTags = post.tags[0];
+      for(var i=1; i<post.tags.length; i++ ){
+       visibleTags +=", "+post.tags[i];
+      }
+      $scope.post.data.ipTags = visibleTags;
+      
+      $('#addURLProgress').hide();
+      $scope.flags.isAddURLModal = true;
+
+	};
+
+  $scope.editPost = function(payloadObj){
+  		// get the user inputs
+  		// fire POST request
+
+      $http({method: 'POST', url: apiEndPoint+'/post', 
+          withCredentials: true,
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          data:"data="+JSON.stringify(payloadObj)
+      }).success(function(data, status, headers, config){
+            // reset the buttons
+            // hide the modal
+            $('#addURLProgress').hide();
+            var buttonRef = $('#submitURL');
+            buttonRef.button('reset');
+            $('#addURLModal').modal('hide');
+              $('#frmAddURL').show(); 
+
+              // reset the inout model
+              $scope.newPost = {};
+              $scope.flags.isAddURLModal = false;
+              
+              // refresh data
+              $scope.getData();  
+
+      }).error(function(data, status, headers, config){
+            console.log("addurl fail");
+            $scope.checkForRedirect(status, 302);
+      });
+  }
+
+  $scope.onSubmitPost = function(evt, post){
+    // Do basic user input check
+    // call respective HTTP handler to perform operation based on the operation type
+   		// get the user inputs
+  		// fire POST request
+
+  		var buttonRef = $('#submitURL');
+  		buttonRef.button('loading');
+  		$('#addURLProgress').show();
+
+  		if(post.data == undefined){
+  			// display error message for null value
+  			alert("check input");
+  			buttonRef.button('reset');
+  			$('#addURLProgress').hide();
+  			return ;
+  		}
+
+  		var newPostData = post.data;
+
+  		// check for user input null values
+  		if(newPostData.ipTitle && newPostData.ipURL && newPostData.ipGroup){
+
+  			var result = $scope.checkBlanks(newPostData);
+
+  			// if bitResult is 111, user input is valid
+			// else, one of the mandatory fields are empty
+  			if(result == 111 || result == 110){
+  				// no blank fields
+  				var payloadObj = {};
+          
+		  		payloadObj.title = encodeURIComponent(newPostData.ipTitle);
+		  		payloadObj.link = encodeURIComponent(newPostData.ipURL);
+		  		payloadObj.category = null;
+		  		payloadObj.groups = newPostData.ipGroup._id;
+
+          var correctedTags = [];
+		  		if(typeof newPostData.ipTags !== "undefined" && newPostData.ipTags.length > 0){
+		  			var tagsArray = newPostData.ipTags.split(",");
+			  		
+			  		// check for tags starting with space
+			  		$.each(tagsArray, function(idx,tag){
+			  			
+			  			// trim tag to remove extra spaces
+			  			tag = tag.trim();
+			  			correctedTags.push(tag);
+
+			  		});	
+		  		} 
+
+		  		payloadObj.tags = correctedTags;
+		  		$('#frmAddURL').hide();
+
+		  		// fire http reqest to search user query for posts
+          if(post.operation.id == 00){
+            $scope.addPost(payloadObj);
+          } else{
+            payloadObj._id = newPostData._id;
+            $scope.editPost(payloadObj);
+          }
+  			} else{
+  				// display error message
+  				// ask user to input meaningful text rather than blank values
+  				alert("check input -> blanks");
+	  			buttonRef.button('reset');
+	  			$('#addURLProgress').hide();
+	  			return ;
+  			}
+  			
+	  	} else{
+
+	  		// display error message. Ask user to check for null values
+	  		alert("check input");
+  			buttonRef.button('reset');
+  			$('#addURLProgress').hide();
+  			return ;
+	  	}
+  }
+
 	$scope.checkBlanks = function(postObj){
 		
 		var bitResult = 0;
@@ -527,7 +621,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 			bitResult = bitResult + 10;
 		}
 
-		if(postObj.ipTags.trim().length > 0){
+		if(postObj.ipTags && postObj.ipTags.trim().length > 0){
 			bitResult = bitResult + 1;	
 		}		
 

@@ -72,16 +72,25 @@
                   <div class="row-fluid" ng-click="selectGroup($event, group)">
                     <a class="span7 group-ptr">{{group.name}}</a>
                     <!-- Placeholder for share & remove icons -->
-                    <div class="offset1 span4">
-                      <!-- Placeholder for share -->
-                      <div class="span2 group-ptr">
-                        <i data-toggle="modal" data-target="#shareGroupModal" rel="tooltip" title="Share group" class="icon-share" ng-click="onShareGroup($event, group)"></i>
-                      </div>
-                      <!-- Placeholder for remove -->
-                      <div class="span3 pull-right group-ptr">
-                        <i data-toggle="modal" data-target="#removeModal" rel="tooltip" title="Remove group" class="icon-remove large remove-group" ng-click="onRemoveGroup($event, group)"></i>
+                    <div class="offset3 span2">
+                      
+                      <div class="btn-group">
+                          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                             <i class="icon-cog"></i> 
+                              <span class="caret"></span>
+                          </a>
+                          <ul class="dropdown-menu settings-panel">
+                          <!-- dropdown menu links -->
+                            <li data-toggle="modal" data-target="#shareGroupModal" ng-click="onShareGroup($event, group)">
+                              <a tabindex="-1" href="#">Share</a>
+                            </li>
+                            <li data-toggle="modal" data-target="#removeModal" ng-click="onRemoveGroup($event, group)">
+                              <a tabindex="-1" href="#">Delete</a>
+                            </li>
+                          </ul>
                       </div>
                     </div>
+                    <!-- End of placeholder for settings button -->
 
                   </div>
                 </li>
@@ -112,7 +121,22 @@
 
                     <!-- placeholder for delete button -->
                     <div class="offset1 span1">
-                      <i data-toggle="modal" data-target="#removeModal" rel="tooltip" title="Remove Post" class="icon-remove large offset1 pull-right remove-post" ng-click="onRemovePost($event, post)"></i>
+                      <div class="btn-group">
+                          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+                             <i class="icon-cog"></i> 
+                              <span class="caret"></span>
+                          </a>
+                          <ul class="dropdown-menu settings-panel">
+                          <!-- dropdown menu links -->
+                            <li data-toggle="modal" data-target="#addURLModal" ng-click="onEditPost($event, post)">
+                              <a tabindex="-1" href="#">Edit</a>
+                            </li>
+                            <li data-toggle="modal" data-target="#removeModal" ng-click="onRemovePost($event, post)">
+                              <a tabindex="-1" href="#">Delete</a>
+                            </li>
+                          </ul>
+                      </div>
+
                     </div> 
                   </div>
                     
