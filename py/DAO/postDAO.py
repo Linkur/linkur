@@ -184,15 +184,18 @@ class PostDAO:
 
         collection = self.recent_collection
         result = None
-
+        
         try:
+            update_what = {"_id":ObjectId(post_obj.id)}
             to_update = post_obj.db_serializer()
-            result = collection.save(to_update, safe=True)
+            print "you are about to upadate the post and this is the data given"
+            print to_update
+            result = collection.update(update_what,to_update, upsert=False, safe=True)
 
         except Exception as inst:
             print "error updating post"
             print inst
-            return false
+            return False
 
         return result
 
