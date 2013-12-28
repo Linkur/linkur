@@ -21,3 +21,4 @@ sharURL is a place where anyone in your "group" can post a link and its visible 
     $pip install -r requirements.txt
     $mongod &
     $python app.py 
+
