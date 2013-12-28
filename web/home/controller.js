@@ -62,7 +62,8 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
     $scope.post.operation = operation;
 		$('#addURLProgress').hide();
 		$scope.flags.isAddURLModal = true;
-	};
+    $scope.setFocus($('#urlmodal-title'));
+  };
 
 	/*
 		set isAddGroupModal boolean to true.
@@ -497,6 +498,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
       
       $('#addURLProgress').hide();
       $scope.flags.isAddURLModal = true;
+      $scope.setFocus($('#urlmodal-title'));
 
 	};
 
@@ -650,6 +652,15 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 				$location.path("/login");
 			}
 	};
+
+  /*
+   util method to explicitly set focus for an element
+  */
+  $scope.setFocus = function(elem){
+    setTimeout(function(){
+      $(elem).focus();
+    }, 200);
+  };
 
 	// explicitly load group data on page load
 	$scope.getUserInfo();
