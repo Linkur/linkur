@@ -158,7 +158,7 @@
                   <div class="row-fluid">
                     <!-- placeholder for tags -->
                     <div class="lead span10">
-                      <code ng-repeat="tag in post.tags" class="margin2">{{tag}}</code>
+                      <code ng-repeat="tag in post.tags | orderBy:'toString()'" class="margin2">{{tag}}</code>
                     </div>
 
                     <!-- placeholder for date -->
