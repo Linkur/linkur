@@ -81,7 +81,7 @@ def user_signup():
                 return response
 
             session_id = sessionDAO.start_session(email)			
-            response.set_cookie("session", value=session_id)
+            response.set_cookie("session", value=session_id, domain=".linkur.co.in")
 
             responseWrapper.set_error(False)
             responseWrapper.set_data(["User Signup success!"])
