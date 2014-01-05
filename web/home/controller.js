@@ -125,7 +125,8 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 	/*
 		handler for groupSelected event - triggers getData()
 	*/
-	$scope.$on('groupSelected', function(event) { 
+	$scope.$on('groupSelected', function(event, e) { 
+    console.log(event);
 		 $scope.getData();
 	});
 
@@ -134,9 +135,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		handler for groupLoaded event - triggers lead selection
 	*/
 	$scope.$on('groupsLoaded', function(event) { 
-		var groupsDOM = $('.group-item');
-		var firstGroupDOM = $(groupsDOM[0]).children();
-		$(firstGroupDOM).trigger('click');
+    $(".group-item .active .group-ptr").trigger('click');
 	});
 
 
@@ -289,7 +288,7 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
 		$scope.currentGroup = group;
 		
 		// change css class for selected group
-		$('.group-item').removeClass('active');
+		$('.group-item div').removeClass('active');
 		$(evt.currentTarget).parent().addClass('active');
 
 		// fire groupSelected event, which triggers getData() in postCtr
@@ -496,6 +495,13 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
       }
       $scope.post.data.ipTags = visibleTags;
       
+      // bind the current model data to ipModel
+      $.each($scope.groups, function(idx, value){
+        if(value._id == post.group){
+          $scope.post.data.ipGroup = value;
+        }
+      });
+
       $('#addURLProgress').hide();
       $scope.flags.isAddURLModal = true;
       $scope.setFocus($('#urlmodal-title'));

@@ -1,4 +1,4 @@
-#sharURL
+#[Linkur](http://linkur.co.in)
 a simple, speedy way to share URL's within groups
 
 ##The Problem
@@ -7,7 +7,7 @@ We've always found it a problem to share links within our group. Moreso re-look 
 So here we are. 
 
 ##The Solution
-sharURL is a place where anyone in your "group" can post a link and its visible to the others. The other people who are part of the group can mark that link as **read**. This will be backed up by a solid search feature.
+Linkur is a place where anyone in your "group" can post a link and its visible to the others. 
 
 ##Pre-prequisites
 * python 2.7
@@ -15,10 +15,5 @@ sharURL is a place where anyone in your "group" can post a link and its visible 
     * Flask
 * mongo
 
-##Running it
-    $virtualenv env
-    $source env/bin/activate
-    $pip install -r requirements.txt
-    $mongod &
-    $python app.py 
-
+##Installation instructions
+Coming soon

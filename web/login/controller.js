@@ -82,7 +82,7 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
 		
 		var me = this;
     if(this.rgName != undefined && this.rgEmail != undefined && this.rgPwd != undefined && this.rgRepeat != undefined){
-      
+      this.rgEmail = this.rgEmail.toLowerCase();
       var xsrf = $.param({"email": this.rgEmail,"password":this.rgPwd,"verify":this.rgRepeat,"name":this.rgName});
 
       // TODO: check for blank values
@@ -101,6 +101,13 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
             if(data.error == false){
               $scope.authResult = "Hurray! Registration successful";
               $('#alert-container').show();
+
+              // clear input form
+              delete $scope.rgName;
+              delete $scope.rgEmail;
+              delete $scope.rgPwd;
+              delete $scope.rgRepeat;
+
               $scope.$apply();
             } else{
               // throw error
