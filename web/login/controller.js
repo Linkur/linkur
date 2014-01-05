@@ -101,6 +101,13 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
             if(data.error == false){
               $scope.authResult = "Hurray! Registration successful";
               $('#alert-container').show();
+
+              // clear input form
+              delete $scope.rgName;
+              delete $scope.rgEmail;
+              delete $scope.rgPwd;
+              delete $scope.rgRepeat;
+
               $scope.$apply();
             } else{
               // throw error
