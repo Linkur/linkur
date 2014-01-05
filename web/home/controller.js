@@ -495,6 +495,13 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
       }
       $scope.post.data.ipTags = visibleTags;
       
+      // bind the current model data to ipModel
+      $.each($scope.groups, function(idx, value){
+        if(value._id == post.group){
+          $scope.post.data.ipGroup = value;
+        }
+      });
+
       $('#addURLProgress').hide();
       $scope.flags.isAddURLModal = true;
       $scope.setFocus($('#urlmodal-title'));
