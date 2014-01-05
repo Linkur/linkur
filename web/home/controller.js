@@ -662,6 +662,25 @@ myAppModule.controller("postCtr", function ($scope, $http, $location, apiEndPoin
     }, 200);
   };
 
+  /*
+    util method to highlight the entire text field on click
+  */
+  $scope.selectAll = function(evt){
+    console.log(evt);
+    
+    if (window.getSelection && document.createRange) {
+        selection = window.getSelection();
+        range = document.createRange();
+        range.selectNodeContents($(evt.currentTarget)[0]);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    } else if (document.selection && document.body.createTextRange) {
+        range = document.body.createTextRange();
+        range.moveToElementText($(evt.currentTarget)[0]);
+        range.select();
+    }
+  }
+
 	// explicitly load group data on page load
 	$scope.getUserInfo();
 
