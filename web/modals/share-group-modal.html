@@ -12,13 +12,13 @@
           <div class="control-group">
             <div class="row-fluid">
               <label>Group Name</label>
-              <span type="text" class="input-xxlarge uneditable-input span5" ng-model="sharedGroup.name" placeholder="Group Name">{{sharedGroup.name}}</span>
+              <span type="text" class="input-xxlarge uneditable-input span5 allowed" ng-model="sharedGroup.name" placeholder="Group Name">{{sharedGroup.name}}</span>
             </div>
             </div>
           <div class="control-group">
             <div class="row-fluid">
               <label>Sharer ID</label>
-              <span type="text" class="input-xxlarge uneditable-input span5" ng-model="sharedGroup.hash" placeholder="Group Name">{{sharedGroup.hash}}</span>
+              <span type="text" class="input-xxlarge uneditable-input span5 allowed" ng-model="sharedGroup.hash" ng-click="selectAll($event)" placeholder="Group Name">{{sharedGroup.hash}}</span>
             </div>
             </div>
           </div>
