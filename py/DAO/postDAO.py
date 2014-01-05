@@ -55,17 +55,21 @@ class PostDAO:
 
     def searchCollection(self, groups, collection, queryTexts):
         modelled_search_results = None
-        
+        print queryTexts 
         query_string = []
 
         # build query based on the search strings
         for query in queryTexts:
             # check for title field
-            interim_string = {"title":query}
+            #interim_string = {"title":query}
+            #interim_string = {"title":{ "$regex": '*'+query+'*', "$options": 'i' }}
+            interim_string = {"title":{ "$regex": '^'+query, "$options": 'i' }}
             query_string.append(interim_string)
 
             # check if string is part of tags array
-            interim_string = {"tags":{"$in":[query]}}
+            #interim_string = {"tags":{"$in":[query]}}
+            #interim_string = {"tags":{ "$regex": '*'+query+'*', "$options": 'i' }}
+            interim_string = {"tags":{ "$regex": '^'+query, "$options": 'i' }}
             query_string.append(interim_string)
 
         # and group
