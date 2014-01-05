@@ -82,7 +82,7 @@ myAppModule.controller("loginCtr", function($scope,$http, $location, apiEndPoint
 		
 		var me = this;
     if(this.rgName != undefined && this.rgEmail != undefined && this.rgPwd != undefined && this.rgRepeat != undefined){
-      
+      this.rgEmail = this.rgEmail.toLowerCase();
       var xsrf = $.param({"email": this.rgEmail,"password":this.rgPwd,"verify":this.rgRepeat,"name":this.rgName});
 
       // TODO: check for blank values
