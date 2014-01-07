@@ -1,8 +1,6 @@
 #[Linkur](http://linkur.co.in)
 a simple, speedy way to share URL's within groups
 
-Try it out @ [http://linkur.co.in](http://linkur.co.in)
-
 ##The Problem
 We've always found it a problem to share links within our group. Moreso re-look them up. We've used email as a solution for this and even services like hipchat but nothing is really satisfactory, so we thought "Hey, why not build one ourselves?" 
 
