@@ -3,7 +3,7 @@
 .DS_Store
 ### Python ###
 *.py[cod]
-
+*.pyc
 # C extensions
 *.so
 
