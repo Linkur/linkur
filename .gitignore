@@ -51,3 +51,6 @@ venv/
 Session.vim
 .netrwhist
 *~
+
+# ignore conf.py
+conf.py
