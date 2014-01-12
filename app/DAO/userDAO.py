@@ -71,14 +71,14 @@ class UserDAO:
     def change_password(self, user_id, password, new_password):
         
         # encrypt the new password
-        new_password_hash = self.make_pwd_hash(new_password)
+        new_password_hash = self.make_pw_hash(new_password)
 
         try:
-            cur = self.cursor()
-            cur.execute("UPDATE public.users SET PASSWORD = '%s' WHERE ID = '%s'",
+            cur = self.db.cursor()
+            cur.execute("UPDATE public.users SET PASSWORD = %s WHERE ID = %s",
                     (
-                        new_password,
-                        user('id')
+                        new_password_hash,
+                        user_id
                     ))
 
         except Exception as e:
@@ -87,9 +87,31 @@ class UserDAO:
             print e
 
             # An error occurred, rollback db
-            db.rollback()
+            self.db.rollback()
             return False
 
-        db.commit()
+        self.db.commit()
+        return True
+
+
+    def change_name(self, name, user_id):
+
+        try:
+            cur = self.db.cursor()
+            cur.execute("UPDATE public.users SET NAME = '%s' WHERE ID = '%s'",
+                    (
+                        name,
+                        user_id
+                    ))
+
+        except Exception as e:
+
+            print "Error changing user name"
+            print e
+            
+            self.db.rollback()
+            return False
+
+        self.db.commit()
         return True
 
