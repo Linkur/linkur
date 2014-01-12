@@ -3,7 +3,7 @@ import psycopg2.extras
 import uuid
 import datetime
 
-Class Util:
+class Util:
 
     
     def make_uuid(self, data):
@@ -15,9 +15,9 @@ Class Util:
             uid = uuid.uuid5(uuid.NAMESPACE_DNS, data+str(datetime.datetime.now))
 
             # adapt py uuid to postgres uuid type
-           uuuid = psycopg2.extras.UUID_adapter(uid)
+            uuuid = psycopg2.extras.UUID_adapter(uid)
 
-        except Exception as e
+        except Exception as e:
             
             print "error generating uuid"
             return None

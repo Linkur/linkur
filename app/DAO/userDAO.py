@@ -6,14 +6,14 @@ import random
 import string
 
 from model.user import User
-import util import Util
+from util import Util
 
 class UserDAO:
 
     def __init__(self):
 
         # Connect to db
-        self.db = psycopg2.connect(database=conf.PG_DB, host=conf.PG_HOST, port=PG_PORT, user=PG_USER, password=PG_PASSWORD)
+        self.db = psycopg2.connect(database=conf.PG_DB, host=conf.PG_HOST, port=conf.PG_PORT, user=conf.PG_USER, password=conf.PG_PASSWORD)
 
 
     # util method to create a random salt
@@ -38,32 +38,32 @@ class UserDAO:
     def add_user(self, user):
         
         # encrypt the user password
-        password_hash = self.make_pw_hash(user['password'])
+        password_hash = self.make_pw_hash(user.password)
 
         util = Util()
-        user_id = util.make_uuid(user['email'])
+        user_id = util.make_uuid(user.email)
 
         try:
-            cur = self.conn.cursor()
+            cur = self.db.cursor()
             cur.execute("INSERT INTO public.users (id, email, name, password) VALUES (%s,%s,%s,%s)", 
                 (
                     user_id,
-                    user['email'],
-                    user['name'],
+                    user.email,
+                    user.name,
                     password_hash 
                     )
                 )
 
-        except Exceptions as e:
+        except Exception as e:
 
             print "Error creating user"
             print e
             
             # An error occurred, rollback db
-            db.rollback()
+            self.db.rollback()
             return False
         
-        db.commit()
+        self.db.commit()
         return True
    
    
@@ -79,7 +79,7 @@ class UserDAO:
                     (
                         new_password,
                         user('id')
-                    )
+                    ))
 
         except Exception as e:
 
