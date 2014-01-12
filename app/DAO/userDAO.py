@@ -1,17 +1,19 @@
 
+import psycopg2
+import conf
 import hashlib
 import random
 import string
 
 from model.user import User
-
+import util import Util
 
 class UserDAO:
 
     def __init__(self):
 
         # Connect to db
-        self.db = psycopg2.connect('dbname=linkur user=postgres password=postgres host=localhost port=5432')
+        self.db = psycopg2.connect(database=conf.PG_DB, host=conf.PG_HOST, port=PG_PORT, user=PG_USER, password=PG_PASSWORD)
 
 
     # util method to create a random salt
@@ -34,15 +36,18 @@ class UserDAO:
 
     # Add new user to DB
     def add_user(self, user):
-       
+        
         # encrypt the user password
         password_hash = self.make_pw_hash(user['password'])
-        
+
+        util = Util()
+        user_id = util.make_uuid(user['email'])
+
         try:
             cur = self.conn.cursor()
             cur.execute("INSERT INTO public.users (id, email, name, password) VALUES (%s,%s,%s,%s)", 
                 (
-                    user['id'],
+                    user_id,
                     user['email'],
                     user['name'],
                     password_hash 
