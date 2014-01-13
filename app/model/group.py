@@ -2,26 +2,20 @@ __author__ = 'raghothams'
 
 class Group:
 	# ID
-	# NAME
-	# USERS
+    # TITLE
 
 	def __init__(self):
 		self.id = None
-		self.name = None
-		self.hash = None
-		self.users = []
+        self.title = None
 
 	def __str__(self):
 		return {
-			'_id' : self.id,
-			'name' : self.name,
-			'hash' : self.hash,
-			'users' : self.users
+			'id' : self.id,
+            'title' : self.title
 		}
 
 	def db_serializer(self):
 		return {
-			'name': self.name,
-			'hash': self.hash,
-			'users': self.users
+            'title' : self.title
 		}
+

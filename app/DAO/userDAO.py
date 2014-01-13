@@ -14,7 +14,7 @@ class UserDAO:
 
         # Connect to db
         self.db = psycopg2.connect(database=conf.PG_DB, host=conf.PG_HOST, port=conf.PG_PORT, user=conf.PG_USER, password=conf.PG_PASSWORD)
-
+        self.util = Util()
 
     # util method to create a random salt
     def make_salt(self):
@@ -40,8 +40,7 @@ class UserDAO:
         # encrypt the user password
         password_hash = self.make_pw_hash(user.password)
 
-        util = Util()
-        user_id = util.make_uuid(user.email)
+        user_id = self.util.generate_uuid(user.email)
 
         try:
             cur = self.db.cursor()

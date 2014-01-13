@@ -6,7 +6,7 @@ import datetime
 class Util:
 
     
-    def make_uuid(self, data):
+    def generate_uuid(self, data):
         uuuid = None
         
         try:
