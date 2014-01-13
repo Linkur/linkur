@@ -2,14 +2,15 @@
 import psycopg2
 
 from model.group import Group
-import util
+from util import Util
 import conf
 
 class GroupDAO:
 
     def __init__(self):
 
-        self.db = psycopg2.connect(database=conf.PG_DB host=conf.PG_HOST user=conf.PG_USER password=conf.PG_PASSWORD port=conf.PG_PORT)
+        self.db = psycopg2.connect(database=conf.PG_DB, host=conf.PG_HOST, user=conf.PG_USER, password=conf.PG_PASSWORD, port=conf.PG_PORT)
+
         self.util = Util()
 
 
@@ -17,7 +18,7 @@ class GroupDAO:
     def add_group(self, group):
 
         # generate uuid for group
-        group_id = self.util.generate_uuid(group.name)
+        group_id = self.util.generate_uuid(group.title)
 
         try:
 
@@ -45,14 +46,15 @@ class GroupDAO:
 
 
     # method to change group name
-    def change_group_name(self, group_name):
+    def change_group_name(self, group):
 
         try:
         
             # get db cursor
             cur = self.db.cursor()
-
-            cur.execute("UPDATE public.groups (title) VALUES (%s)", (group_name))
+            
+            
+            cur.execute("UPDATE public.groups SET TITLE = %s WHERE id=%s", (group.name, group.id))
 
         except Exception as e:
 

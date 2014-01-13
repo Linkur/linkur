@@ -24,3 +24,11 @@ class Util:
         
         return uuuid
 
+
+
+    def adapt_uuid(self, str_uuid):
+
+        uid = uuid.UUID(str_uuid)
+        uid = psycopg2.extras.UUID_adapter(uid);
+
+        return uid
