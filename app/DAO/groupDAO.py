@@ -1,7 +1,7 @@
 
 import psycopg2
 
-from model.group import Group
+from app.model.group import Group
 from util import Util
 import conf
 
