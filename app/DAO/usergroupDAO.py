@@ -5,7 +5,7 @@ from model.group import Group
 from util import Util
 import conf
 
-# data mapper class for user_group table
+# data mapper class for user_group_subscription table
 class UserGroupDAO:
 
     def __init__(self):
