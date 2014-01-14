@@ -14,6 +14,7 @@ class UserPostDAO:
         self.util = Util()
 
 
+# method to add a record in user_subscription table
     def add_user_post(self, user_id, post_id):
 
         try:
@@ -40,6 +41,7 @@ class UserPostDAO:
         return True
 
 
+# method to delete a record in user_subscription table
     def delete_user_post(self, user_id, post_id):
 
         try:
