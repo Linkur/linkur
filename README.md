@@ -1,4 +1,4 @@
-#[Linkur](http://linkur.co.in)
+#[Linkur](http://linkur.co.in) [![Build Status](https://travis-ci.org/raghothams/linkur.png?branch=v2)](https://travis-ci.org/raghothams/linkur)
 a simple, speedy way to share URL's within groups
 
 Try it out @ [http://linkur.co.in](http://linkur.co.in)
