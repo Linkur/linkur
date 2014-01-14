@@ -5,7 +5,7 @@ import hashlib
 import random
 import string
 
-from model.user import User
+from app.model.user import User
 from util import Util
 
 class UserDAO:
