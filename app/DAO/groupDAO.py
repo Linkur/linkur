@@ -9,8 +9,9 @@ class GroupDAO:
 
     def __init__(self):
 
+        # get db connection instance
         self.db = psycopg2.connect(database=conf.PG_DB, host=conf.PG_HOST, user=conf.PG_USER, password=conf.PG_PASSWORD, port=conf.PG_PORT)
-
+        # get a util instance
         self.util = Util()
 
 
@@ -24,7 +25,6 @@ class GroupDAO:
 
             # get db cursor
             cur = self.db.cursor()
-            
             cur.execute("INSERT INTO public.groups (id, title) VALUES (%s,%s)",
                     (
                         group_id,
@@ -52,8 +52,6 @@ class GroupDAO:
         
             # get db cursor
             cur = self.db.cursor()
-            
-            
             cur.execute("UPDATE public.groups SET TITLE = %s WHERE id=%s", (group.name, group.id))
 
         except Exception as e:
