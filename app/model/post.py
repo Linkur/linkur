@@ -1,8 +1,6 @@
 __author__ = 'raghothams'
 
-from bson.objectid import ObjectId
 import datetime
-from bson import ObjectId
 	# ID
 	# DATE
 	# TITLE
@@ -45,6 +43,6 @@ class Post:
 			'link' : self.link,
 			'category' : self.catgegory,
 			'tags' : self.tags,
-			'group' : ObjectId(self.group),
+			'group' : self.group,
 			'added_by' : self.added_by
 		}

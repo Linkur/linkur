@@ -1,4 +1,6 @@
 
+import sys
+sys.path.append("../")
 from app.DAO.groupDAO import GroupDAO
 from app.model.group import Group
 
@@ -21,5 +23,5 @@ def change_group_name():
 
     data_mapper.change_group_name(group)
 
-change_group_name()
+create_group()
 

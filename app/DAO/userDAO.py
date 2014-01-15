@@ -1,5 +1,7 @@
 
 import psycopg2
+import psycopg2.extras
+import uuid
 import conf
 import hashlib
 import random
@@ -114,3 +116,30 @@ class UserDAO:
         self.db.commit()
         return True
 
+    def get_user_id(self, email):
+        
+        user_id = None
+
+        try:
+            cur = self.db.cursor()
+
+            cur.execute("SELECT ID FROM public.users WHERE EMAIL = %s", (email,))
+            user_id = cur.fetchone()
+            
+            uid = uuid.UUID(user_id[0])
+            print uid
+            user_id = psycopg2.extras.UUID_adapter(uid);
+            print user_id
+
+        except Exception as e:
+
+            print "An error occurred while reading user id"
+            print e
+            
+            return False
+        
+        if user_id:
+            return user_id
+        else:
+            return None
+        
