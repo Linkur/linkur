@@ -66,3 +66,23 @@ class GroupDAO:
         self.db.commit()
         return True
 
+
+    # method to delete a group
+    def delete_group(self, group_id):
+
+        try:
+
+            cur = self.db.cursor()
+            cur.execute("DELETE FROM public.groups WHERE id = %s", (group_id))
+
+        except Exception as e:
+
+            print "An error occurred while deleting group"
+            print e
+
+            self.db.rollback()
+            return False
+
+        self.db.commit()
+        return True
+
