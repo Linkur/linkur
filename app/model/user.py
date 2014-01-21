@@ -6,8 +6,8 @@ class User:
     # NAME
     # GROUPS (COPY)
 
-    def __init__(self, email, password, name):
-
+    def __init__(self, email=None, password=None, name=None, id=None):
+        self.id = id
         self.email = email
         self.password = password
         self.name = name
@@ -16,9 +16,9 @@ class User:
 
         return {
             '_id' : self.id,
+            'email' : self.email,
             'password' : self.password,
             'name' : self.name,
-            'groups' : self.groups
         }
 
     def db_serializer(self):
@@ -27,5 +27,4 @@ class User:
             '_id' : self.id,
             'password' : self.password,
             'name' : self.name,
-            'groups' : []
         }
