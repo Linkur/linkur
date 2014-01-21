@@ -40,7 +40,7 @@ nosetests.xml
 .pydevproject
 
 # virtualenv
-venv/
+env/
 
 # ignore logs
 *.log
