@@ -23,7 +23,9 @@ class UserDAO:
                                     password=conf.PG_PASSWORD
                                   )
 
+        # store the scret key in the instance
         self.secret_key = secret_key
+        # convert unicode to ascii string
         self.secret_key = self.secret_key.encode('base-64')
         self.util = Util()
 
@@ -71,16 +73,20 @@ class UserDAO:
     def change_password(self, user_id, password, new_password):
         
         cur = None
+        # get the user object for the email
         user = self.get(email)
-        print user
+
         if user == None:
             print "User not found"
             return False 
 
+        # check if the old passwords match
         if self.make_password_hash(password) == user.password:
             
             try:
+                # create hash for new password
                 new_password = self.make_password_hash(new_password)
+
                 cur = self.db.cursor()
                 cur.execute("UPDATE public.users SET password = %s \
                               WHERE ID = %s", 
@@ -135,7 +141,7 @@ class UserDAO:
         return True
 
 
-
+    # method to get the user object from db for a given email
     def get(self, email):
         
         user = User()
@@ -159,19 +165,19 @@ class UserDAO:
             print e
             
             return None
-        print user.__str__()
+
+        # return user object
         return user
         
 
-
+    # method to validate if the email and password
     def validate(self, email, password):
         
         user = self.get(email)
         
-        print user.password
+        # check the hash of user input with the password from db
         hashed_pwd = self.make_password_hash(password)
         if hashed_pwd == user.password:
-            print "returning user : ",user.name,user.password
             return user
 
         else:
