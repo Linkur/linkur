@@ -42,7 +42,7 @@ class UserDAO:
         
         # encrypt the user password
         password_hash = self.make_pw_hash(user.password)
-        user_id = self.util.generate_uuid(user.email)
+        user_id = Util.generate_uuid(user.email)
 
         try:
             cur = self.db.cursor()
