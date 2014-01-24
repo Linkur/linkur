@@ -5,21 +5,30 @@ import datetime
 
 class Util:
 
-    
-    def generate_uuid(self, data):
+    @staticmethod 
+    def generate_uuid(data):
         uuuid = None
+        if data == None:
+            print "data is none for uuid generation"
+            return None
         
         try:
 
-            # generate uuid based on DNS & sha1
-            uid = uuid.uuid5(uuid.NAMESPACE_DNS, data+str(datetime.datetime.now))
+            data = data+str(datetime.datetime.now())
+            #convert to ascii format string
+            data = data.encode("base-64")
 
+            # generate uuid based on DNS & sha1
+            uid = uuid.uuid5(uuid.NAMESPACE_DNS, data)
+
+            print uid
             # adapt py uuid to postgres uuid type
             uuuid = psycopg2.extras.UUID_adapter(uid)
 
         except Exception as e:
             
             print "error generating uuid"
+            print e
             return None
         
         return uuuid
