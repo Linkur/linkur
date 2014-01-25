@@ -17,14 +17,20 @@ def test_user_create():
 
     user = User("tester@test.com", "test123", "tester")
 
-    user_mapper = UserDAO()
-    assert user_mapper.add_user(user)
+    user_mapper = UserDAO("LOL")
+    assert user_mapper.add(user)
 
 
 def test_change_password():
 
-    user_mapper = UserDAO()
-    uid = uuid.UUID("84319fd4-c820-5289-ab32-dad7e25d6ad9")
-    uid = psycopg2.extras.UUID_adapter(uid);
-    assert user_mapper.change_password(uid, "test123", "testing123")
+    user_mapper = UserDAO("LOL")
+    user = user_mapper.get("tester@test.com")
+    print "retrieved user id is : ",user.id
+    assert user_mapper.change_password(user.email, "test123", "testing123")
+
+def test_delete_user():
+
+    user_mapper = UserDAO("LOL")
+    user = user_mapper.get("tester@test.com")
+    assert user_mapper.delete(user.id)
 
