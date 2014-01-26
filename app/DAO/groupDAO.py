@@ -2,7 +2,6 @@
 import psycopg2
 
 from app.model.group import Group
-from util import Util
 import conf
 
 class GroupDAO:
@@ -14,31 +13,20 @@ class GroupDAO:
 
 
     # method to create a new group
-    def add(self, group_name, user_id):
+    def create(self, group_name):
 
         result = None
         cur = self.db.cursor()
-
-        # generate uuid for group
-        group_id = Util.generate_uuid(group_name)
-        if group_id == None:
-            return None
+        psycopg2.extras.register_uuid()
 
         try:
 
-            cur.execute("INSERT INTO public.groups (id, title) VALUES (%s,%s)",
-                    (
-                        group_id,
-                        group_name
-                    ))
+            cur.execute("INSERT INTO public.groups (title) VALUES (%s) \
+                    RETURNING id", ( group_name,))
 
             if cur.rowcount == 1:
                 # get the last insert id
-                # insert user and group combo tp user group table
-                #SELECT * from public.groups ORDER BY id DESC LIMIT 1
-                self.db.commit()
-                cur.execute("SELECT id FROM public.groups ORDER BY id \
-                                DESC LIMIT 1")
+                # insert user and group combo to user group table
                 row = cur.fetchone()
                 result = row[0]
 
@@ -53,6 +41,7 @@ class GroupDAO:
 
         finally:
         
+            self.db.commit()
             cur.close()
             return result
 
@@ -61,6 +50,7 @@ class GroupDAO:
         
         result = None
         cur = self.db.cursor()
+        psycopg2.extras.register_uuid()
 
         try:
 
@@ -86,6 +76,24 @@ class GroupDAO:
 
             return result
 
+
+    def add(self, group_name, user_id):
+       
+        result = None
+        group_id = self.create(group_name)
+        
+        if group_id != None:
+            result = self.associate_user(user_id, group_id)
+
+            if result != None:
+                result = group_id
+
+            else:
+                print "Error creating association, deleting the created group"
+                self.delete(group_id)
+
+        return result
+        
 
     # method to delete a user-group association
     def remove_user_association(self, user_id, group_id):
@@ -118,7 +126,7 @@ class GroupDAO:
 
         try:
 
-            cur.execute("DELETE FROM public.groups WHERE id = %s", (group_id))
+            cur.execute("DELETE FROM public.groups WHERE id = %s", (group_id,))
 
             if cur.rowcount == 1:
                 result = True

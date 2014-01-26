@@ -1,27 +1,50 @@
 
-import sys
-sys.path.append("../")
 from app.DAO.groupDAO import GroupDAO
-from app.model.group import Group
+from app.DAO.userDAO import UserDAO
+from app.model.user import User
 
+global group
+group = None
 
-def create_group():
+# test to create a user
+def test_user_create():
 
-    group = Group()
+    user = User("tester@test.com", "test123", "tester")
+
+    user_mapper = UserDAO("LOL")
+    assert user_mapper.add(user)
+
+def test_create_group():
+
     data_mapper = GroupDAO()
 
-    group.title = "3sb"
+    user_mapper = UserDAO("LOL") 
+    user = user_mapper.get("tester@test.com")
 
-    data_mapper.add_group(group)
+    group_name = "3sb"
 
-def change_group_name():
+    global group
+    group = data_mapper.add(group_name, user.id)
+    assert group
 
-    group = Group()
-    group.id = "03a56b57-01ba-5ddb-b4b1-9e19323d41b8"
-    group.name = "2b1s"
+
+def test_delete_group():
+
     data_mapper = GroupDAO()
 
-    data_mapper.change_group_name(group)
+    user_mapper = UserDAO("LOL") 
+    user = user_mapper.get("tester@test.com")
+    
+    global group
+    print "will remove association ",group
+    assert data_mapper.remove_user_association(user.id, group)
+    print "will delte ",group
+    assert data_mapper.delete(group)
 
-create_group()
+
+def test_delete_user():
+
+    user_mapper = UserDAO("LOL")
+    user = user_mapper.get("tester@test.com")
+    assert user_mapper.delete(user.id)
 
