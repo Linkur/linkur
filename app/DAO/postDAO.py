@@ -15,29 +15,59 @@ class PostDAO:
         # Connect to db
         self.db = psycopg2.connect(database=conf.PG_DB, host=conf.PG_HOST, port=conf.PG_PORT, user=conf.PG_USER, password=conf.PG_PASSWORD)
 
+
+    # get posts for user from the view
     def get_posts_for_group(self, user_id, group_id):
+
+        cur = None
+        result = None
 
         try:
             # Get the db cursor & execute the Select query
             cur = self.db.cursor();
 
-            cur.execute("SELECT * FROM linkur where user_id = %s", (user_id, ))
+            cur.execute("SELECT * FROM public.vw_user_posts WHERE \
+                            group_id = %s", (group_id,))
+            
+            rows = cur.fetchall()
+            posts = []
+
+            for row in rows:
+                post = Post()
+                post.id = row[0]
+                post.title = row[1]
+                post.link = row[2]
+                post.group = row[3]
+                post.added_by = row[4]
+                post.date = row[5]
+                row.tags = row[6]
+
+                posts.extend[post]
+
+            result = posts
 
         except Exception as e:
 
             print "Error occured reading posts"
             print e
+            
+            return result
+        
+        cur.close()
+        return result
 
-            return False
-
-        return True
 
     def create_post(self, post):
+
+        cur = None
+        result = None
 
         try:
 
             cur = self.db.cursor()
-            cur.execute("INSERT INTO public.posts (ID, TITLE, LINK, GROUP_ID, TAGS, ADDED_BY, DATE) VALUES (%s,%s,%s,%s,%s,%s,%s)",
+            cur.execute("INSERT INTO public.posts \
+                            (ID, TITLE, LINK, GROUP_ID, TAGS, ADDED_BY, DATE) \
+                            VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id",
                             (
                                 post.id,
                                 post.title,
@@ -48,24 +78,36 @@ class PostDAO:
                                 post.date
                             ))
 
+            if cur.rowcount == 1:
+                row = cur.fetchone()
+                result = row[0]
+                self.db.commit()
+
         except Exception as e:
 
             print "An error occured while inserting post"
             print e
+        
+        finally:
 
+            cur.close()
             self.db.rollback()
-            return False
-
-        self.db.commit()
-        return True
+            return result
 
     
     def delete_post(self, post_id):
 
+        cur = None
+        result = None
+
         try:
 
             cur = self.dn.cursor()
-            cur.execute("DELETE FROM public.posts WHERE id = %s", (post_id))
+            cur.execute("DELETE FROM public.posts WHERE id = %s", (post_id,))
+
+            if cur.rowcount == 1:
+                result = True
+                self.db.commit()
 
         except Exception as e:
 
@@ -74,12 +116,18 @@ class PostDAO:
 
             self.db.rollback()
             return False
-
-        self.db.commit()
-        return True
+        
+        finally:
+            
+            cur.close()
+            self.db.commit()
+            return result
     
 
     def update_post(self, post):
+
+        cur = None
+        result = None
 
         try:
 
@@ -97,14 +145,21 @@ class PostDAO:
                                 post.date
                             ))
 
+            if cur.rowcount == 1:
+                result = True
+                self.db.commit()
+
         except Exception as e:
 
             print "An error occured while updating post"
             print e
 
+            cur.close()
             self.db.rollback()
-            return False
 
-        self.db.commit()
-        return True
+        finally:
+
+            cur.close()
+            self.db.commit()
+            return result
 

@@ -17,7 +17,7 @@ class Post:
 		self.date = None
 		self.title = None
 		self.link = None
-		self.catgegory = None
+		self.category = None
 		self.tags = None
 		self.group = None
 		self.added_by = None
@@ -29,7 +29,7 @@ class Post:
 			'date' : str(self.date),
 			'title' : self.title,
 			'link' : self.link,
-			'category' : self.catgegory,
+			'category' : self.category,
 			'tags' : self.tags,
 			'group' : str(self.group),
 			'added_by' : self.added_by
@@ -41,7 +41,7 @@ class Post:
 			'date' : datetime.datetime.utcnow(),
 			'title' : self.title,
 			'link' : self.link,
-			'category' : self.catgegory,
+			'category' : self.category,
 			'tags' : self.tags,
 			'group' : self.group,
 			'added_by' : self.added_by
