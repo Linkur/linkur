@@ -189,7 +189,7 @@ class PostDAO:
             rows = cur.fetchall()
 
             #create user post association for all the users in the group
-            cur.executeall("INSERT INTO public.user_reading_list \
+            cur.executemany("INSERT INTO public.user_reading_list \
                             (user_id, post_id) VALUES (%s,%s)", \
                             [ (row[0], postid) for row in rows])
 
@@ -207,5 +207,34 @@ class PostDAO:
             self.db.commit()
             cur.close()
             
+            return result
+
+
+    def remove_user_association(self, postid, userid):
+
+        cur = None
+        result = None
+
+        try:
+
+            cur = self.db.cursor()
+
+            cur.execute("DELETE FROM public.user_reading_list WHERE \
+                            user_id = %s AND post_id = %s",
+                            (userid, postid))
+
+            cur.rowcount > 0:
+                result = True
+                self.db.commit()
+
+        except Exception as e:
+
+            print "Error removing user post association"
+            print e
+            self.db.rollback()
+
+        finally:
+            
+            cur.close()
             return result
 
