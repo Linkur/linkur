@@ -13,7 +13,13 @@ class PostDAO:
     def __init__(self):
 
         # Connect to db
-        self.db = psycopg2.connect(database=conf.PG_DB, host=conf.PG_HOST, port=conf.PG_PORT, user=conf.PG_USER, password=conf.PG_PASSWORD)
+        self.db = psycopg2.connect(
+                                    database=conf.PG_DB,
+                                    host=conf.PG_HOST,
+                                    port=conf.PG_PORT,
+                                    user=conf.PG_USER,
+                                    password=conf.PG_PASSWORD
+                                )
 
 
     # get posts for user from the view
@@ -51,13 +57,12 @@ class PostDAO:
             print "Error occured reading posts"
             print e
             
-            return result
         
         cur.close()
         return result
 
 
-    def create_post(self, post):
+    def create(self, post):
 
         cur = None
         result = None
@@ -67,7 +72,7 @@ class PostDAO:
             cur = self.db.cursor()
             cur.execute("INSERT INTO public.posts \
                             (ID, TITLE, LINK, GROUP_ID, TAGS, ADDED_BY, DATE) \
-                            VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id",
+                            VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id, group_id",
                             (
                                 post.id,
                                 post.title,
@@ -80,22 +85,28 @@ class PostDAO:
 
             if cur.rowcount == 1:
                 row = cur.fetchone()
-                result = row[0]
                 self.db.commit()
+                association_result = self.associate_user(row[0], row[1])
+
+                if association_result == None:
+                    self.delete(row[0])
+                    raise Exception("Error creating user - post association")
 
         except Exception as e:
 
             print "An error occured while inserting post"
             print e
+
+            result = None
+            self.db.rollback()
         
         finally:
 
             cur.close()
-            self.db.rollback()
             return result
 
     
-    def delete_post(self, post_id):
+    def delete(self, post_id):
 
         cur = None
         result = None
@@ -115,7 +126,7 @@ class PostDAO:
             print e
 
             self.db.rollback()
-            return False
+            return result
         
         finally:
             
@@ -124,7 +135,7 @@ class PostDAO:
             return result
     
 
-    def update_post(self, post):
+    def update(self, post):
 
         cur = None
         result = None
@@ -133,8 +144,8 @@ class PostDAO:
 
             cur = self.db.cursor()
             cur.execute("UPDATE public.posts \
-                            SET (ID, TITLE, LINK, GROUP_ID, TAGS, ADDED_BY, DATE)\
-                            VALUES (%s%s%s%s%s%s%s)", \
+                            SET (ID, TITLE, LINK, GROUP_ID, TAGS, ADDED_BY,\
+                                DATE) VALUES (%s%s%s%s%s%s%s)", \
                             (
                                 post.id,
                                 post.title,
@@ -160,6 +171,41 @@ class PostDAO:
         finally:
 
             cur.close()
+            return result
+
+    
+    def associate_user(self, postid, groupid):
+
+        cur = None
+        result = None
+
+        try:
+
+            cur = self.db.cursor()
+            
+            #get all user for the group
+            cur.execute("SELECT user_id FROM public.user_groups WHERE \
+                               group_id = %s", (groupid,))
+            rows = cur.fetchall()
+
+            #create user post association for all the users in the group
+            cur.executeall("INSERT INTO public.user_reading_list \
+                            (user_id, post_id) VALUES (%s,%s)", \
+                            [ (row[0], postid) for row in rows])
+
+            if cur.rowcount > 0:
+                result = True
+        
+        except Exception as e:
+
+            print "Error while creating user post association"
+            print e
+            self.db.rollback()
+            
+        finally:
+
             self.db.commit()
+            cur.close()
+            
             return result
 
