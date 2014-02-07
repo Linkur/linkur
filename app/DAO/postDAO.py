@@ -71,10 +71,9 @@ class PostDAO:
 
             cur = self.db.cursor()
             cur.execute("INSERT INTO public.posts \
-                            (ID, TITLE, LINK, GROUP_ID, TAGS, ADDED_BY, DATE) \
-                            VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id, group_id",
+                            (TITLE, LINK, GROUP_ID, TAGS, ADDED_BY, DATE) \
+                            VALUES (%s,%s,%s,%s,%s,%s) RETURNING id, group_id",
                             (
-                                post.id,
                                 post.title,
                                 post.link,
                                 post.group,
@@ -86,6 +85,8 @@ class PostDAO:
             if cur.rowcount == 1:
                 row = cur.fetchone()
                 self.db.commit()
+                print " post creted, nect association"
+                result = row[0]
                 association_result = self.associate_user(row[0], row[1])
 
                 if association_result == None:
@@ -113,7 +114,7 @@ class PostDAO:
 
         try:
 
-            cur = self.dn.cursor()
+            cur = self.db.cursor()
             cur.execute("DELETE FROM public.posts WHERE id = %s", (post_id,))
 
             if cur.rowcount == 1:
@@ -223,7 +224,7 @@ class PostDAO:
                             user_id = %s AND post_id = %s",
                             (userid, postid))
 
-            cur.rowcount > 0:
+            if cur.rowcount > 0:
                 result = True
                 self.db.commit()
 
