@@ -32,9 +32,14 @@ DROP TABLE public.groups;
 DROP EXTENSION "uuid-ossp";
 DROP EXTENSION plpgsql;
 DROP SCHEMA public;
+DROP DATABASE IF EXISTS linkur;
 --
 -- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
 --
+
+CREATE DATABASE linkur;
+
+\connect linkur;
 
 CREATE SCHEMA public;
 
@@ -92,11 +97,6 @@ CREATE TABLE groups (
 );
 
 
-ALTER TABLE public.groups OWNER TO linkur;
-
---
--- Name: TABLE groups; Type: COMMENT; Schema: public; Owner: linkur
---
 
 COMMENT ON TABLE groups IS 'groups table';
 
@@ -130,11 +130,6 @@ CREATE TABLE posts (
 );
 
 
-ALTER TABLE public.posts OWNER TO linkur;
-
---
--- Name: TABLE posts; Type: COMMENT; Schema: public; Owner: linkur
---
 
 COMMENT ON TABLE posts IS 'posts table';
 
@@ -184,11 +179,6 @@ CREATE TABLE user_groups (
 );
 
 
-ALTER TABLE public.user_groups OWNER TO linkur;
-
---
--- Name: TABLE user_groups; Type: COMMENT; Schema: public; Owner: linkur
---
 
 COMMENT ON TABLE user_groups IS 'User subscribed group';
 
@@ -218,11 +208,6 @@ CREATE TABLE user_reading_list (
 );
 
 
-ALTER TABLE public.user_reading_list OWNER TO linkur;
-
---
--- Name: TABLE user_reading_list; Type: COMMENT; Schema: public; Owner: linkur
---
 
 COMMENT ON TABLE user_reading_list IS 'unarchived posts for user';
 
@@ -260,11 +245,6 @@ CREATE TABLE users (
 );
 
 
-ALTER TABLE public.users OWNER TO linkur;
-
---
--- Name: TABLE users; Type: COMMENT; Schema: public; Owner: linkur
---
 
 COMMENT ON TABLE users IS 'users table';
 
@@ -315,11 +295,6 @@ CREATE VIEW vw_user_posts AS
      WHERE (user_groups.user_id = rl.user_id))))));
 
 
-ALTER TABLE public.vw_user_posts OWNER TO linkur;
-
---
--- Name: VIEW vw_user_posts; Type: COMMENT; Schema: public; Owner: linkur
---
 
 COMMENT ON VIEW vw_user_posts IS 'View for user_reading_list join posts table';
 
