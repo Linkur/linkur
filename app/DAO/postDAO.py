@@ -22,7 +22,7 @@ class PostDAO:
                                 )
 
 
-    # get posts for user from the view
+    # get posts for a group 
     def get_posts_for_group(self, user_id, group_id):
 
         cur = None
@@ -62,6 +62,7 @@ class PostDAO:
         return result
 
 
+    # Add entry in posts table
     def create(self, post):
 
         cur = None
@@ -106,7 +107,8 @@ class PostDAO:
             cur.close()
             return result
 
-    
+
+    # Delete entry from posts table 
     def delete(self, post_id):
 
         cur = None
@@ -136,6 +138,7 @@ class PostDAO:
             return result
     
 
+    # Update entry in posts table
     def update(self, post):
 
         cur = None
@@ -175,6 +178,7 @@ class PostDAO:
             return result
 
     
+    # Add entry into user_posts table
     def associate_user(self, postid, groupid):
 
         cur = None
@@ -210,7 +214,8 @@ class PostDAO:
             
             return result
 
-
+    
+    # Delete entry from user_posts table
     def remove_user_association(self, postid, userid):
 
         cur = None

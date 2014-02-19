@@ -33,25 +33,20 @@ DROP EXTENSION "uuid-ossp";
 DROP EXTENSION plpgsql;
 DROP SCHEMA public;
 DROP DATABASE IF EXISTS linkur;
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
---
 
-CREATE DATABASE linkur;
+-- Database: linkur
+
+DROP DATABASE linkur;
+
+CREATE DATABASE linkur
+  WITH OWNER = postgres
+      ENCODING = 'UTF8'
+      TABLESPACE = pg_default
+      LC_COLLATE = 'en_IN'
+      LC_CTYPE = 'en_IN'
+      CONNECTION LIMIT = -1;
 
 \connect linkur;
-
-CREATE SCHEMA public;
-
-
-ALTER SCHEMA public OWNER TO postgres;
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: postgres
---
-
-COMMENT ON SCHEMA public IS 'standard public schema';
-
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
@@ -88,7 +83,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: groups; Type: TABLE; Schema: public; Owner: linkur; Tablespace: 
+-- Name: groups; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE groups (
@@ -97,26 +92,31 @@ CREATE TABLE groups (
 );
 
 
+ALTER TABLE public.groups OWNER TO postgres;
+
+--
+-- Name: TABLE groups; Type: COMMENT; Schema: public; Owner: postgres
+--
 
 COMMENT ON TABLE groups IS 'groups table';
 
 
 --
--- Name: COLUMN groups.id; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN groups.id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN groups.id IS 'group id';
 
 
 --
--- Name: COLUMN groups.title; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN groups.title; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN groups.title IS 'title for group';
 
 
 --
--- Name: posts; Type: TABLE; Schema: public; Owner: linkur; Tablespace: 
+-- Name: posts; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE posts (
@@ -130,47 +130,52 @@ CREATE TABLE posts (
 );
 
 
+ALTER TABLE public.posts OWNER TO postgres;
+
+--
+-- Name: TABLE posts; Type: COMMENT; Schema: public; Owner: postgres
+--
 
 COMMENT ON TABLE posts IS 'posts table';
 
 
 --
--- Name: COLUMN posts.id; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN posts.id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN posts.id IS 'id for post. uuid for uniqueness';
 
 
 --
--- Name: COLUMN posts.group_id; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN posts.group_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN posts.group_id IS 'group to which post belongs';
 
 
 --
--- Name: COLUMN posts.added_by; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN posts.added_by; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN posts.added_by IS 'user who added the post';
 
 
 --
--- Name: COLUMN posts.tags; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN posts.tags; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN posts.tags IS 'tags of post, if any';
 
 
 --
--- Name: COLUMN posts.date; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN posts.date; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN posts.date IS 'time stamp';
 
 
 --
--- Name: user_groups; Type: TABLE; Schema: public; Owner: linkur; Tablespace: 
+-- Name: user_groups; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE user_groups (
@@ -179,26 +184,31 @@ CREATE TABLE user_groups (
 );
 
 
+ALTER TABLE public.user_groups OWNER TO postgres;
+
+--
+-- Name: TABLE user_groups; Type: COMMENT; Schema: public; Owner: postgres
+--
 
 COMMENT ON TABLE user_groups IS 'User subscribed group';
 
 
 --
--- Name: COLUMN user_groups.user_id; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN user_groups.user_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN user_groups.user_id IS 'user_id';
 
 
 --
--- Name: COLUMN user_groups.group_id; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN user_groups.group_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN user_groups.group_id IS 'group_id';
 
 
 --
--- Name: user_reading_list; Type: TABLE; Schema: public; Owner: linkur; Tablespace: 
+-- Name: user_reading_list; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE user_reading_list (
@@ -208,33 +218,38 @@ CREATE TABLE user_reading_list (
 );
 
 
+ALTER TABLE public.user_reading_list OWNER TO postgres;
+
+--
+-- Name: TABLE user_reading_list; Type: COMMENT; Schema: public; Owner: postgres
+--
 
 COMMENT ON TABLE user_reading_list IS 'unarchived posts for user';
 
 
 --
--- Name: COLUMN user_reading_list.user_id; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN user_reading_list.user_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN user_reading_list.user_id IS 'user id';
 
 
 --
--- Name: COLUMN user_reading_list.post_id; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN user_reading_list.post_id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN user_reading_list.post_id IS 'post id';
 
 
 --
--- Name: COLUMN user_reading_list.status; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN user_reading_list.status; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN user_reading_list.status IS 'status codes for read, starred etc';
 
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: linkur; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE users (
@@ -245,40 +260,45 @@ CREATE TABLE users (
 );
 
 
+ALTER TABLE public.users OWNER TO postgres;
+
+--
+-- Name: TABLE users; Type: COMMENT; Schema: public; Owner: postgres
+--
 
 COMMENT ON TABLE users IS 'users table';
 
 
 --
--- Name: COLUMN users.id; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN users.id; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN users.id IS 'uuid - user_id';
 
 
 --
--- Name: COLUMN users.name; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN users.name; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN users.name IS 'user name';
 
 
 --
--- Name: COLUMN users.email; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN users.email; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN users.email IS 'user email';
 
 
 --
--- Name: COLUMN users.password; Type: COMMENT; Schema: public; Owner: linkur
+-- Name: COLUMN users.password; Type: COMMENT; Schema: public; Owner: postgres
 --
 
 COMMENT ON COLUMN users.password IS 'encrypted password';
 
 
 --
--- Name: vw_user_posts; Type: VIEW; Schema: public; Owner: linkur
+-- Name: vw_user_posts; Type: VIEW; Schema: public; Owner: postgres
 --
 
 CREATE VIEW vw_user_posts AS
@@ -295,12 +315,17 @@ CREATE VIEW vw_user_posts AS
      WHERE (user_groups.user_id = rl.user_id))))));
 
 
+ALTER TABLE public.vw_user_posts OWNER TO postgres;
+
+--
+-- Name: VIEW vw_user_posts; Type: COMMENT; Schema: public; Owner: postgres
+--
 
 COMMENT ON VIEW vw_user_posts IS 'View for user_reading_list join posts table';
 
 
 --
--- Name: group_pk; Type: CONSTRAINT; Schema: public; Owner: linkur; Tablespace: 
+-- Name: group_pk; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY groups
@@ -308,7 +333,7 @@ ALTER TABLE ONLY groups
 
 
 --
--- Name: post_pk; Type: CONSTRAINT; Schema: public; Owner: linkur; Tablespace: 
+-- Name: post_pk; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY posts
@@ -316,7 +341,7 @@ ALTER TABLE ONLY posts
 
 
 --
--- Name: user_pk; Type: CONSTRAINT; Schema: public; Owner: linkur; Tablespace: 
+-- Name: user_pk; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY users
@@ -324,7 +349,7 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: user_readinglist_pk; Type: CONSTRAINT; Schema: public; Owner: linkur; Tablespace: 
+-- Name: user_readinglist_pk; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_reading_list
@@ -332,7 +357,7 @@ ALTER TABLE ONLY user_reading_list
 
 
 --
--- Name: user_uk; Type: CONSTRAINT; Schema: public; Owner: linkur; Tablespace: 
+-- Name: user_uk; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY users
@@ -340,7 +365,7 @@ ALTER TABLE ONLY users
 
 
 --
--- Name: usergroups_pk; Type: CONSTRAINT; Schema: public; Owner: linkur; Tablespace: 
+-- Name: usergroups_pk; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_groups
@@ -348,23 +373,23 @@ ALTER TABLE ONLY user_groups
 
 
 --
--- Name: post_group_fk; Type: FK CONSTRAINT; Schema: public; Owner: linkur
+-- Name: post_group_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY posts
-    ADD CONSTRAINT post_group_fk FOREIGN KEY (added_by) REFERENCES users(id) ON DELETE CASCADE;
+    ADD CONSTRAINT post_group_fk FOREIGN KEY (group_id) REFERENCES groups(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: post_user_fk; Type: FK CONSTRAINT; Schema: public; Owner: linkur
+-- Name: post_user_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY posts
-    ADD CONSTRAINT post_user_fk FOREIGN KEY (added_by) REFERENCES users(id);
+    ADD CONSTRAINT post_user_fk FOREIGN KEY (added_by) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
--- Name: user_readinglist_post_fk; Type: FK CONSTRAINT; Schema: public; Owner: linkur
+-- Name: user_readinglist_post_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY user_reading_list
@@ -372,7 +397,7 @@ ALTER TABLE ONLY user_reading_list
 
 
 --
--- Name: user_readinglist_user_fk; Type: FK CONSTRAINT; Schema: public; Owner: linkur
+-- Name: user_readinglist_user_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY user_reading_list
@@ -380,7 +405,7 @@ ALTER TABLE ONLY user_reading_list
 
 
 --
--- Name: usergroups_group_fk; Type: FK CONSTRAINT; Schema: public; Owner: linkur
+-- Name: usergroups_group_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY user_groups
@@ -388,7 +413,7 @@ ALTER TABLE ONLY user_groups
 
 
 --
--- Name: usergroups_user_fk; Type: FK CONSTRAINT; Schema: public; Owner: linkur
+-- Name: usergroups_user_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY user_groups

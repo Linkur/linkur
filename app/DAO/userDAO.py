@@ -177,11 +177,12 @@ class UserDAO:
     def delete(self, user_id):
 
         result = None
-        cur = self.db.cursor()
+        cur = None
         psycopg2.extras.register_uuid()
 
         try:
 
+            cur = self.db.cursor()
             print "deleting ", user_id
             cur.execute("DELETE FROM public.users WHERE id = %s", (user_id,))
 
@@ -200,3 +201,4 @@ class UserDAO:
 
             cur.close()
             return result
+
