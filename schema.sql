@@ -36,8 +36,6 @@ DROP DATABASE IF EXISTS linkur;
 
 -- Database: linkur
 
-DROP DATABASE linkur;
-
 CREATE DATABASE linkur
   WITH OWNER = postgres
       ENCODING = 'UTF8'
