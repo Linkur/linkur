@@ -79,7 +79,7 @@ class UserDAO:
         result = None
         cur = None
         # get the user object for the email
-        user = self.get(email)
+        user = self.get_by_email(email)
 
         if user == None:
             print "User not found"
