@@ -11,7 +11,7 @@ from flask_login import UserMixin
 
 from app.model.user import User
 
-class UserDAO(UserMixin)
+class UserDAO:
 
     def __init__(self, secret_key):
 
@@ -198,18 +198,20 @@ class UserDAO(UserMixin)
     # method to validate if the email and password
     def validate(self, email, password):
         
-        user = self.get(email)
+        user = self.get_by_email(email)
         
+        #User in DB
         if user:
             # check the hash of user input with the password from db
             hashed_pwd = self.make_password_hash(password)
             if hashed_pwd == user.password:
                 return user
 
+            #password does not match
             else:
-                user = -1
-                return user
+                return None
 
+        #User not in DB
         else:
             return None
 
