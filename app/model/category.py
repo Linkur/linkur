@@ -1,4 +1,3 @@
-__author__ = 'raghothams'
 
 class Category:
 	# ID
