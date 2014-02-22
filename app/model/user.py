@@ -1,7 +1,8 @@
 
+from flask.ext.login import UserMixin
 import unicode
 
-class User:
+class User(UserMixin):
     # EMAIL
     # PASSWORD
     # NAME
