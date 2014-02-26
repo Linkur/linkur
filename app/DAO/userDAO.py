@@ -4,7 +4,7 @@ import psycopg2.extras
 import conf
 import uuid
 import hashlib
-import random
+from os import urandom
 import string
 
 from app.model.user import User
@@ -29,10 +29,16 @@ class UserDAO:
 
 
     # util method to encrypt password
-    def make_password_hash(self, password):
+    def make_password_hash(self, password, salt=None):
         
-        salted_password = password+self.secret_key
-        return hashlib.sha1(salted_password).hexdigest()
+        if salt == None:
+            salt = urandom(24)
+            salt = salt.encode('base-64')
+
+        salted_password = salt+password
+
+        hashed_password = hashlib.sha256(salted_password).hexdigest()+','+salt
+        return hashed_password
 
 
     # Add new user to DB
@@ -42,7 +48,8 @@ class UserDAO:
         cur = self.db.cursor()
         # encrypt the user password
         password_hash = self.make_password_hash(user.password)
-
+        print "pass len ",len(password_hash)
+        print password_hash
         try:
             cur.execute("INSERT INTO public.users ( email, name, password) \
                                 VALUES (%s,%s,%s) RETURNING id",
@@ -83,8 +90,9 @@ class UserDAO:
             print "User not found"
             return result
 
+        salt = user.password.split(',')[1]
         # check if the old passwords match
-        if self.make_password_hash(password) == user.password:
+        if self.make_password_hash(password, salt) == user.password:
             
             try:
                 # create hash for new password
@@ -165,8 +173,12 @@ class UserDAO:
         
         user = self.get(email)
         
+        if user == None:
+            return None
+
         # check the hash of user input with the password from db
-        hashed_pwd = self.make_password_hash(password)
+        salt = user.password.split(',')[1]
+        hashed_pwd = self.make_password_hash(password,salt)
         if hashed_pwd == user.password:
             return user
 

@@ -20,6 +20,11 @@ def test_user_create():
     user_mapper = UserDAO("LOL")
     assert user_mapper.add(user)
 
+def test_validate():
+
+    user_mapper = UserDAO("LOL")
+    result = user_mapper.validate("tester@test.com", "test123")
+    assert result
 
 def test_change_password():
 
