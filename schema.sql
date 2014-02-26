@@ -36,15 +36,7 @@ DROP DATABASE IF EXISTS linkur;
 
 -- Database: linkur
 
-DROP DATABASE linkur;
-
-CREATE DATABASE linkur
-  WITH OWNER = postgres
-      ENCODING = 'UTF8'
-      TABLESPACE = pg_default
-      LC_COLLATE = 'en_IN'
-      LC_CTYPE = 'en_IN'
-      CONNECTION LIMIT = -1;
+CREATE DATABASE linkur;
 
 \connect linkur;
 

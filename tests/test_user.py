@@ -29,13 +29,13 @@ def test_validate():
 def test_change_password():
 
     user_mapper = UserDAO("LOL")
-    user = user_mapper.get("tester@test.com")
+    user = user_mapper.get_by_email("tester@test.com")
     print "retrieved user id is : ",user.id
     assert user_mapper.change_password(user.email, "test123", "testing123")
 
 def test_delete_user():
 
     user_mapper = UserDAO("LOL")
-    user = user_mapper.get("tester@test.com")
+    user = user_mapper.get_by_email("tester@test.com")
     assert user_mapper.delete(user.id)
 

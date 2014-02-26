@@ -7,6 +7,8 @@ import hashlib
 from os import urandom
 import string
 
+from flask_login import UserMixin
+
 from app.model.user import User
 
 class UserDAO:
@@ -84,7 +86,7 @@ class UserDAO:
         result = None
         cur = None
         # get the user object for the email
-        user = self.get(email)
+        user = self.get_by_email(email)
 
         if user == None:
             print "User not found"
@@ -132,7 +134,7 @@ class UserDAO:
 
 
     # method to get the user object from db for a given email
-    def get(self, email):
+    def get_by_email(self, email):
         
         
         cur = self.db.cursor()
@@ -147,8 +149,6 @@ class UserDAO:
             row = cur.fetchone()
             # build the user object
             # get the user id & convert it to python UUID type
-            print type(row[0])
-            print row[0]
 
             user = User()
             user.id = row[0]
@@ -168,20 +168,60 @@ class UserDAO:
             return user
         
 
+    # method to get the user object from db for a given id
+    def get(self, id):
+        
+        
+        cur = self.db.cursor()
+        user = None
+
+        psycopg2.extras.register_uuid()
+        try:
+
+            cur.execute("SELECT * FROM public.users \
+                          WHERE id = %s", (id,))
+
+            row = cur.fetchone()
+            # build the user object
+            # get the user id & convert it to python UUID type
+
+            user = User()
+            user.id = row[0]
+            user.name = row[1]
+            user.email = row[2]
+            user.password = row[3]
+
+        except Exception as e:
+
+            print "An error occurred while reading user id"
+            print e
+            
+            return None
+        
+        finally:
+            # return user object
+            return user
+
+
     # method to validate if the email and password
     def validate(self, email, password):
         
-        user = self.get(email)
+        user = self.get_by_email(email)
         
-        if user == None:
-            return None
-
+        #User in DB
+        if user:
+            # check the hash of user input with the password from db
         # check the hash of user input with the password from db
-        salt = user.password.split(',')[1]
-        hashed_pwd = self.make_password_hash(password,salt)
-        if hashed_pwd == user.password:
-            return user
+            salt = user.password.split(',')[1]
+            hashed_pwd = self.make_password_hash(password,salt)
+            if hashed_pwd == user.password:
+                return user
 
+            #password does not match
+            else:
+                return None
+
+        #User not in DB
         else:
             return None
 
@@ -213,4 +253,4 @@ class UserDAO:
 
             cur.close()
             return result
-
+    

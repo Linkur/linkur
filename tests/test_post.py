@@ -38,7 +38,7 @@ def test_create_group():
     data_mapper = GroupDAO()
 
     user_mapper = UserDAO("LOL") 
-    user = user_mapper.get("tester@test.com")
+    user = user_mapper.get_by_email("tester@test.com")
 
     group_name = "3sb"
 
@@ -82,7 +82,7 @@ def test_delete_group():
     data_mapper = GroupDAO()
 
     user_mapper = UserDAO("LOL") 
-    user = user_mapper.get("tester@test.com")
+    user = user_mapper.get_by_email("tester@test.com")
     
     global group
     print "will remove association ",group
@@ -94,6 +94,6 @@ def test_delete_group():
 def test_delete_user():
 
     user_mapper = UserDAO("LOL")
-    user = user_mapper.get("tester@test.com")
+    user = user_mapper.get_by_email("tester@test.com")
     assert user_mapper.delete(user.id)
 

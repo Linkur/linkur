@@ -1,4 +1,3 @@
-__author__ = 'raghothams'
 
 import datetime
 	# ID
