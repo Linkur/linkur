@@ -80,14 +80,18 @@ class GroupDAO:
     def add(self, group_name, user_id):
        
         result = None
+        # Create a group with the given name
         group_id = self.create(group_name)
         
+        # on successful group creation, create user - group association
         if group_id != None:
             result = self.associate_user(user_id, group_id)
 
+            # on successful association, return group id
             if result != None:
                 result = group_id
 
+            # on error creating association, delete created group
             else:
                 print "Error creating association, deleting the created group"
                 self.delete(group_id)

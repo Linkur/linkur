@@ -2,6 +2,7 @@
 from flask import request, make_response, send_file, session
 from flask.ext.login import (LoginManager, login_user, logout_user, 
                             current_user, login_required, confirm_login)
+import uuid
 
 from app import app
 from DAO.userDAO import UserDAO
@@ -59,27 +60,24 @@ def logout():
 
 # create a group
 @app.route("/group", methods=["POST"])
+@login_required
 def create_group():
-    
-    # check if user is logged in
-    if "user" not in session:
-        return "user not logged in"
 
-    group = Group()
-    group_name = None
+    group_id = None
 
     try:
+        user_id = current_user.get_id()
         group_name = request.form["group_name"]
 
         if(len(group_name.strip()) == 0):
             return "Group name is blank"
 
         groupDAO = GroupDAO()
-        groupDAO.add_group(group_name)
+        group_id = groupDAO.add(group_name, user_id)
 
     except Exception as e:
         print "error reading form data"
         print e
 
-    group.name = group_name
+    return group_id.__str__()
 

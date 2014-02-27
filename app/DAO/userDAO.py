@@ -51,7 +51,6 @@ class UserDAO:
         # encrypt the user password
         password_hash = self.make_password_hash(user.password)
         print "pass len ",len(password_hash)
-        print password_hash
         try:
             cur.execute("INSERT INTO public.users ( email, name, password) \
                                 VALUES (%s,%s,%s) RETURNING id",
@@ -146,22 +145,22 @@ class UserDAO:
             cur.execute("SELECT * FROM public.users \
                           WHERE email = %s", (email,))
 
-            row = cur.fetchone()
-            # build the user object
-            # get the user id & convert it to python UUID type
+            if cur.rowcount > 0:
+                row = cur.fetchone()
+                # build the user object
+                # get the user id & convert it to python UUID type
 
-            user = User()
-            user.id = row[0]
-            user.name = row[1]
-            user.email = row[2]
-            user.password = row[3]
+                user = User()
+                user.id = row[0]
+                user.name = row[1]
+                user.email = row[2]
+                user.password = row[3]
 
         except Exception as e:
 
             print "An error occurred while reading user id"
             print e
-            
-            return None
+            user = None
         
         finally:
             # return user object
@@ -207,7 +206,6 @@ class UserDAO:
     def validate(self, email, password):
         
         user = self.get_by_email(email)
-        
         #User in DB
         if user:
             # check the hash of user input with the password from db
