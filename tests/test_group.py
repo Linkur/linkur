@@ -3,7 +3,7 @@ from app.DAO.groupDAO import GroupDAO
 from app.DAO.userDAO import UserDAO
 from app.model.user import User
 
-global group
+global groupid
 group = None
 
 # test to create a user
@@ -22,11 +22,37 @@ def test_create_group():
     user = user_mapper.get_by_email("tester@test.com")
 
     group_name = "3sb"
-
-    global group
     group = data_mapper.add(group_name, user.id)
     assert group
 
+    group_name = "IC"
+    global groupid
+    group = data_mapper.add(group_name, user.id)
+    groupid = group
+    assert group
+
+def test_get_all_for_user():
+
+    data_mapper = GroupDAO()
+
+    user_mapper = UserDAO("LOL") 
+    user = user_mapper.get_by_email("tester@test.com")
+    
+    print user.id
+    groups = data_mapper.get_all(user.id)
+    print groups
+    assert groups
+
+def test_get():
+
+    data_mapper = GroupDAO()
+
+    user_mapper = UserDAO("LOL") 
+    user = user_mapper.get_by_email("tester@test.com")
+    
+    global groupid
+    group = data_mapper.get(groupid)
+    assert group
 
 def test_delete_group():
 
@@ -35,11 +61,15 @@ def test_delete_group():
     user_mapper = UserDAO("LOL") 
     user = user_mapper.get_by_email("tester@test.com")
     
-    global group
-    print "will remove association ",group
-    assert data_mapper.remove_user_association(user.id, group)
-    print "will delte ",group
-    assert data_mapper.delete(group)
+    groups = data_mapper.get_all(user.id)
+
+    for group in groups:
+        print "will remove association "
+        assert data_mapper.remove_user_association(user.id, group.id)
+        print "will delte "
+        assert data_mapper.delete(group.id)
+
+    print "Done deleting groups"
 
 
 def test_delete_user():

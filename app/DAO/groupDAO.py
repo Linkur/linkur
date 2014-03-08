@@ -29,6 +29,7 @@ class GroupDAO:
                 # insert user and group combo to user group table
                 row = cur.fetchone()
                 result = row[0]
+                self.db.commit()
 
         except Exception as e:
 
@@ -37,11 +38,9 @@ class GroupDAO:
 
             # rollback DB
             self.db.rollback()
-            return None
+            result = None
 
         finally:
-        
-            self.db.commit()
             cur.close()
             return result
 
@@ -58,11 +57,10 @@ class GroupDAO:
                             VALUES (%s,%s)", ( user_id, group_id))
 
             if cur.rowcount == 1:
-
                 result = True
+                self.db.commit()
 
         except Exception as e:
-
             print "error creating user group association"
             print e
 
@@ -70,10 +68,7 @@ class GroupDAO:
             result = None
 
         finally:
-            
-            self.db.commit()
             cur.close()
-
             return result
 
 
@@ -102,6 +97,7 @@ class GroupDAO:
     # method to delete a user-group association
     def remove_user_association(self, user_id, group_id):
 
+        result = None
         cur = self.db.cursor()
 
         try:
@@ -109,17 +105,21 @@ class GroupDAO:
             cur.execute("DELETE FROM public.user_groups WHERE user_id = %s \
                             AND group_id = %s", (user_id, group_id))
 
+            if cur.rowcount == 1:
+                result = True
+                self.db.commit()
+
         except Exception as e:
 
-            print "An error occurred while deleting group"
+            print "An error occurred while removing assocaition group"
             print e
 
             self.db.rollback()
-            return False
+            result = False
 
-        self.db.commit()
-        cur.close()
-        return True
+        finally:
+            cur.close()
+            return True
 
 
     # method to delete a group
@@ -134,6 +134,7 @@ class GroupDAO:
 
             if cur.rowcount == 1:
                 result = True
+                self.db.commit()
 
         except Exception as e:
 
@@ -142,8 +143,81 @@ class GroupDAO:
 
             self.db.rollback()
             result = None
+        
+        finally:
+            cur.close()
+            return result
 
-        self.db.commit()
-        cur.close()
-        return result
+
+    # method to get all groups for a user 
+    def get_all(self, user_id):
+        
+        result = None
+        cur = self.db.cursor()
+
+        try:
+
+            cur.execute("SELECT * FROM public.groups where id IN \
+                    (SELECT group_id FROM public.user_groups WHERE user_id = %s)",
+                    (user_id,))
+            
+            if cur.rowcount == 0:
+                result = None
+
+            else:
+
+                rows = cur.fetchall()
+                groups = []
+
+                for row in rows:
+
+                    group = Group()
+                    group.id = row[0]
+                    group.title = row[1]
+
+                    groups.append(group)
+
+                result = groups
+
+        except Exception as e:
+
+            print "Ann error occurred while selecting all groups"
+            print e
+
+        finally:
+            cur.close()
+            return result
+
+
+    # method to get a group object, given id
+    def get(self, group_id):
+
+        result = None
+        cur = self.db.cursor()
+
+        try:
+
+            cur.execute("SELECT * FROM public.groups where id = %s", (group_id,))
+
+            if cur.rowcount == 0:
+                result = None
+
+            else:
+
+                row = cur.fetchone()
+
+                group = Group()
+                group.id = row[0]
+                group.title = row[1]
+
+                result = group
+
+        except Exception as e:
+
+            print "An error occurred while getting group"
+            print e
+
+        finally:
+            cur.close()
+            return result
 
