@@ -1,4 +1,4 @@
-#[Linkur](http://linkur.co.in) [![Build Status](https://travis-ci.org/raghothams/linkur.png?branch=v2)](https://travis-ci.org/raghothams/linkur)
+#[Linkur](http://linkur.co.in) [![Build Status](https://travis-ci.org/Linkur/linkur.png?branch=v2)](https://travis-ci.org/Linkur/linkur)
 a simple, speedy way to share URL's within groups
 
 ##The Problem
@@ -17,3 +17,4 @@ Linkur is a place where anyone in your "group" can post a link and its visible t
 
 ##Installation instructions
 Coming soon
+
