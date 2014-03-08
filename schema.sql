@@ -11,27 +11,6 @@ SET client_min_messages = warning;
 
 SET search_path = public, pg_catalog;
 
-ALTER TABLE ONLY public.user_groups DROP CONSTRAINT usergroups_user_fk;
-ALTER TABLE ONLY public.user_groups DROP CONSTRAINT usergroups_group_fk;
-ALTER TABLE ONLY public.user_reading_list DROP CONSTRAINT user_readinglist_user_fk;
-ALTER TABLE ONLY public.user_reading_list DROP CONSTRAINT user_readinglist_post_fk;
-ALTER TABLE ONLY public.posts DROP CONSTRAINT post_user_fk;
-ALTER TABLE ONLY public.posts DROP CONSTRAINT post_group_fk;
-ALTER TABLE ONLY public.user_groups DROP CONSTRAINT usergroups_pk;
-ALTER TABLE ONLY public.users DROP CONSTRAINT user_uk;
-ALTER TABLE ONLY public.user_reading_list DROP CONSTRAINT user_readinglist_pk;
-ALTER TABLE ONLY public.users DROP CONSTRAINT user_pk;
-ALTER TABLE ONLY public.posts DROP CONSTRAINT post_pk;
-ALTER TABLE ONLY public.groups DROP CONSTRAINT group_pk;
-DROP VIEW public.vw_user_posts;
-DROP TABLE public.users;
-DROP TABLE public.user_reading_list;
-DROP TABLE public.user_groups;
-DROP TABLE public.posts;
-DROP TABLE public.groups;
-DROP EXTENSION "uuid-ossp";
-DROP EXTENSION plpgsql;
-DROP SCHEMA public;
 DROP DATABASE IF EXISTS linkur;
 
 -- Database: linkur
