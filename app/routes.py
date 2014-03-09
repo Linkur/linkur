@@ -81,3 +81,24 @@ def create_group():
 
     return group_id.__str__()
 
+@app.route("/group", methods=["GET"])
+@login_required
+def get_user_groups():
+
+    group_id = None
+    groups = None
+
+    try:
+        user_id = current_user.get_id()
+
+        groupDAO = GroupDAO()
+        groups = groupDAO.get_all(user_id)
+
+    except Exception as e:
+        print "routes - get all groups"
+        print e
+
+    result = [g.__str__() for g in groups]
+    print result
+    return str(result)
+
