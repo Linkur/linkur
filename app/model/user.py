@@ -1,5 +1,6 @@
 
 from flask.ext.login import UserMixin
+import uuid
 
 class User(UserMixin):
     # EMAIL
@@ -16,18 +17,18 @@ class User(UserMixin):
     def __str__(self):
 
         return {
-            '_id' : self.id,
-            'email' : self.email,
-            'password' : self.password,
-            'name' : self.name,
+            "_id" : str(self.id),
+            "email" : self.email,
+            "password" : self.password,
+            "name" : self.name,
         }
 
     def db_serializer(self):
 
         return {
-            '_id' : self.id,
-            'password' : self.password,
-            'name' : self.name,
+            "_id" : self.id,
+            "password" : self.password,
+            "name" : self.name,
         }
 
 

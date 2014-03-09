@@ -1,4 +1,6 @@
 
+import uuid
+
 class Group:
     # ID
     # TITLE
@@ -9,12 +11,12 @@ class Group:
 
     def __str__(self):
         return {
-            'id' : self.id,
-            'title' : self.title
+            "id" : str(self.id),
+            "title" : self.title
         }
 
     def db_serializer(self):
         return {
-            'title' : self.title
+            "title" : self.title
         }
 
