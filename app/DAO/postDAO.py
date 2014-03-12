@@ -6,6 +6,7 @@ import random
 import string
 
 from app.model.user import User
+from app.model.post import Post
 
 
 class PostDAO:
@@ -57,9 +58,49 @@ class PostDAO:
             print "Error occured reading posts"
             print e
             
+        finally:
         
-        cur.close()
-        return result
+            cur.close()
+            return result
+
+
+    # Get a single post
+    def get(self, post_id):
+
+        cur = None
+        result = None
+
+        try:
+
+            cur = self.db.cursor()
+
+            cur.execute("SELECT * FROM public.vw_user_posts WHERE \
+                            id = %s", (post_id,))
+
+            row = cur.fetchone()
+            post = Post()
+
+            post.id = row[0]
+            post.title = row[1]
+            post.link = row[2]
+            post.group = row[3]
+            post.added_by = row[4]
+            post.date = row[5]
+            post.tags = row[6]
+
+            result = post
+
+        except Exception as e:
+
+            print "An error occured while reading post by id"
+            print e
+
+            result = None
+
+        finally:
+
+            cur.close()
+            return result
 
 
     # Add entry in posts table
