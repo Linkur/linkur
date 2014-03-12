@@ -68,6 +68,15 @@ def test_create_post():
     print result
     assert result
 
+def test_get_post():
+
+    post_mapper = PostDAO()
+    global post
+    post_result = post_mapper.get(post)
+
+    assert post_result
+
+
 def test_delete_post():
 
     global post
