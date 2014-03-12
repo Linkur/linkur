@@ -252,3 +252,8 @@ class UserDAO:
             cur.close()
             return result
     
+
+    def __del__(self):
+
+        self.db.close()
+
