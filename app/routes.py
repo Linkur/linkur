@@ -33,8 +33,10 @@ def login():
 
     email = request.form["email"]
     password = request.form["password"]
+    print password
 
     if email and password:
+        email = email.lower()
         user_mapper = UserDAO(app.secret_key)
         user = user_mapper.validate(email, password)
         
