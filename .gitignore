@@ -54,3 +54,8 @@ Session.vim
 
 # ignore conf.py
 conf.py
+
+# ignore util scripts
+tests/create_user.py
+tests/delete_user.py
+
