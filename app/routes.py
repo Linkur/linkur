@@ -83,6 +83,8 @@ def create_group():
 
     return group_id.__str__()
 
+
+# get all groups for user 
 @app.route("/group", methods=["GET"])
 @login_required
 def get_user_groups():
@@ -100,7 +102,59 @@ def get_user_groups():
         print "routes - get all groups"
         print e
 
-    result = [g.__str__() for g in groups]
-    print result
+    if groups:
+        result = [g.__str__() for g in groups]
+        print result
+        return str(result)
+    else:
+
+        return str([])
+
+
+# get a group
+@app.route("/group/<group_id>", methods=["GET"])
+@login_required
+def get_group(group_id):
+
+    groupDAO = GroupDAO()
+    group = None
+
+    try:
+        if group_id:
+            group = groupDAO.get(group_id)
+
+        else:
+
+            return "Please supply the group id"
+
+    except Exception as e:
+        print " routes - get group by id"
+        print e
+
+    if group:
+        return str(group.__str__())
+    else:
+        return str([])
+
+
+# delete a group
+@app.route("/group/<group_id>", methods=["DELETE"])
+@login_required
+def delete_group(group_id):
+
+    groupDAO = GroupDAO()
+    result = None
+
+    try:
+        if group_id:
+            result = groupDAO.delete(group_id)
+
+        else:
+            return "Please supply the group id"
+
+    except Exception as e:
+        print "routes - delete group by id"
+        print e
+
     return str(result)
 
