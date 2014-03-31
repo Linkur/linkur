@@ -32,7 +32,7 @@ class Post:
 			"category" : self.category,
 			"tags" : self.tags,
 			"group" : str(self.group),
-			"added_by" : self.added_by
+			"added_by" : str(self.added_by)
 		}
 
 	# Use this to serialize the DB input
