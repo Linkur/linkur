@@ -35,14 +35,3 @@ class Post:
 			"added_by" : str(self.added_by)
 		}
 
-	# Use this to serialize the DB input
-	def db_serializer(self):
-		return {
-			"date" : datetime.datetime.utcnow(),
-			"title" : self.title,
-			"link" : self.link,
-			"category" : self.category,
-			"tags" : self.tags,
-			"group" : self.group,
-			"added_by" : self.added_by
-		}

@@ -15,8 +15,3 @@ class Group:
             "title" : self.title
         }
 
-    def db_serializer(self):
-        return {
-            "title" : self.title
-        }
-

@@ -127,7 +127,6 @@ class PostDAO:
             if cur.rowcount == 1:
                 row = cur.fetchone()
                 self.db.commit()
-                print " post creted, nect association"
                 result = row[0]
                 association_result = self.associate_user(row[0], row[1])
 

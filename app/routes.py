@@ -13,6 +13,7 @@ from DAO.postDAO import PostDAO
 from model.user import User
 from model.group import Group
 from model.post import Post
+from app.utils.jsonWrapper import JsonWrapper
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -53,24 +54,27 @@ def signup():
 
             user_mapper = UserDAO()
             result = user_mapper.add(user)
-
+            
         else:
-            return "params error"
+            return JsonWrapper.get_json(True, "params error")
 
     except Exception as e:
         print "error while signing up user"
         print e
 
-    return result
+    if result:
+        return JsonWrapper.get_json(False)
+    else:
+        return JsonWrapper.get_json(True, "Error signing up user")
 
 
 # login the user
 @app.route("/login", methods=["POST"])
 def login():
 
+    result = None
     email = request.form["email"]
     password = request.form["password"]
-    print password
 
     if email and password:
         email = email.lower()
@@ -79,14 +83,19 @@ def login():
 
         if user:
             #login user
-            login_user(user)
-            return "user logged in"
+            is_success = login_user(user)
+            if is_success:
+                result = JsonWrapper.get_json(False, "User logged in")
+            else:
+                result = JsonWrapper.get_json(True, "Check user/password")
 
         else:
-            return "wrong user / password"
+            result = JsonWrapper.get_json(True, "Check user/password")
 
     else:
-        return "email / password not supplied"
+        result = JsonWrapper.get_json(True, "email / password not supplied")
+
+    return result
 
 
 # logout user
@@ -94,7 +103,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return "user logged out"
+    return JsonWrapper.get_json(False, "User logged out")
 
 
 # create a group
@@ -103,6 +112,7 @@ def logout():
 def create_group():
 
     group_id = None
+    result = None
 
     try:
         user_id = current_user.get_id()
@@ -114,11 +124,18 @@ def create_group():
         groupDAO = GroupDAO()
         group_id = groupDAO.add(group_name, user_id)
 
+        if group_id:
+            result = JsonWrapper.get_json(False, group_id)
+
+        else:
+            result = JsonWrapper.get_json(True, group_id)
+
     except Exception as e:
         print "error reading form data"
         print e
+        return JsonWrapper.get_json(True, "error reading form data")
 
-    return group_id.__str__()
+    return result
 
 
 # get all groups for user 
@@ -128,24 +145,23 @@ def get_user_groups():
 
     group_id = None
     groups = None
+    result = None
 
     try:
         user_id = current_user.get_id()
 
         groupDAO = GroupDAO()
         groups = groupDAO.get_all(user_id)
+        groups = groups or []
+
+        result = JsonWrapper.get_json(False, groups)
 
     except Exception as e:
         print "routes - get all groups"
         print e
 
-    if groups:
-        result = [g.__str__() for g in groups]
-        print result
-        return str(result)
-    else:
 
-        return str([])
+    return result
 
 
 # get a group
@@ -155,23 +171,26 @@ def get_group(group_id):
 
     groupDAO = GroupDAO()
     group = None
+    result = None
 
     try:
         if group_id:
             group = groupDAO.get(group_id)
 
-        else:
+            if group:
+                result = JsonWrapper.get_json(False, group)
+            else:
+                result = JsonWrapper.get_json(True, "No such group found")
 
-            return "Please supply the group id"
+        else:
+            result = JsonWrapper.get_json(True, "Please supply the group id")
 
     except Exception as e:
         print " routes - get group by id"
         print e
 
-    if group:
-        return str(group.__str__())
-    else:
-        return str([])
+    return result
+
 
 
 # delete a group
@@ -184,16 +203,21 @@ def delete_group(group_id):
 
     try:
         if group_id:
-            result = groupDAO.delete(group_id)
+            is_success = groupDAO.delete(group_id)
+
+            if is_success:
+                result = JsonWrapper.get_json(False)
+            else:
+                result = JsonWrapper.get_json(True, "Error deleting group")
 
         else:
-            return "Please supply the group id"
+            result = JsonWrapper.get_json(True, "Please supply the group id")
 
     except Exception as e:
         print "routes - delete group by id"
         print e
 
-    return str(result)
+    return result
 
 
 @app.route("/post", methods=["POST"])
@@ -209,7 +233,6 @@ def create_post():
         post.link = request.form["link"]
         post.group = request.form["group"]
         tags = request.form["tags"]
-        print tags
         post.tags = []
 
         if tags:
@@ -221,27 +244,30 @@ def create_post():
                 if len(stripped) > 0:
                     post.tags.append(stripped)
 
-        print post.tags
-        print type(post.tags)
         post.added_by = user_id
         post.date = datetime.utcnow()
 
         post_mapper = PostDAO()
-        result = post_mapper.create(post)
+        is_success = post_mapper.create(post)
+
+        if is_success:
+            result = JsonWrapper.get_json(False, is_success)
+        else:
+            result = JsonWrapper.get_json(True, "Error creating post")
 
     except Exception as e:
 
        print "error while creating post"
        print e
 
-    return str(result)
+    return result
 
 
 @app.route("/post/<post_id>", methods=["GET"])
 @login_required
 def get_post(post_id):
 
-    post = Post()
+    post = None 
     user_id = current_user.get_id()
     result = None
 
@@ -250,7 +276,9 @@ def get_post(post_id):
         try:
 
             post_mapper = PostDAO()
-            result = post_mapper.get(post_id)
+            post = post_mapper.get(post_id)
+
+            result = JsonWrapper.get_json(False, post)
 
         except Exception as e:
 
@@ -259,8 +287,8 @@ def get_post(post_id):
 
     else:
 
-        result = "post_id empty"
+        result = JsonWrapper.get_json(True, "Please supply post_id")
 
-    return str(result.__str__())
+    return result
 
 

@@ -45,7 +45,6 @@ class UserDAO:
         cur = self.db.cursor()
         # encrypt the user password
         password_hash = self.make_password_hash(user.password)
-        print "pass len ",len(password_hash)
         try:
             cur.execute("INSERT INTO public.users ( email, name, password) \
                                 VALUES (%s,%s,%s) RETURNING id",
@@ -228,7 +227,6 @@ class UserDAO:
         try:
 
             cur = self.db.cursor()
-            print "deleting ", user_id
             cur.execute("DELETE FROM public.users WHERE id = %s", (user_id,))
 
             if cur.rowcount == 1:

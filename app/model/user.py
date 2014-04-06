@@ -23,14 +23,6 @@ class User(UserMixin):
             "name" : self.name,
         }
 
-    def db_serializer(self):
-
-        return {
-            "_id" : self.id,
-            "password" : self.password,
-            "name" : self.name,
-        }
-
 
 #
 #    this method should just return True unless the object represents 
