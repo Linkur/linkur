@@ -1,7 +1,9 @@
 
 from flask import request, make_response, send_file, session
 from flask.ext.login import (LoginManager, login_user, logout_user, 
-                            current_user, login_required, confirm_login)
+        current_user, login_required, confirm_login)
+from datetime import datetime
+
 import uuid
 
 from app import app
@@ -17,7 +19,7 @@ login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(id):
-    user = UserDAO(app.secret_key)
+    user = UserDAO()
     return user.get(id)
 
 
@@ -25,6 +27,41 @@ def load_user(id):
 @app.route("/")
 def index():
     return send_file("static/index.html")
+
+
+# user signup
+@app.route("/signup", methods=["POST"])
+def signup():
+
+    email = request.form["email"]
+    uname = request.form["name"]
+    password = request.form["password"]
+    repeat = request.form["repeat"]
+
+    result = None
+
+    try:
+        if email and uname and password and repeat:
+
+            email = email.lower()
+            uname = uname.strip()
+
+            user = User()
+            user.name = uname
+            user.email = email
+            user.password = password
+
+            user_mapper = UserDAO()
+            result = user_mapper.add(user)
+
+        else:
+            return "params error"
+
+    except Exception as e:
+        print "error while signing up user"
+        print e
+
+    return result
 
 
 # login the user
@@ -37,9 +74,9 @@ def login():
 
     if email and password:
         email = email.lower()
-        user_mapper = UserDAO(app.secret_key)
+        user_mapper = UserDAO()
         user = user_mapper.validate(email, password)
-        
+
         if user:
             #login user
             login_user(user)
@@ -157,4 +194,73 @@ def delete_group(group_id):
         print e
 
     return str(result)
+
+
+@app.route("/post", methods=["POST"])
+@login_required
+def create_post():
+
+    post = Post()
+    user_id = current_user.get_id()
+    result = None
+
+    try:
+        post.title = request.form["title"]
+        post.link = request.form["link"]
+        post.group = request.form["group"]
+        tags = request.form["tags"]
+        print tags
+        post.tags = []
+
+        if tags:
+            tags = tags.split(",")
+            # convert tags to list
+            for word in tags:
+                stripped = word.strip()
+
+                if len(stripped) > 0:
+                    post.tags.append(stripped)
+
+        print post.tags
+        print type(post.tags)
+        post.added_by = user_id
+        post.date = datetime.utcnow()
+
+        post_mapper = PostDAO()
+        result = post_mapper.create(post)
+
+    except Exception as e:
+
+       print "error while creating post"
+       print e
+
+    return str(result)
+
+
+@app.route("/post/<post_id>", methods=["GET"])
+@login_required
+def get_post(post_id):
+
+    post = Post()
+    user_id = current_user.get_id()
+    result = None
+
+    if post_id:
+
+        try:
+
+            post_mapper = PostDAO()
+            result = post_mapper.get(post_id)
+
+        except Exception as e:
+
+            print "Error getting specific post"
+            print e
+
+    else:
+
+        result = "post_id empty"
+
+    return str(result.__str__())
+
 

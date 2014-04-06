@@ -13,7 +13,7 @@ from app.model.user import User
 
 class UserDAO:
 
-    def __init__(self, secret_key):
+    def __init__(self):
 
         # Connect to db
         self.db = psycopg2.connect(
@@ -23,11 +23,6 @@ class UserDAO:
                                     user=conf.PG_USER, 
                                     password=conf.PG_PASSWORD
                                   )
-
-        # store the scret key in the instance
-        self.secret_key = secret_key
-        # convert unicode to ascii string
-        self.secret_key = self.secret_key.encode('base-64')
 
 
     # util method to encrypt password

@@ -11,14 +11,14 @@ def test_user_create():
 
     user = User("tester@test.com", "test123", "tester")
 
-    user_mapper = UserDAO("LOL")
+    user_mapper = UserDAO()
     assert user_mapper.add(user)
 
 def test_create_group():
 
     data_mapper = GroupDAO()
 
-    user_mapper = UserDAO("LOL") 
+    user_mapper = UserDAO() 
     user = user_mapper.get_by_email("tester@test.com")
 
     group_name = "3sb"
@@ -35,7 +35,7 @@ def test_get_all_for_user():
 
     data_mapper = GroupDAO()
 
-    user_mapper = UserDAO("LOL") 
+    user_mapper = UserDAO() 
     user = user_mapper.get_by_email("tester@test.com")
     
     print user.id
@@ -47,7 +47,7 @@ def test_get():
 
     data_mapper = GroupDAO()
 
-    user_mapper = UserDAO("LOL") 
+    user_mapper = UserDAO() 
     user = user_mapper.get_by_email("tester@test.com")
     
     global groupid
@@ -58,7 +58,7 @@ def test_delete_group():
 
     data_mapper = GroupDAO()
 
-    user_mapper = UserDAO("LOL") 
+    user_mapper = UserDAO() 
     user = user_mapper.get_by_email("tester@test.com")
     
     groups = data_mapper.get_all(user.id)
@@ -74,7 +74,7 @@ def test_delete_group():
 
 def test_delete_user():
 
-    user_mapper = UserDAO("LOL")
+    user_mapper = UserDAO()
     user = user_mapper.get_by_email("tester@test.com")
     assert user_mapper.delete(user.id)
 
