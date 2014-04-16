@@ -38,7 +38,7 @@ class GroupDAO:
 
             # rollback DB
             self.db.rollback()
-            result = None
+            raise e
 
         finally:
             cur.close()
@@ -65,7 +65,7 @@ class GroupDAO:
             print e
 
             self.db.rollback()
-            result = None
+            raise e
 
         finally:
             cur.close()
@@ -115,11 +115,11 @@ class GroupDAO:
             print e
 
             self.db.rollback()
-            result = False
+            raise e
 
         finally:
             cur.close()
-            return True
+            return result
 
 
     # method to delete a group
@@ -142,7 +142,7 @@ class GroupDAO:
             print e
 
             self.db.rollback()
-            result = None
+            raise e
         
         finally:
             cur.close()
@@ -183,6 +183,7 @@ class GroupDAO:
 
             print "Ann error occurred while selecting all groups"
             print e
+            raise e
 
         finally:
             cur.close()
@@ -216,6 +217,7 @@ class GroupDAO:
 
             print "An error occurred while getting group"
             print e
+            raise e
 
         finally:
             cur.close()

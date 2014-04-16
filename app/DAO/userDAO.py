@@ -61,11 +61,10 @@ class UserDAO:
 
         except Exception as e:
 
-            print "Error creating user"
-            print e
-            
-            # An error occurred, rollback db
+            # An error occurred, rollback db and raise exception
             self.db.rollback()
+            print "Error creating user"
+            raise e
        
         finally:
             
@@ -113,7 +112,7 @@ class UserDAO:
                 print e
 
                 self.db.rollback()
-                result = True
+                raise e
 
             finally:
 
@@ -121,8 +120,7 @@ class UserDAO:
                 return result
 
         else:
-
-            print "Password does not match"
+            # Password does not match
             return result
 
 
@@ -154,10 +152,11 @@ class UserDAO:
 
             print "An error occurred while reading user id"
             print e
-            user = None
+            raise e
         
         finally:
             # return user object
+            cur.close()
             return user
         
 
@@ -188,11 +187,11 @@ class UserDAO:
 
             print "An error occurred while reading user id"
             print e
-            
-            return None
+            raise e
         
         finally:
             # return user object
+            cur.close()
             return user
 
 
@@ -235,10 +234,12 @@ class UserDAO:
 
         except Exception as e:
 
+            self.db.rollback()
             print "Error deleting user"
             print e
 
-            self.db.rollback()
+            raise e
+
 
         finally:
 

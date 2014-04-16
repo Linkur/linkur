@@ -57,6 +57,7 @@ class PostDAO:
 
             print "Error occured reading posts"
             print e
+            raise e
             
         finally:
         
@@ -94,8 +95,7 @@ class PostDAO:
 
             print "An error occured while reading post by id"
             print e
-
-            result = None
+            raise e
 
         finally:
 
@@ -139,8 +139,8 @@ class PostDAO:
             print "An error occured while inserting post"
             print e
 
-            result = None
             self.db.rollback()
+            raise e
         
         finally:
 
@@ -169,12 +169,11 @@ class PostDAO:
             print e
 
             self.db.rollback()
-            return result
+            raise e
         
         finally:
             
             cur.close()
-            self.db.commit()
             return result
     
 
@@ -209,8 +208,8 @@ class PostDAO:
             print "An error occured while updating post"
             print e
 
-            cur.close()
             self.db.rollback()
+            raise e
 
         finally:
 
@@ -239,6 +238,7 @@ class PostDAO:
                             [ (row[0], postid) for row in rows])
 
             if cur.rowcount > 0:
+                self.db.commit()
                 result = True
         
         except Exception as e:
@@ -246,12 +246,11 @@ class PostDAO:
             print "Error while creating user post association"
             print e
             self.db.rollback()
+            raise e
             
         finally:
 
-            self.db.commit()
             cur.close()
-            
             return result
 
     
@@ -278,6 +277,7 @@ class PostDAO:
             print "Error removing user post association"
             print e
             self.db.rollback()
+            raise e
 
         finally:
             
