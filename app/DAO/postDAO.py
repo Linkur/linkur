@@ -49,7 +49,7 @@ class PostDAO:
                 post.date = row[5]
                 row.tags = row[6]
 
-                posts.extend[post]
+                posts.extend[post.serialize()]
 
             result = posts
 
@@ -89,7 +89,7 @@ class PostDAO:
             post.date = row[5]
             post.tags = row[6]
 
-            result = post
+            result = post.serialize()
 
         except Exception as e:
 

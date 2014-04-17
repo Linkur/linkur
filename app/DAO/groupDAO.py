@@ -175,7 +175,7 @@ class GroupDAO:
                     group.id = row[0]
                     group.title = row[1]
 
-                    groups.append(group)
+                    groups.append(group.serialize())
 
                 result = groups
 
@@ -211,7 +211,7 @@ class GroupDAO:
                 group.id = row[0]
                 group.title = row[1]
 
-                result = group
+                result = group.serialize()
 
         except Exception as e:
 

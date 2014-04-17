@@ -1,5 +1,5 @@
 
-from flask import request, make_response, send_file, session
+from flask import request, make_response, send_file, session, jsonify
 from flask.ext.login import (LoginManager, login_user, logout_user, 
         current_user, login_required, confirm_login)
 from datetime import datetime
@@ -40,6 +40,7 @@ def signup():
     repeat = request.form["repeat"]
 
     result = None
+    json_response = JsonResponse()
 
     try:
         if email and uname and password and repeat:
@@ -56,17 +57,24 @@ def signup():
             result = user_mapper.add(user)
             
         else:
-            return JsonWrapper.get_json(True, "params error")
+            json_response.error = True
+            json_response.data = "params error"
 
     except Exception as e:
         print "error while signing up user"
         print e
+        
+        # 500 internal server error
+        raise ExceptionResponse()
 
     if result:
-        return JsonWrapper.get_json(False)
+        json_response.error = False
+        json_response.data = "Success!"
     else:
-        return JsonWrapper.get_json(True, "Error signing up user")
+        json_response.error = True
+        json_response = "Error signing up user"
 
+    return jsonify(json_response.to_dict())
 
 # login the user
 @app.route("/login", methods=["POST"])
@@ -75,6 +83,7 @@ def login():
     result = None
     email = request.form["email"]
     password = request.form["password"]
+    json_response = JsonResponse()
 
     if email and password:
         email = email.lower()
@@ -85,17 +94,21 @@ def login():
             #login user
             is_success = login_user(user)
             if is_success:
-                result = JsonWrapper.get_json(False, "User logged in")
+                json_response.error = False
+                json_response.data = "User logged in"
             else:
-                result = JsonWrapper.get_json(True, "Check user/password")
+                json_response.error = True
+                json_response.data = "Check user/password"
 
         else:
-            result = JsonWrapper.get_json(True, "Check user/password")
+            json_response.error = True
+            json_response.data = "Check user/password"
 
     else:
-        result = JsonWrapper.get_json(True, "email / password not supplied")
+        json_response.error = True
+        json_response.data = "email/password not supplied"
 
-    return result
+    return jsonify(json_response.to_dict())
 
 
 # logout user
@@ -103,16 +116,17 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return JsonWrapper.get_json(False, "User logged out")
+    return jsonify({"error" : False, "data" : "User logged out"})
 
 
 # create a group
-@app.route("/group", methods=["POST"])
+@app.route("/groups", methods=["POST"])
 @login_required
 def create_group():
 
     group_id = None
     result = None
+    json_response = JsonResponse()
 
     try:
         user_id = current_user.get_id()
@@ -124,28 +138,28 @@ def create_group():
         groupDAO = GroupDAO()
         group_id = groupDAO.add(group_name, user_id)
 
-        if group_id:
-            result = JsonWrapper.get_json(False, group_id)
-
-        else:
-            result = JsonWrapper.get_json(True, group_id)
+        json_response.error = False
+        json_response.data = str(group_id)
 
     except Exception as e:
         print "error reading form data"
         print e
-        return JsonWrapper.get_json(True, "error reading form data")
+        
+        # 500 internal server error
+        return ExceptionResponse()
 
-    return result
+    return make_response(jsonify(json_response.to_dict()), 201)
 
 
 # get all groups for user 
-@app.route("/group", methods=["GET"])
+@app.route("/groups", methods=["GET"])
 @login_required
 def get_user_groups():
 
     group_id = None
     groups = None
     result = None
+    json_response = JsonResponse()
 
     try:
         user_id = current_user.get_id()
@@ -154,79 +168,94 @@ def get_user_groups():
         groups = groupDAO.get_all(user_id)
         groups = groups or []
 
-        result = JsonWrapper.get_json(False, groups)
+        if groups:
+            json_response.error = False
+            json_response.data = groups
 
     except Exception as e:
         print "routes - get all groups"
         print e
+        
+        # 500 internal server error
+        raise ExceptionResponse()
 
-
-    return result
+    return jsonify(json_response.to_dict())
 
 
 # get a group
-@app.route("/group/<group_id>", methods=["GET"])
+@app.route("/groups/<group_id>", methods=["GET"])
 @login_required
 def get_group(group_id):
 
     groupDAO = GroupDAO()
     group = None
     result = None
+    json_response = JsonResponse()
 
     try:
         if group_id:
             group = groupDAO.get(group_id)
 
             if group:
-                result = JsonWrapper.get_json(False, group)
+                json_response.error = False
+                json_response.data = group
             else:
-                result = JsonWrapper.get_json(True, "No such group found")
+                raise 404
 
         else:
-            result = JsonWrapper.get_json(True, "Please supply the group id")
+            raise 400
 
     except Exception as e:
         print " routes - get group by id"
         print e
+        
+        # 500 internal server error
+        raise ExceptionResponse()
 
-    return result
+    return make_response(jsonify(json_response.to_dict()))
 
 
 
 # delete a group
-@app.route("/group/<group_id>", methods=["DELETE"])
+@app.route("/groups/<group_id>", methods=["DELETE"])
 @login_required
 def delete_group(group_id):
 
     groupDAO = GroupDAO()
     result = None
+    json_response = JsonResponse()
 
     try:
         if group_id:
             is_success = groupDAO.delete(group_id)
 
             if is_success:
-                result = JsonWrapper.get_json(False)
+                json_response.error = False
+                json_response.data = "OK"
             else:
-                result = JsonWrapper.get_json(True, "Error deleting group")
-
+                raise ExpectionResponse("Error deleting group")
         else:
-            result = JsonWrapper.get_json(True, "Please supply the group id")
+            raise 400
 
     except Exception as e:
         print "routes - delete group by id"
         print e
+        
+        # 500 internal server error
+        raise ExpectionResponse("Error deleting group")
 
-    return result
+    return jsonify(json_response.to_dict())
 
 
-@app.route("/post", methods=["POST"])
+# create a new post
+@app.route("/posts", methods=["POST"])
 @login_required
 def create_post():
 
     post = Post()
     user_id = current_user.get_id()
     result = None
+    json_response = JsonResponse()
 
     try:
         post.title = request.form["title"]
@@ -251,25 +280,31 @@ def create_post():
         is_success = post_mapper.create(post)
 
         if is_success:
-            result = JsonWrapper.get_json(False, is_success)
+            json_response.error = False
+            json_response.data = str(is_success)
         else:
-            result = JsonWrapper.get_json(True, "Error creating post")
+            raise ExceptionResponse("Error creating post")
 
     except Exception as e:
 
        print "error while creating post"
        print e
+       
+        # 500 internal server error
+       raise ExceptionResponse("Error creating post")
 
-    return result
+    return make_response(jsonify(json_response.to_dict()), 201)
 
 
-@app.route("/post/<post_id>", methods=["GET"])
+# get post by id
+@app.route("/posts/<post_id>", methods=["GET"])
 @login_required
 def get_post(post_id):
 
     post = None 
     user_id = current_user.get_id()
     result = None
+    json_response = JsonResponse()
 
     if post_id:
 
@@ -277,18 +312,59 @@ def get_post(post_id):
 
             post_mapper = PostDAO()
             post = post_mapper.get(post_id)
-
-            result = JsonWrapper.get_json(False, post)
+            json_response.error = False
+            json_response.data = post
 
         except Exception as e:
 
             print "Error getting specific post"
             print e
+        
+            # 500 internal server error
+            raise ExceptionResponse()
 
     else:
+        raise 400
 
-        result = JsonWrapper.get_json(True, "Please supply post_id")
+    return jsonify(json_response.to_dict())
 
-    return result
 
+
+class ExceptionResponse(Exception):
+
+    def __init__(self, message=None):
+
+        Exception.__init__(self)
+        self.message = message or "Internal Server Error"
+
+    def __dict__(self):
+
+        rv = {}
+        rv['error'] = 500
+        rv['message'] = self.message
+        return rv
+
+class JsonResponse():
+
+    def __init__(self, error_state=False, payload=None):
+        self.error = error_state
+        self.data = (payload or {})
+
+    def to_dict(self):
+        rv = {}
+        rv['error'] = self.error
+        rv['data'] = self.data
+        return rv
+
+@app.errorhandler(ExceptionResponse)
+def internal_error(error):
+    return make_response(jsonify(error.__dict__()), 500)
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({"error" : "Not Found"}), 404)
+
+@app.errorhandler(401)
+def not_found(error):
+    return make_response(jsonify({"error" : "Unauthorized"}), 401)
 

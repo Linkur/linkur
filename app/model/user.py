@@ -14,7 +14,7 @@ class User(UserMixin):
         self.password = password
         self.name = name
 
-    def __str__(self):
+    def serialize(self):
 
         return {
             "_id" : str(self.id),

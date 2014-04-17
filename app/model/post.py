@@ -23,7 +23,7 @@ class Post:
 		self.added_by = None
 
 	# Use this to serialize the DB output
-	def __str__(self):
+	def serialize(self):
 		return {
 			"_id" : str(self.id),
 			"date" : str(self.date),

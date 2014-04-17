@@ -9,7 +9,7 @@ class Group:
         self.id = None
         self.title = None
 
-    def __str__(self):
+    def serialize(self):
         return {
             "id" : str(self.id),
             "title" : self.title

@@ -8,15 +8,15 @@ class JsonWrapper:
         response = {}
         response['error'] = error
 
-        if result and type(result.__str__()) == dict:
-            response['data'] = result.__str__()
+        if result and type(result.serialize()) == dict:
+            response['data'] = result.serialize()
 
         elif result and type(result) == list:
 
             items = []
 
             for item in result:
-                items.append(item.__str__())
+                items.append(item.serialize())
 
             response['data'] = items
 
