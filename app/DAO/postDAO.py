@@ -47,10 +47,11 @@ class PostDAO:
                 post.group = row[3]
                 post.added_by = row[4]
                 post.date = row[5]
-                row.tags = row[6]
+                post.tags = row[6]
 
-                posts.extend[post.serialize()]
+                posts.append(post.serialize())
 
+            
             result = posts
 
         except Exception as e:

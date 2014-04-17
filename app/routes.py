@@ -329,6 +329,39 @@ def get_post(post_id):
     return jsonify(json_response.to_dict())
 
 
+# get all posts for a group
+@app.route("/groups/<group_id>/posts", methods=["GET"])
+@login_required
+def get_posts_for_group(group_id):
+
+    post = None 
+    user_id = current_user.get_id()
+    result = None
+    json_response = JsonResponse()
+
+    if group_id:
+
+        try:
+
+            post_mapper = PostDAO()
+            posts = post_mapper.get_posts_for_group(user_id, group_id)
+            json_response.error = False
+            json_response.data = posts
+
+        except Exception as e:
+
+            print "Error getting group posts"
+            print e
+        
+            # 500 internal server error
+            raise ExceptionResponse()
+
+    else:
+        raise 400
+
+    return jsonify(json_response.to_dict())
+
+
 
 class ExceptionResponse(Exception):
 
