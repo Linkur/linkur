@@ -65,9 +65,9 @@ def test_delete_group():
 
     for group in groups:
         print "will remove association "
-        assert data_mapper.remove_user_association(user.id, group.id)
+        assert data_mapper.remove_user_association(user.id, group['id'])
         print "will delte "
-        assert data_mapper.delete(group.id)
+        assert data_mapper.delete(group['id'])
 
     print "Done deleting groups"
 
