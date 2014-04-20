@@ -179,7 +179,7 @@ class PostDAO:
     
 
     # Update entry in posts table
-    def update(self, post):
+    def update(self, post, user_id):
 
         cur = None
         result = None
@@ -187,14 +187,17 @@ class PostDAO:
         try:
 
             cur = self.db.cursor()
-            cur.execute("UPDATE public.posts SET TITLE=%s, LINK=%s, \
-                    GROUP_ID=%s, TAGS=%s WHERE ID=%s", 
+            cur.execute("UPDATE public.posts SET title=%s, link=%s, group_id=%s,\
+                    tags=%s WHERE id=%s AND id IN ( SELECT post_id AS id FROM \
+                    public.user_reading_list WHERE post_id=%s AND user_id=%s )",
                     (
                         post.title,
                         post.link,
                         post.group,
                         post.tags,
-                        post.id
+                        post.id,
+                        post.id,
+                        user_id,
                     ))
 
             if cur.rowcount == 1:

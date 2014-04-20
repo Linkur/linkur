@@ -158,7 +158,8 @@ class GroupDAO:
         try:
 
             cur.execute("SELECT * FROM public.groups where id IN \
-                    (SELECT group_id FROM public.user_groups WHERE user_id = %s)",
+                    (SELECT group_id AS ID FROM public.user_groups \
+                    WHERE user_id = %s)",
                     (user_id,))
             
             if cur.rowcount == 0:

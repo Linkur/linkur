@@ -393,7 +393,7 @@ def edit_post(post_id):
                     if len(stripped) > 0:
                         post.tags.append(stripped)
 
-            result = post_mapper.update(post)
+            result = post_mapper.update(post, user_id)
             
             if result:
                 json_response.error = False
