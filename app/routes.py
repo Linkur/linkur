@@ -362,6 +362,57 @@ def get_posts_for_group(group_id):
     return jsonify(json_response.to_dict())
 
 
+# edit a post
+@app.route("/posts/<post_id>", methods=["PUT"])
+@login_required
+def edit_post(post_id):
+
+    user_id = current_user.get_id()
+    result = None
+    json_response = JsonResponse()
+
+    if post_id:
+
+        try:
+
+            post_mapper = PostDAO()
+            post = Post()
+            post.id = request.form["id"]
+            post.title = request.form["title"]
+            post.link = request.form["link"]
+            post.group = request.form["group"]
+            tags = request.form["tags"]
+            post.tags = []
+
+            if tags:
+                tags = tags.split(",")
+                # convert tags to list
+                for word in tags:
+                    stripped = word.strip()
+
+                    if len(stripped) > 0:
+                        post.tags.append(stripped)
+
+            result = post_mapper.update(post)
+            
+            if result:
+                json_response.error = False
+                json_response.data = result
+            else:
+                json_response.error = True
+                json_response.data = "Could not update post"
+
+        except Exception as e:
+            print "Error occurred while updating post"
+            print e
+            raise ExceptionResponse()
+
+    else:
+        raise 400
+
+    return jsonify(json_response.to_dict())
+
+
 
 class ExceptionResponse(Exception):
 

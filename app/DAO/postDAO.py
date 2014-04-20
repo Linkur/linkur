@@ -187,18 +187,15 @@ class PostDAO:
         try:
 
             cur = self.db.cursor()
-            cur.execute("UPDATE public.posts \
-                            SET (ID, TITLE, LINK, GROUP_ID, TAGS, ADDED_BY,\
-                                DATE) VALUES (%s%s%s%s%s%s%s)", \
-                            (
-                                post.id,
-                                post.title,
-                                post.link,
-                                post.group,
-                                post.tags,
-                                posts.added_by,
-                                post.date
-                            ))
+            cur.execute("UPDATE public.posts SET TITLE=%s, LINK=%s, \
+                    GROUP_ID=%s, TAGS=%s WHERE ID=%s", 
+                    (
+                        post.title,
+                        post.link,
+                        post.group,
+                        post.tags,
+                        post.id
+                    ))
 
             if cur.rowcount == 1:
                 result = True
