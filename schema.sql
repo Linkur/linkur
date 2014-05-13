@@ -9,16 +9,6 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
-SET search_path = public, pg_catalog;
-
-DROP DATABASE IF EXISTS linkur;
-
--- Database: linkur
-
-CREATE DATABASE linkur;
-
-\connect linkur;
-
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
@@ -48,6 +38,45 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 SET search_path = public, pg_catalog;
+
+--
+-- Name: populate_users(uuid, uuid); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION populate_users(user_id uuid, post_id uuid) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+
+INSERT INTO user_reading_list VALUES (user_id, post_id);
+RETURN;
+END
+
+$$;
+
+
+ALTER FUNCTION public.populate_users(user_id uuid, post_id uuid) OWNER TO postgres;
+
+--
+-- Name: update_user_post_association(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION update_user_post_association() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $_$
+DECLARE
+	row user_groups%rowtype;
+BEGIN
+	FOR row in SELECT * from public.user_groups WHERE group_id = NEW.group_id
+	LOOP
+		EXECUTE 'INSERT INTO public.user_reading_list VALUES ($1, $2, 1)' USING row.user_id, NEW.id;
+	END LOOP;
+	RETURN NEW;
+END;
+$_$;
+
+
+ALTER FUNCTION public.update_user_post_association() OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -185,7 +214,7 @@ COMMENT ON COLUMN user_groups.group_id IS 'group_id';
 CREATE TABLE user_reading_list (
     user_id uuid NOT NULL,
     post_id uuid NOT NULL,
-    status int2vector
+    status integer DEFAULT 1
 );
 
 
@@ -210,13 +239,6 @@ COMMENT ON COLUMN user_reading_list.user_id IS 'user id';
 --
 
 COMMENT ON COLUMN user_reading_list.post_id IS 'post id';
-
-
---
--- Name: COLUMN user_reading_list.status; Type: COMMENT; Schema: public; Owner: postgres
---
-
-COMMENT ON COLUMN user_reading_list.status IS 'status codes for read, starred etc';
 
 
 --
@@ -269,30 +291,49 @@ COMMENT ON COLUMN users.password IS 'encrypted password';
 
 
 --
--- Name: vw_user_posts; Type: VIEW; Schema: public; Owner: postgres
+-- Data for Name: groups; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-CREATE VIEW vw_user_posts AS
- SELECT p.id,
-    p.title,
-    p.link,
-    p.group_id,
-    p.added_by,
-    p.date,
-    p.tags
-   FROM (user_reading_list rl
-   JOIN posts p ON (((rl.post_id = p.id) AND (p.group_id IN ( SELECT user_groups.group_id
-      FROM user_groups
-     WHERE (user_groups.user_id = rl.user_id))))));
+COPY groups (id, title) FROM stdin;
+32998467-e8ff-4a38-9ceb-fdc32f7b86a8	testgp
+b4bb03e7-36d4-4eb6-94d4-b84a9b9cd454	testgp2
+\.
 
-
-ALTER TABLE public.vw_user_posts OWNER TO postgres;
 
 --
--- Name: VIEW vw_user_posts; Type: COMMENT; Schema: public; Owner: postgres
+-- Data for Name: posts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COMMENT ON VIEW vw_user_posts IS 'View for user_reading_list join posts table';
+COPY posts (id, title, link, group_id, added_by, tags, date) FROM stdin;
+04540f8d-054b-4206-bcfc-bcc01417a10d	asas	weewew	32998467-e8ff-4a38-9ceb-fdc32f7b86a8	3b2aa229-1fe5-47d7-88a2-267f6b4430cb	{}	\N
+\.
+
+
+--
+-- Data for Name: user_groups; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY user_groups (user_id, group_id) FROM stdin;
+3b2aa229-1fe5-47d7-88a2-267f6b4430cb	32998467-e8ff-4a38-9ceb-fdc32f7b86a8
+\.
+
+
+--
+-- Data for Name: user_reading_list; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY user_reading_list (user_id, post_id, status) FROM stdin;
+3b2aa229-1fe5-47d7-88a2-267f6b4430cb	04540f8d-054b-4206-bcfc-bcc01417a10d	1
+\.
+
+
+--
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY users (id, name, email, password) FROM stdin;
+3b2aa229-1fe5-47d7-88a2-267f6b4430cb	test1	test1@test.com	lol123                                                                                            
+\.
 
 
 --
@@ -344,6 +385,13 @@ ALTER TABLE ONLY user_groups
 
 
 --
+-- Name: populate_users; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER populate_users AFTER INSERT OR UPDATE ON posts FOR EACH ROW EXECUTE PROCEDURE update_user_post_association();
+
+
+--
 -- Name: post_group_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -357,14 +405,6 @@ ALTER TABLE ONLY posts
 
 ALTER TABLE ONLY posts
     ADD CONSTRAINT post_user_fk FOREIGN KEY (added_by) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: user_readinglist_post_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY user_reading_list
-    ADD CONSTRAINT user_readinglist_post_fk FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE;
 
 
 --
