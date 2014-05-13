@@ -284,7 +284,37 @@ class PostDAO:
             
             cur.close()
             return result
+    
 
+    # archive post
+    def archive(self, postid, userid):
+
+        cur = None
+        result = None
+
+        try:
+
+            cur = self.db.cursor()
+
+            cur.execute("UPDATE public.user_reading_list SET status = 0 \
+                            WHERE user_id = %s AND post_id = %s",
+                            (userid, postid))
+
+            if cur.rowcount > 0:
+                result = True
+                self.db.commit()
+
+        except Exception as e:
+
+            print "Error archiving post"
+            print e
+            self.db.rollback()
+            raise e
+
+        finally:
+            
+            cur.close()
+            return result
 
     def __del__(self):
 
