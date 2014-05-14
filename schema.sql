@@ -9,6 +9,16 @@ SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
+SET search_path = public, pg_catalog;
+
+DROP DATABASE IF EXISTS linkur;
+
+-- Database: linkur
+
+CREATE DATABASE linkur;
+
+\connect linkur;
+
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
@@ -38,49 +48,6 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 
 SET search_path = public, pg_catalog;
-
-DROP DATABASE IF EXISTS linkur;
-CREATE DATABASE linkur;
-\connect linkur;
-
---
--- Name: populate_users(uuid, uuid); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION populate_users(user_id uuid, post_id uuid) RETURNS void
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-
-INSERT INTO user_reading_list VALUES (user_id, post_id);
-RETURN;
-END
-
-$$;
-
-
-ALTER FUNCTION public.populate_users(user_id uuid, post_id uuid) OWNER TO postgres;
-
---
--- Name: update_user_post_association(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION update_user_post_association() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $_$
-DECLARE
-	row user_groups%rowtype;
-BEGIN
-	FOR row in SELECT * from public.user_groups WHERE group_id = NEW.group_id
-	LOOP
-		EXECUTE 'INSERT INTO public.user_reading_list VALUES ($1, $2, 1)' USING row.user_id, NEW.id;
-	END LOOP;
-	RETURN NEW;
-END;
-$_$;
-
-
-ALTER FUNCTION public.update_user_post_association() OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -218,7 +185,7 @@ COMMENT ON COLUMN user_groups.group_id IS 'group_id';
 CREATE TABLE user_reading_list (
     user_id uuid NOT NULL,
     post_id uuid NOT NULL,
-    status integer DEFAULT 1
+    status int2vector
 );
 
 
@@ -243,6 +210,13 @@ COMMENT ON COLUMN user_reading_list.user_id IS 'user id';
 --
 
 COMMENT ON COLUMN user_reading_list.post_id IS 'post id';
+
+
+--
+-- Name: COLUMN user_reading_list.status; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN user_reading_list.status IS 'status codes for read, starred etc';
 
 
 --
@@ -294,6 +268,31 @@ COMMENT ON COLUMN users.email IS 'user email';
 COMMENT ON COLUMN users.password IS 'encrypted password';
 
 
+--
+-- Name: vw_user_posts; Type: VIEW; Schema: public; Owner: postgres
+--
+
+CREATE VIEW vw_user_posts AS
+ SELECT p.id,
+    p.title,
+    p.link,
+    p.group_id,
+    p.added_by,
+    p.date,
+    p.tags
+   FROM (user_reading_list rl
+   JOIN posts p ON (((rl.post_id = p.id) AND (p.group_id IN ( SELECT user_groups.group_id
+      FROM user_groups
+     WHERE (user_groups.user_id = rl.user_id))))));
+
+
+ALTER TABLE public.vw_user_posts OWNER TO postgres;
+
+--
+-- Name: VIEW vw_user_posts; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON VIEW vw_user_posts IS 'View for user_reading_list join posts table';
 
 
 --
@@ -345,13 +344,6 @@ ALTER TABLE ONLY user_groups
 
 
 --
--- Name: populate_users; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER populate_users AFTER INSERT OR UPDATE ON posts FOR EACH ROW EXECUTE PROCEDURE update_user_post_association();
-
-
---
 -- Name: post_group_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -365,6 +357,14 @@ ALTER TABLE ONLY posts
 
 ALTER TABLE ONLY posts
     ADD CONSTRAINT post_user_fk FOREIGN KEY (added_by) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: user_readinglist_post_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_reading_list
+    ADD CONSTRAINT user_readinglist_post_fk FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE;
 
 
 --
@@ -389,6 +389,36 @@ ALTER TABLE ONLY user_groups
 
 ALTER TABLE ONLY user_groups
     ADD CONSTRAINT usergroups_user_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: update_user_post_association(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION update_user_post_association() RETURNS trigger
+    LANGUAGE plpgsql
+        AS $_$
+DECLARE
+    row user_groups%rowtype;
+    BEGIN
+      FOR row in SELECT * from public.user_groups WHERE group_id = NEW.group_id
+      LOOP
+        EXECUTE 'INSERT INTO public.user_reading_list VALUES ($1, $2, 1)' USING row.user_id, NEW.id;
+      END LOOP;
+    RETURN NEW;
+    END;
+$_$;
+
+
+ALTER FUNCTION public.update_user_post_association() OWNER TO postgres;
+
+
+
+--
+-- Name: populate_users; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER populate_users AFTER INSERT OR UPDATE ON posts FOR EACH ROW EXECUTE PROCEDURE update_user_post_association();
 
 
 --
