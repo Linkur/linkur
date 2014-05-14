@@ -392,36 +392,6 @@ ALTER TABLE ONLY user_groups
 
 
 --
--- Name: update_user_post_association(); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION update_user_post_association() RETURNS trigger
-    LANGUAGE plpgsql
-        AS $_$
-DECLARE
-    row user_groups%rowtype;
-    BEGIN
-      FOR row in SELECT * from public.user_groups WHERE group_id = NEW.group_id
-      LOOP
-        EXECUTE 'INSERT INTO public.user_reading_list VALUES ($1, $2, 1)' USING row.user_id, NEW.id;
-      END LOOP;
-    RETURN NEW;
-    END;
-$_$;
-
-
-ALTER FUNCTION public.update_user_post_association() OWNER TO postgres;
-
-
-
---
--- Name: populate_users; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER populate_users AFTER INSERT OR UPDATE ON posts FOR EACH ROW EXECUTE PROCEDURE update_user_post_association();
-
-
---
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
 
