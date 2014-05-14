@@ -294,50 +294,6 @@ COMMENT ON COLUMN users.email IS 'user email';
 COMMENT ON COLUMN users.password IS 'encrypted password';
 
 
---
--- Data for Name: groups; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY groups (id, title) FROM stdin;
-32998467-e8ff-4a38-9ceb-fdc32f7b86a8	testgp
-b4bb03e7-36d4-4eb6-94d4-b84a9b9cd454	testgp2
-\.
-
-
---
--- Data for Name: posts; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY posts (id, title, link, group_id, added_by, tags, date) FROM stdin;
-04540f8d-054b-4206-bcfc-bcc01417a10d	asas	weewew	32998467-e8ff-4a38-9ceb-fdc32f7b86a8	3b2aa229-1fe5-47d7-88a2-267f6b4430cb	{}	\N
-\.
-
-
---
--- Data for Name: user_groups; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY user_groups (user_id, group_id) FROM stdin;
-3b2aa229-1fe5-47d7-88a2-267f6b4430cb	32998467-e8ff-4a38-9ceb-fdc32f7b86a8
-\.
-
-
---
--- Data for Name: user_reading_list; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY user_reading_list (user_id, post_id, status) FROM stdin;
-3b2aa229-1fe5-47d7-88a2-267f6b4430cb	04540f8d-054b-4206-bcfc-bcc01417a10d	1
-\.
-
-
---
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY users (id, name, email, password) FROM stdin;
-3b2aa229-1fe5-47d7-88a2-267f6b4430cb	test1	test1@test.com	lol123                                                                                            
-\.
 
 
 --
