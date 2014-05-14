@@ -39,6 +39,10 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 
 SET search_path = public, pg_catalog;
 
+DROP DATABASE IF EXISTS linkur;
+CREATE DATABASE linkur;
+\connect linkur;
+
 --
 -- Name: populate_users(uuid, uuid); Type: FUNCTION; Schema: public; Owner: postgres
 --
