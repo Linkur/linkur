@@ -28,10 +28,16 @@ def test_user_create():
     user_model = User("tester@test.com", "test123", "tester")
 
     user_mapper = UserDAO()
-    global user
-    user = user_mapper.add(user_model)
-    assert user
+    global user1
+    user1 = user_mapper.add(user_model)
+    assert user1
 
+    user_model = User("tester2@test.com", "test123", "tester")
+
+    user_mapper = UserDAO()
+    global user2
+    user2 = user_mapper.add(user_model)
+    assert user2
 
 def test_create_group():
 
@@ -46,16 +52,23 @@ def test_create_group():
     group = data_mapper.add(group_name, user.id)
     assert group
 
+def test_join_group():
+    group_mapper = GroupDAO()
+
+    global group
+    join_result = group_mapper.associate_user(user2, group)
+    assert join_result
+
 def test_create_post():
 
-    global user
+    global user1
     global group
     
     post_model = Post()
     post_model.title = "Test title"
     post_model.link = "http://www.google.com"
     post_model.group = group
-    post_model.added_by = user
+    post_model.added_by = user1
     post_model.date = datetime.now()
     post_model.tags = ["lol1", "lol2"]
 
@@ -68,11 +81,21 @@ def test_create_post():
     print result
     assert result
 
+def test_get_all_posts_for_user():
+    post_mapper = PostDAO()
+
+    global user1
+    global group
+    print "group is ",group
+    result = post_mapper.get_posts_for_group(group, user2)
+    assert result
+
 def test_get_post():
 
     post_mapper = PostDAO()
     global post
-    post_result = post_mapper.get(post)
+    global user2
+    post_result = post_mapper.get(post, user2)
 
     assert post_result
 
@@ -104,5 +127,8 @@ def test_delete_user():
 
     user_mapper = UserDAO()
     user = user_mapper.get_by_email("tester@test.com")
+    assert user_mapper.delete(user.id)
+
+    user = user_mapper.get_by_email("tester2@test.com")
     assert user_mapper.delete(user.id)
 

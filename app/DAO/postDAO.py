@@ -24,7 +24,7 @@ class PostDAO:
 
 
     # get posts for a group 
-    def get_posts_for_group(self, user_id, group_id):
+    def get_posts_for_group(self, group_id, user_id):
 
         cur = None
         result = None
@@ -34,7 +34,7 @@ class PostDAO:
             cur = self.db.cursor();
 
             cur.execute("SELECT * FROM public.vw_user_posts WHERE \
-                            group_id = %s", (group_id,))
+                            group_id = %s AND user_id = %s", (group_id, user_id))
             
             rows = cur.fetchall()
             posts = []
@@ -67,7 +67,7 @@ class PostDAO:
 
 
     # Get a single post
-    def get(self, post_id):
+    def get(self, post_id, user_id):
 
         cur = None
         result = None
@@ -77,7 +77,7 @@ class PostDAO:
             cur = self.db.cursor()
 
             cur.execute("SELECT * FROM public.vw_user_posts WHERE \
-                            id = %s", (post_id,))
+                            id = %s AND user_id = %s", (post_id, user_id))
 
             row = cur.fetchone()
             post = Post()
@@ -129,11 +129,6 @@ class PostDAO:
                 row = cur.fetchone()
                 self.db.commit()
                 result = row[0]
-                association_result = self.associate_user(row[0], row[1])
-
-                if association_result == None:
-                    self.delete(row[0])
-                    raise Exception("Error creating user - post association")
 
         except Exception as e:
 
@@ -296,8 +291,7 @@ class PostDAO:
 
             cur = self.db.cursor()
 
-            cur.execute("UPDATE public.user_reading_list SET status = 0 \
-                            WHERE user_id = %s AND post_id = %s",
+            cur.execute("INSERT INTO public.user_archived_posts (user_id, post_id) VALUES (%s, %s)",
                             (userid, postid))
 
             if cur.rowcount > 0:

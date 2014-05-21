@@ -311,7 +311,7 @@ def get_post(post_id):
         try:
 
             post_mapper = PostDAO()
-            post = post_mapper.get(post_id)
+            post = post_mapper.get(post_id, user_id)
             json_response.error = False
             json_response.data = post
 
@@ -344,7 +344,7 @@ def get_posts_for_group(group_id):
         try:
 
             post_mapper = PostDAO()
-            posts = post_mapper.get_posts_for_group(user_id, group_id)
+            posts = post_mapper.get_posts_for_group(group_id, user_id)
             json_response.error = False
             json_response.data = posts
 
