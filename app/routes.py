@@ -329,6 +329,39 @@ def get_post(post_id):
     return jsonify(json_response.to_dict())
 
 
+# delete post
+@app.route("/post/<post_id>", methods=["DELETE"])
+@login_required
+def delete_post(post_id):
+
+    user_id = current_user.get_id()
+    result = None
+    json_response = JsonResponse()
+
+    if post_id:
+
+        try:
+
+            post_mapper = PostDAO()
+            post = post_mapper.delete(post_id, user_id)
+            json_response.error = False
+            json_response.data = post
+
+        except Exception as e:
+
+            print "Error deleting specific post"
+            print e
+        
+            # 500 internal server error
+            raise ExceptionResponse()
+
+    else:
+        raise 400
+
+    return jsonify(json_response.to_dict())
+    
+
+
 # get all posts for a group
 @app.route("/groups/<group_id>/posts", methods=["GET"])
 @login_required
