@@ -104,8 +104,11 @@ def test_delete_post():
 
     global post
 
+    user_mapper = UserDAO() 
+    user = user_mapper.get_by_email("tester2@test.com")
+
     post_mapper = PostDAO()
-    result = post_mapper.delete(post)
+    result = post_mapper.delete(post, user.id)
 
     assert result
 

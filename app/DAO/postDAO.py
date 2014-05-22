@@ -145,15 +145,18 @@ class PostDAO:
 
 
     # Delete entry from posts table 
-    def delete(self, post_id):
+    def delete(self, post_id, user_id):
 
         cur = None
         result = None
+        post = None
 
         try:
-
+            post = self.get(post_id, user_id)
             cur = self.db.cursor()
-            cur.execute("DELETE FROM public.posts WHERE id = %s", (post_id,))
+            cur.execute("DELETE FROM public.posts WHERE id = %s AND \
+                    group_id IN (SELECT group_id FROM public.user_groups \
+                    WHERE user_id = %s)", (post_id, user_id))
 
             if cur.rowcount == 1:
                 result = True
