@@ -249,7 +249,7 @@ def delete_group(group_id):
 
 
 # join a group
-@app.route("/groups/<group_id>/join", method=["POST"])
+@app.route("/groups/<group_id>/join", methods=["POST"])
 @login_required
 def join_group(group_id):
 
