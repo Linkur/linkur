@@ -222,12 +222,13 @@ def get_group(group_id):
 def delete_group(group_id):
 
     groupDAO = GroupDAO()
+    user_id = current_user.get_id()
     result = None
     json_response = JsonResponse()
 
     try:
         if group_id:
-            is_success = groupDAO.delete(group_id)
+            is_success = groupDAO.remove_user_association(user_id, group_id)
 
             if is_success:
                 json_response.error = False
@@ -245,6 +246,39 @@ def delete_group(group_id):
         raise ExpectionResponse("Error deleting group")
 
     return jsonify(json_response.to_dict())
+
+
+# join a group
+@app.route("/groups/<group_id>/join", method=["POST"])
+@login_required
+def join_group(group_id):
+
+    groupDAO = GroupDAO()
+    user_id = current_user.get_id()
+    result = None
+    json_response = JsonResponse()
+
+    try:
+        if group_id:
+
+            result = groupDAO.associate_user(user_id, group_id)
+            if result:
+                json_response.error = False
+                json_response.data = "OK"
+            else:
+                raise ExpectionResponse("Error while joining group") 
+        else:
+            raise 400
+
+    except Exception as e:
+        print "routes - join group by id"
+        print e
+        
+        # 500 internal server error
+        raise ExpectionResponse("Error while joining group")
+
+    return jsonify(json_response.to_dict())
+
 
 
 # create a new post
@@ -393,6 +427,7 @@ def get_posts_for_group(group_id):
         raise 400
 
     return jsonify(json_response.to_dict())
+
 
 
 # edit a post
