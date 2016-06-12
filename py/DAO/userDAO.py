@@ -61,7 +61,7 @@ class UserDAO:
         return_data["error"]=False
         return_data["data"]=user
         return return_data
-        
+
 
     def add_user(self, modelled_user):
 
@@ -77,7 +77,7 @@ class UserDAO:
 
         try:
             collection = self.user_collection
-            result = collection.insert(user, safe=True)
+            result = collection.insert(user)
             print "insert result :"+result
 
         except Exception as inst:
@@ -98,7 +98,7 @@ class UserDAO:
                 try:
                     groupDAO = GroupDAO(self.db)
                     group_obj = groupDAO.get_group_by_id(str(group['_id']))
-                    
+
                     group_data = {
                         '_id': str(group_obj.id),
                         'name': group_obj.name,
@@ -124,7 +124,7 @@ class UserDAO:
         try:
             collection = self.user_collection
             user_record = collection.find_one({"_id":uname})
-            
+
             user = User(user_record['_id'], user_record['password'], user_record['name'])
             user.groups = user_record['groups']
 
@@ -150,7 +150,7 @@ class UserDAO:
             print inst
 
         if user_groups != None:
-            
+
             group_cursor = user_groups["groups"]
             groups = []
 
@@ -204,9 +204,9 @@ class UserDAO:
         # group = group_obj.__str__()
         try:
             result = collection.update({"_id":uname},
-                {"$pull":{"groups":{"_id":ObjectId(group_obj.id)}}}, 
+                {"$pull":{"groups":{"_id":ObjectId(group_obj.id)}}},
                 safe=True)
-                
+
         except Exception as inst:
             print "error updating user DB - removing group from user"
             print inst
@@ -232,7 +232,7 @@ class UserDAO:
             update_data = {
                     'password' : new_password_hash,
                 }
-            
+
             collection = self.user_collection
             update_result = collection.update({
                                     "_id" : uname
@@ -240,11 +240,9 @@ class UserDAO:
                                 {"$set" : update_data},
                                 safe=True
                             )
-            
+
             return update_result
 
         else:
             print "user no match"
             return None
-
-
