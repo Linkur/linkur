@@ -7,7 +7,8 @@ from flask import make_response
 from flask import redirect
 from decorator import crossdomain
 from flask.ext.pymongo import PyMongo
-from pymongo import Connection
+from pymongo import MongoClient
+from pymongo.database import Database
 from bson import ObjectId
 
 from DAO.postDAO import PostDAO
@@ -26,18 +27,21 @@ import json
 import cgi
 import re
 import sys
+import traceback
 
 
 app = Flask(__name__)
 mongo = connection = db = None
 try:
-    mongo = PyMongo(app)
-    connection = Connection()
-    db = connection.sharurl
+    #mongo = PyMongo(app)
+    client = MongoClient("host", 27017)
+    db = client.linkur
+    db.authenticate("user", "password"")
+
 except Exception as inst:
     print "Error connecting to mongo db server"
-    print inst
-    sys.exit(-1)
+    print traceback.format_exc(inst)
+    sys.exit(1)
 
 if db != None:
     postDAO = PostDAO(db)
@@ -80,7 +84,7 @@ def user_signup():
                 response.status_code = 409
                 return response
 
-            session_id = sessionDAO.start_session(email)			
+            session_id = sessionDAO.start_session(email)
             response.set_cookie("session", value=session_id, domain=".linkur.co.in")
 
             responseWrapper.set_error(False)
@@ -152,8 +156,8 @@ def user_login():
                 # set_cookie(key, value='', max_age=None, expires=None, path='/', domain=None, secure=None, httponly=False)
                 response.set_cookie("session", value=session_id, expires=None, path="/", httponly=True)
 
-                responseWrapper.set_error(False)	
-                responseWrapper.set_data(["Signin success"])		
+                responseWrapper.set_error(False)
+                responseWrapper.set_data(["Signin success"])
 
             else:
                 responseWrapper.set_error(True)
@@ -171,7 +175,7 @@ def user_login():
 # API for user session logout
 @app.route('/api/logout', methods=['POST', 'OPTIONS'])
 def process_signout():
-   
+
     cookies = request.cookies
     print cookies
     responseWrapper = ResponseWrapper()
@@ -181,10 +185,10 @@ def process_signout():
         print "cookie : ",cookies['session']
         userid = sessionDAO.get_userid(cookies['session'])  # see if user is logged in
         print "user : ",userid
-        
+
         if userid != None:
             sessionDAO.end_session(cookies['session'])
-            
+
             response.status_code = 200
             return response
         else:
@@ -226,12 +230,12 @@ def change_user_password():
                 # update success
                 responseWrapper.set_data(["Success updating password"])
                 responseWrapper.set_error(False)
-            
+
             else:
                 # update FAILURE
                 responseWrapper.set_data(["Error updating password"])
                 responseWrapper.set_error(True)
-        
+
         except Exception as inst:
             print "An error occurred while updating password"
             print inst
@@ -322,7 +326,7 @@ def search():
 # API for reading user info
 @app.route('/api/user/info', methods=['GET', 'OPTIONS'])
 def get_userinfo():
-    
+
     responseWrapper = ResponseWrapper()
     response = any_response(request)
     user = validate_cookie(request)
@@ -347,9 +351,9 @@ def insert_new_post():
 
     responseWrapper = ResponseWrapper()
     response = any_response(request)
-    
+
     user = validate_cookie(request)
-    
+
     if user != None:
         post = Post()
 
@@ -399,7 +403,7 @@ def insert_new_post():
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
-    
+
     return response
 
 # API for updating a post
@@ -408,9 +412,9 @@ def update_post():
 
     responseWrapper = ResponseWrapper()
     response = any_response(request)
-    
+
     user = validate_cookie(request)
-    
+
     if user != None:
         post = Post()
 
@@ -461,7 +465,7 @@ def update_post():
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
-    
+
     return response
 
 
@@ -472,10 +476,10 @@ def delete_post(post_id=None):
     response = any_response(request)
 
     user = validate_cookie(request)
-    
+
     if user != None:
         if post_id != None:
-                        
+
             try:
                 result = postDAO.delete_post(post_id)
                 print "result is ", result
@@ -504,7 +508,7 @@ def delete_post(post_id=None):
 
     response.data = json.dumps(responseWrapper, default=ResponseWrapper.__str__)
     response.mimetype = "application/json"
-    
+
     return response
 
 # API for reading categories
@@ -575,7 +579,7 @@ def get_user_groups():
     response = any_response(request)
 
     if user != None:
-        groups = userDAO.get_groups(user.id)		
+        groups = userDAO.get_groups(user.id)
         if groups != None:
             responseWrapper.set_error(False)
             responseWrapper.set_data(groups)
@@ -659,10 +663,10 @@ def remove_group_for_user(group_id=None):
     response = any_response(request)
 
     if user != None:
-        
+
         if group_id != None:
             group_obj = groupDAO.get_group_by_id(str(group_id))
-        
+
             if group_obj != None:
                 #  check if group is already part for the user
                 group_exists = userDAO.does_group_exist(user.id,group_obj)
@@ -682,11 +686,11 @@ def remove_group_for_user(group_id=None):
                 if remove_group_result != False and remove_user_result != False:
                     responseWrapper.set_error(False)
                     responseWrapper.set_data(["Success removing group"])
-                
+
                 elif remove_user_result == False:
                     responseWrapper.set_error(True)
                     responseWrapper.set_data(["error removing group from user"])
-                
+
                 else:
                     responseWrapper.set_error(True)
                     responseWrapper.set_data(["error removing user from group"])
@@ -735,7 +739,7 @@ def accept_group_invite(invite_hash):
                 print " modified grp \n"
                 print group_obj.__str__()
                 append_user_result = userDAO.append_group(user.id,group_obj)
-                
+
             else:
                 responseWrapper.set_error(False)
                 responseWrapper.set_data(["group already part of user"])
@@ -744,11 +748,11 @@ def accept_group_invite(invite_hash):
             if append_user_result != False and append_group_result != False:
                 responseWrapper.set_error(False)
                 responseWrapper.set_data("")
-            
+
             elif append_user_result == False:
                 responseWrapper.set_error(True)
                 responseWrapper.set_data(["error adding group to user"])
-            
+
             else:
                 responseWrapper.set_error(True)
                 responseWrapper.set_data(["error adding user to group"])
@@ -800,7 +804,7 @@ def validate_signup(username, password, verify, email, errors):
 # validates cookie and check if user is valid
 def validate_cookie(request):
     print request.cookies
-    
+
     cookies = request.cookies
 
     if 'session' in cookies:
@@ -823,7 +827,7 @@ def any_response(request):
   # print request.headers
   if request.method == "OPTIONS" and 'Access-Control-Request-Headers' in request.headers:
       response.headers['Access-Control-Allow-Headers'] = request.headers['Access-Control-Request-Headers']
-  response.headers['Access-Control-Allow-Credentials'] = "true"  
+  response.headers['Access-Control-Allow-Credentials'] = "true"
   response.headers['Access-Control-Allow-Methods'] = "GET, POST, DELETE, PUT, OPTIONS"
 
   return response
@@ -835,4 +839,3 @@ if __name__ == '__main__':
     execfile("config.py", config)
 
     app.run(host='0.0.0.0',debug=True)
-
