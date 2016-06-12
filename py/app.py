@@ -35,8 +35,8 @@ mongo = connection = db = None
 try:
     #mongo = PyMongo(app)
     client = MongoClient("host", 27017)
-    db = client.linkur
-    db.authenticate("user", "password"")
+    db = client.test
+    db.authenticate("user", "password")
 
 except Exception as inst:
     print "Error connecting to mongo db server"
@@ -785,9 +785,9 @@ def validate_signup(username, password, verify, email, errors):
     errors['verify_error'] = ""
     errors['email_error'] = ""
 
-    if not USER_RE.match(username):
-        errors['username_error'] = "invalid username. try just letters and numbers"
-        return False
+   # if not USER_RE.match(username):
+   #     errors['username_error'] = "invalid username. try just letters and numbers"
+   #     return False
 
     if not PASS_RE.match(password):
         errors['password_error'] = "invalid password."
