@@ -204,8 +204,7 @@ class UserDAO:
         # group = group_obj.__str__()
         try:
             result = collection.update({"_id":uname},
-                {"$pull":{"groups":{"_id":ObjectId(group_obj.id)}}},
-                safe=True)
+                {"$pull":{"groups":{"_id":ObjectId(group_obj.id)}}} )
 
         except Exception as inst:
             print "error updating user DB - removing group from user"

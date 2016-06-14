@@ -25,7 +25,7 @@ class GroupDAO:
 			group.name = result["name"]
 			group.hash = result["hash"]
 			group.users = result["users"]
-			
+
 			return group
 		else:
 			return None
@@ -59,7 +59,7 @@ class GroupDAO:
 			to_insert = group_obj.db_serializer()
 			print to_insert
 			result = collection.insert(to_insert)
-			
+
 			return result
 
 		else:
@@ -80,7 +80,7 @@ class GroupDAO:
 		except Exception as inst:
 			print "error generating invite hash"
 			print inst
-		
+
 		return invite_hash
 
 	# Append a user to the group document
@@ -91,7 +91,7 @@ class GroupDAO:
 
 		try:
 			result = collection.update({"_id":group_obj.id}, {"$push":{"users":user_id}})
-		
+
 		except Exception as inst:
 			print inst
 			print "Error updating group collection - appending user to group"
@@ -106,7 +106,7 @@ class GroupDAO:
 		result = None
 
 		try:
-			result = collection.update({"_id":group_obj.id}, {"$pull":{"users":user_id}}, safe=True)
+			result = collection.update({"_id":group_obj.id}, {"$pull":{"users":user_id}})
 			print "user update result ", result
 		except Exception as inst:
 			print inst
@@ -114,4 +114,3 @@ class GroupDAO:
 			return False
 
 		return True
-	

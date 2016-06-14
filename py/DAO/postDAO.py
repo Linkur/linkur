@@ -12,7 +12,7 @@ class PostDAO:
         self.achived_collection = self.db.archive
 
     def get_recent_posts(self, groupid):
-        
+
         posts = None
         try:
             groupid = ObjectId(groupid)
@@ -55,7 +55,7 @@ class PostDAO:
 
     def searchCollection(self, groups, collection, queryTexts):
         modelled_search_results = None
-        print queryTexts 
+        print queryTexts
         query_string = []
 
         # build query based on the search strings
@@ -85,7 +85,7 @@ class PostDAO:
             # print query
         try:
             results = collection.find(
-                query_string                
+                query_string
                 )
 
             if results != None:
@@ -102,21 +102,21 @@ class PostDAO:
             return None
         print "final result title", modelled_search_results
         return modelled_search_results
-        
+
 
     def search(self, user, queryText):
         posts = None
         queryText = queryText.split(',')
-        
+
         # find the groups user belongs to and pass groups array as a param to searchCollection
         groups = user.groups
-        
+
         title_results = self.searchCollection(groups, self.recent_collection, queryText)
         if title_results != None:
             posts = title_results
-        
+
         title_results = self.searchCollection(groups, self.achived_collection, queryText)
-        
+
         if title_results != None:
             if posts != None:
                 posts = posts + title_results
@@ -171,12 +171,12 @@ class PostDAO:
 
         collection = self.recent_collection
         result = None
-        
+
         try:
             to_delete = {"_id":ObjectId(post_id)}
             print "to delete is ", to_delete
-            
-            result = collection.remove(to_delete, safe=True)
+
+            result = collection.remove(to_delete)
 
         except Exception as inst:
             print "error removing post"
@@ -188,13 +188,13 @@ class PostDAO:
 
         collection = self.recent_collection
         result = None
-        
+
         try:
             update_what = {"_id":ObjectId(post_obj.id)}
             to_update = post_obj.db_serializer()
             print "you are about to upadate the post and this is the data given"
             print to_update
-            result = collection.update(update_what,to_update, upsert=False, safe=True)
+            result = collection.update(update_what,to_update, upsert=False)
 
         except Exception as inst:
             print "error updating post"
@@ -202,4 +202,3 @@ class PostDAO:
             return False
 
         return result
-
