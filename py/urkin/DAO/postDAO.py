@@ -1,6 +1,6 @@
 __author__ = 'raghothams'
-
-from model.post import Post
+import zmq
+from urkin.model.post import Post
 import datetime
 from bson import ObjectId
 
@@ -166,6 +166,14 @@ class PostDAO:
             print inst
 
         return result
+
+    def push_notification(self, post_obj, queue_producer):
+        try:
+            print("@@@@@@@@@@@@@@@@@@")
+            queue_producer.push(post_obj)
+            print("@@@@@@@@@@@@@@@@@@")
+        except Exception as inst:
+            print inst
 
     def delete_post(self, post_id):
 

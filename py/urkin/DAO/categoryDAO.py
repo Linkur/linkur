@@ -1,5 +1,5 @@
 __author__ = 'raghothams'
-from model.category import Category
+from urkin.model.category import Category
 from bson import ObjectId
 
 class CategoryDAO:

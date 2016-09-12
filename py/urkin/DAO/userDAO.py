@@ -1,8 +1,8 @@
 __author__ = 'raghothams'
 
-from model.user import User
-from model.group import Group
-from DAO.groupDAO import GroupDAO
+from urkin.model.user import User
+from urkin.model.group import Group
+from urkin.DAO.groupDAO import GroupDAO
 from bson import ObjectId
 # import hmac
 import pymongo

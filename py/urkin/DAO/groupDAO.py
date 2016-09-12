@@ -1,5 +1,5 @@
 __author__ = 'raghothams'
-from model.group import Group
+from urkin.model.group import Group
 from bson import ObjectId
 import hashlib
 import random
