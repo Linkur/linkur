@@ -11,17 +11,21 @@ from pymongo import MongoClient
 from pymongo.database import Database
 from bson import ObjectId
 
-from DAO.postDAO import PostDAO
-from DAO.userDAO import UserDAO
-from DAO.sessionDAO import SessionDAO
-from DAO.categoryDAO import CategoryDAO
-from DAO.groupDAO import GroupDAO
+from urkin.DAO.postDAO import PostDAO
+from urkin.DAO.userDAO import UserDAO
+from urkin.DAO.sessionDAO import SessionDAO
+from urkin.DAO.categoryDAO import CategoryDAO
+from urkin.DAO.groupDAO import GroupDAO
+from urkin.zmq.queue_producer import QueueProducer
 
-from model.responseWrapper import ResponseWrapper
-from model.user import User
-from model.post import Post
-from model.category import Category
-from model.group import Group
+print("create producer")
+qproducer = QueueProducer()
+
+from urkin.model.responseWrapper import ResponseWrapper
+from urkin.model.user import User
+from urkin.model.post import Post
+from urkin.model.category import Category
+from urkin.model.group import Group
 
 import json
 import cgi
@@ -34,9 +38,9 @@ app = Flask(__name__)
 mongo = connection = db = None
 try:
     #mongo = PyMongo(app)
-    client = MongoClient("host", 27017)
+    client = MongoClient("localhost", 27017)
     db = client.test
-    db.authenticate("user", "password")
+    #db.authenticate("user", "password")
 
 except Exception as inst:
     print "Error connecting to mongo db server"
@@ -368,6 +372,7 @@ def insert_new_post():
             post.tags = json_data['tags']
             post.group = json_data['groups']
             post.added_by = user.name
+            post.added_by_id = user.id
 
         except Exception as inst:
             print "error reading form data"
@@ -379,6 +384,7 @@ def insert_new_post():
         if post.title != None and post.link != None and post.group != None and post.added_by != None:
 
             result = postDAO.insert_post(post);
+            postDAO.push_notification(post, qproducer)
             responseWrapper = ResponseWrapper()
 
             if result != None:
@@ -838,4 +844,4 @@ if __name__ == '__main__':
     config = {}
     execfile("config.py", config)
 
-    app.run(host='0.0.0.0',debug=True)
+    app.run(host='0.0.0.0',debug=False)
