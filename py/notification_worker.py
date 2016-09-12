@@ -34,6 +34,7 @@ class NotificationBuilder:
         for user in group.users:
             if user != post["added_by_id"]:
                 self.redis_helper.push_notification(user, str(post))
+        print("notification push to redis success")
 
 if __name__ == "__main__":
     print(os.getcwd())
